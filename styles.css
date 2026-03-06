@@ -1,0 +1,336 @@
+/* ===============================
+   VARIABLES GLOBALES (TEMA)
+   ===============================
+   :root es un selector especial que representa toda la página.
+   Aquí definimos "variables CSS" con --nombre: valor.
+   Esto nos permite cambiar el color de toda la app desde un solo sitio.
+   Para usar una variable en otro sitio: var(--nombre) */
+:root {
+  --bg: #0f172a;        /* Color de fondo principal (azul muy oscuro) */
+  --card: #1e293b;      /* Color de las tarjetas (un poco más claro) */
+  --card-2: #334155;    /* Color de tarjetas secundarias (aún más claro) */
+  --text: #e2e8f0;      /* Color del texto (blanco suave) */
+  --muted: #94a3b8;     /* Color de texto secundario (gris azulado) */
+  --accent: #22c55e;    /* Color de acento principal (verde) */
+  --accent-2: #3b82f6;  /* Color de acento secundario (azul) */
+  --danger: #ef4444;    /* Color de peligro (rojo, para el botón eliminar) */
+  --warning: #f59e0b;   /* Color de aviso (naranja, para el botón de hábitos) */
+  --border: #475569;    /* Color de bordes */
+}
+
+/* ===============================
+   RESET BÁSICO
+   =============================== */
+* {
+  /* El * selecciona TODOS los elementos de la página */
+  box-sizing: border-box;
+  /* Hace que el padding y borde se incluyan dentro del ancho/alto del elemento,
+     en vez de sumarse por fuera. Evita muchos dolores de cabeza con tamaños */
+}
+
+/* ===============================
+   ESTILOS DEL BODY (PÁGINA ENTERA)
+   =============================== */
+body {
+  margin: 0;
+  /* Elimina el margen que los navegadores añaden por defecto */
+  font-family: Arial, Helvetica, sans-serif;
+  /* Fuente del texto. Prueba primero Arial, luego Helvetica, luego cualquier sans-serif */
+  background: var(--bg);
+  /* Usa la variable de color de fondo definida en :root */
+  color: var(--text);
+  /* Color del texto por defecto para toda la página */
+}
+
+/* ===============================
+   BARRA SUPERIOR
+   =============================== */
+.topbar {
+  /* Los selectores con punto (.) apuntan a elementos con esa clase */
+  text-align: center;  /* Centra el texto */
+  padding: 24px 16px 10px;
+  /* Espaciado interno: 24px arriba, 16px izquierda/derecha, 10px abajo */
+}
+
+.topbar h1 {
+  /* Selecciona el <h1> que esté DENTRO de un elemento con clase "topbar" */
+  margin: 0;
+  /* Elimina el margen por defecto del h1 */
+}
+
+.topbar p {
+  color: var(--muted);  /* Texto en color gris suave */
+  margin-top: 8px;
+}
+
+/* ===============================
+   CONTENEDOR PRINCIPAL
+   =============================== */
+.container {
+  width: min(1000px, 92%);
+  /* Ancho máximo de 1000px, pero si la pantalla es más pequeña, usa el 92%.
+     min() elige el valor más pequeño de los dos. Así funciona el responsive. */
+  margin: 0 auto 40px;
+  /* 0 arriba, "auto" a los lados (centra el bloque), 40px abajo */
+}
+
+/* ===============================
+   TARJETAS (CARDS)
+   =============================== */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);  /* Borde de 1px sólido */
+  border-radius: 16px;              /* Esquinas redondeadas */
+  padding: 18px;                    /* Espaciado interior */
+  margin-bottom: 18px;              /* Espacio entre tarjetas */
+}
+
+.profile-card {
+  margin-top: 10px;  /* Pequeño espacio extra arriba de la tarjeta de perfil */
+}
+
+/* ===============================
+   PARTE SUPERIOR DEL PERFIL
+   =============================== */
+.profile-top {
+  display: flex;
+  /* Flexbox: pone los hijos en fila (por defecto).
+     Es el sistema de maquetación más usado en CSS moderno */
+  justify-content: space-between;
+  /* Empuja el primero a la izquierda y el último a la derecha */
+  gap: 16px;          /* Espacio entre los elementos hijos */
+  align-items: center; /* Alinea verticalmente en el centro */
+}
+
+.xp-box {
+  background: var(--card-2);
+  padding: 10px 14px;    /* 10px arriba/abajo, 14px izquierda/derecha */
+  border-radius: 10px;
+  font-weight: bold;
+}
+
+/* ===============================
+   BARRA DE XP
+   =============================== */
+.xp-bar {
+  /* El "contenedor" gris de fondo de la barra */
+  width: 100%;           /* Ocupa todo el ancho disponible */
+  height: 20px;
+  background: #0b1220;   /* Color oscuro de fondo */
+  border-radius: 999px;  /* Valor muy alto = bordes completamente redondos */
+  overflow: hidden;      /* Oculta lo que sobresalga (la barra rellena no se saldrá) */
+  margin: 14px 0;
+  border: 1px solid var(--border);
+}
+
+.xp-fill {
+  /* La barra coloreada que crece según la XP del jugador */
+  height: 100%;
+  width: 0%;
+  /* Empieza en 0. app.js cambiará este valor dinámicamente */
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  /* Degradado de izquierda a derecha: del verde al azul */
+  transition: width 0.3s ease;
+  /* Animación suave de 0.3 segundos cuando cambia el ancho */
+}
+
+/* ===============================
+   CAJA DE DESBLOQUEOS
+   =============================== */
+.unlock-box ul {
+  padding-left: 18px;  /* Indentación de la lista */
+  margin-bottom: 0;
+}
+
+/* ===============================
+   CUADRÍCULA DE 2 COLUMNAS
+   =============================== */
+.grid-2 {
+  display: grid;
+  /* CSS Grid: sistema de cuadrícula más potente que Flexbox para layouts 2D */
+  grid-template-columns: 1fr 1fr;
+  /* Dos columnas que se reparten el espacio en partes iguales (1fr = 1 fracción) */
+  gap: 18px;
+}
+
+/* ===============================
+   CABECERA DE SECCIÓN
+   =============================== */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* ===============================
+   FORMULARIOS
+   =============================== */
+.form {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr auto;
+  /* Tres columnas: el input de texto ocupa 1.5 partes,
+     el select 1 parte, y el botón lo que necesite (auto) */
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+/* Estilos comunes para los 3 elementos del formulario */
+.form input,
+.form select,
+.form button {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  font-size: 14px;
+}
+
+/* Estilos solo para el input y el select (los campos editables) */
+.form input,
+.form select {
+  background: #0b1220;
+  color: var(--text);
+}
+
+/* Estilos solo para el botón de enviar */
+.form button {
+  background: var(--accent-2);  /* Fondo azul */
+  color: white;
+  cursor: pointer;               /* Cambia el cursor a manita al pasar por encima */
+  font-weight: bold;
+}
+
+/* ===============================
+   LISTA DE ITEMS
+   =============================== */
+.list {
+  display: grid;
+  gap: 12px;  /* Espacio entre cada tarjeta de tarea/hábito */
+}
+
+.item {
+  /* Cada tarea o hábito individual */
+  background: var(--card-2);
+  border-radius: 12px;
+  padding: 14px;
+  border: 1px solid var(--border);
+}
+
+.item-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.item-title {
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+.item-meta {
+  color: var(--muted);   /* Texto secundario en gris */
+  font-size: 14px;
+}
+
+.item-actions {
+  /* Contenedor de los botones de cada item */
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+  /* Si los botones no caben en una fila, saltan a la siguiente */
+}
+
+/* Estilos comunes de todos los botones de acción */
+.item-actions button {
+  border: none;
+  border-radius: 10px;
+  padding: 10px 12px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* Botón "Completar" tarea (verde) */
+.btn-complete {
+  background: var(--accent);
+  color: white;
+}
+
+/* Botón "Eliminar" (rojo) */
+.btn-delete {
+  background: var(--danger);
+  color: white;
+}
+
+/* Botón "Marcar hoy" de hábitos (naranja) */
+.btn-habit {
+  background: var(--warning);
+  color: white;
+}
+
+/* Estilo para tareas completadas */
+.done {
+  opacity: 0.75;              /* Semi-transparente */
+  text-decoration: line-through; /* Texto tachado */
+}
+
+/* ===============================
+   TEMAS POR NIVEL
+   ===============================
+   Cuando app.js añade estas clases al <body>, sobreescriben
+   las variables CSS del :root y cambian el color de toda la app */
+
+.theme-blue {
+  --accent: #06b6d4;   /* Cian en vez de verde */
+  --accent-2: #3b82f6;
+}
+
+.theme-gold {
+  --accent: #facc15;   /* Amarillo dorado */
+  --accent-2: #f59e0b; /* Naranja dorado */
+}
+
+/*Caja del pentagono*/
+
+.skill-chart-box {
+  margin-top: 16px;
+  text-align: center;
+}
+
+.skill-chart-box h3 {
+  margin-bottom: 8px;
+}
+
+#skillChart {
+  display: block;
+  margin: 0 auto;
+}
+
+
+/* ===============================
+   RESPONSIVE (MÓVILES)
+   ===============================
+   @media es una "media query". El CSS dentro solo se aplica
+   cuando la pantalla tiene 700px o menos (móviles y tablets pequeñas) */
+@media (max-width: 700px) {
+
+  .grid-2 {
+    grid-template-columns: 1fr;
+    /* En móvil, las dos columnas pasan a ser una sola (una debajo de la otra) */
+  }
+
+  .form {
+    grid-template-columns: 1fr;
+    /* El formulario también pasa a ser de una columna (apilado verticalmente) */
+  }
+
+  .profile-top {
+    flex-direction: column;      /* Los elementos se apilan verticalmente */
+    align-items: flex-start;     /* Se alinean a la izquierda */
+  }
+
+  #skillChart {
+    width: 220px;
+    height:220px;
+  }
+}
