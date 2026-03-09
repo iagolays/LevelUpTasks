@@ -46,7 +46,7 @@ const UNLOCKS = [
 
 // Versión actual de la app. Cámbiala cada vez que hagas una update
 // para que el modal se muestre de nuevo a todos los usuarios.
-const APP_VERSION = "1.0";
+const APP_VERSION = "1.1";
 
 // Mensaje que se mostrará en el modal para esta versión.
 // Puedes usar saltos de línea con \n o escribir HTML directamente.
