@@ -25,15 +25,15 @@ const HABIT_XP = {
   3: 15
 };
 
-//Aqui definimos las categorias de los habitos y las tareas
+// Aquí definimos las categorias de los habitos y las tareas
 const CATEGORIES = {
+  otros: "Otros",
   deporte: "Deporte",
   estudio: "Estudio",
   ocio: "Ocio",
   hogar: "Tareas del hogar",
-  creatividad: "Creatividad",
-  otros: "Otros"
-}
+  creatividad: "Creatividad"
+};
 
 // Array (lista) de objetos. Cada objeto tiene el nivel mínimo necesario
 // y el texto que se mostrará al desbloquearlo.
@@ -44,6 +44,70 @@ const UNLOCKS = [
   { level: 5, text: "Tema dorado desbloqueado" }
 ];
 
+// Versión actual de la app. Cámbiala cada vez que hagas una update
+// para que el modal se muestre de nuevo a todos los usuarios.
+const APP_VERSION = "1.0";
+
+// Mensaje que se mostrará en el modal para esta versión.
+// Puedes usar saltos de línea con \n o escribir HTML directamente.
+const UPDATE_NOTES = `
+  <h3>¡Bienvenido a LevelUp Tasks!</h3>
+  <h4> Milagro!! He subido una update!! </h4>
+  <ul>
+    <li> Lo primero es esta pantalla de novedades que deberías estar viendo ahora mismo! </li>
+    <li> Tambien hemos solucionado algunos bug que habia con los hábitos! </li>
+    <li> Hemos añadido el cambio de nombre del jugador! </li>
+    <li> Ahora puedes asignar categorías a tus tareas y hábitos! </li>
+    <li> Hemos añadido un gráfico de habilidades por categoría en el perfil! </li>
+    <li> ¡Y muchas mejoras más que te invitamos a descubrir! </li>
+  </ul>
+`;
+
+// ===============================
+// FUNCIONES DE CARGA Y GUARDADO
+// ===============================
+// IMPORTANTE: loadState() debe estar definida ANTES de llamarla,
+// por eso movemos estas funciones arriba del todo.
+
+function loadState() {
+  // localStorage es un almacén de datos del navegador que persiste
+  // aunque cierres la pestaña. Guarda pares clave-valor de texto.
+  const saved = localStorage.getItem(STORAGE_KEY);
+  // getItem devuelve null si no existe nada con esa clave
+
+  if (saved) {
+    // JSON.parse convierte el texto guardado de vuelta a un objeto JavaScript.
+    // (Los datos se guardan como texto, JSON es el formato estándar para eso)
+    return JSON.parse(saved);
+  }
+
+  // Si no hay nada guardado, devolvemos el estado inicial por defecto
+  return {
+    user: {
+      name: "Jugador",
+      level: 1,
+      xp: 0,       // XP dentro del nivel actual (se resetea al subir)
+      totalXp: 0,  // XP acumulada de toda la vida del personaje
+      categoryXp: { // Aquí guardaremos la XP acumulada por categoría
+        otros: 0,
+        deporte: 0,
+        estudio: 0,
+        ocio: 0,
+        hogar: 0,
+        creatividad: 0
+      }
+    },
+    tasks: [],   // Lista vacía de tareas
+    habits: []   // Lista vacía de hábitos
+  };
+}
+
+function saveState() {
+  // JSON.stringify convierte el objeto "state" a texto para poder guardarlo.
+  // localStorage solo puede guardar texto, no objetos JavaScript directamente.
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
 // ===============================
 // ESTADO DE LA APP
 // ===============================
@@ -51,6 +115,7 @@ const UNLOCKS = [
 // "state" es el objeto central que guarda TODOS los datos de la app
 // mientras está abierta en el navegador.
 // Se inicializa llamando a loadState(), que intenta cargar datos guardados.
+// IMPORTANTE: loadState() debe estar definida antes de esta línea.
 let state = loadState();
 
 // ===============================
@@ -86,52 +151,21 @@ const avgStreakText = document.getElementById("avgStreakText");
 const bestHabitText = document.getElementById("bestHabitText");
 const statsCard = document.getElementById("statsCard");
 
-//referencias para las categorias
+// Referencias para las categorías
 const taskCategory = document.getElementById("taskCategory");
 const habitCategory = document.getElementById("habitCategory");
 
+// Referencia al botón de editar nombre
+const editNameBtn = document.getElementById("editNameBtn");
+
 // ===============================
-// FUNCIONES DE CARGA Y GUARDADO
+// EVENTOS DE LA INTERFAZ
 // ===============================
 
-function loadState() {
-  // localStorage es un almacén de datos del navegador que persiste
-  // aunque cierres la pestaña. Guarda pares clave-valor de texto.
-  const saved = localStorage.getItem(STORAGE_KEY);
-  // getItem devuelve null si no existe nada con esa clave
+// Edición del nombre del jugador.
+// Comprobamos que el botón existe antes de añadir el evento,
+// así evitamos errores si por algún motivo no se encuentra en el HTML.
 
-  if (saved) {
-    // JSON.parse convierte el texto guardado de vuelta a un objeto JavaScript.
-    // (Los datos se guardan como texto, JSON es el formato estándar para eso)
-    return JSON.parse(saved);
-  }
-
-  // Si no hay nada guardado, devolvemos el estado inicial por defecto
-  return {
-    user: {
-      name: "Jugador",
-      level: 1,
-      xp: 0,       // XP dentro del nivel actual (se resetea al subir)
-      totalXp: 0,   // XP acumulada de toda la vida del personaje
-      categoryXp: { // Aquí guardaremos la XP acumulada por categoría
-        deporte: 0,
-        estudio: 0,
-        ocio: 0,
-        hogar: 0,
-        creatividad: 0,
-        otros: 0
-      }
-    },
-    tasks: [],   // Lista vacía de tareas
-    habits: []   // Lista vacía de hábitos
-  };
-}
-
-function saveState() {
-  // JSON.stringify convierte el objeto "state" a texto para poder guardarlo.
-  // localStorage solo puede guardar texto, no objetos JavaScript directamente.
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-}
 
 // ===============================
 // UTILIDADES
@@ -152,7 +186,7 @@ function xpNeededForLevel(level) {
 
 // Convierte el número de dificultad en texto legible para mostrarlo en pantalla
 function difficultyLabel(value) {
-  const diff = Number(value);  // Aseguramos que sea un número
+  const diff = Number(value); // Aseguramos que sea un número
   if (diff === 1) return "Fácil";
   if (diff === 2) return "Normal";
   if (diff === 3) return "Media";
@@ -175,12 +209,13 @@ function getTodayString() {
 // ===============================
 
 function addXp(amount, category) {
-  state.user.xp += amount;
+  // Suma XP al nivel actual Y al total histórico
+  state.user.xp += amount;      // += es lo mismo que: state.user.xp = state.user.xp + amount
   state.user.totalXp += amount;
 
   // Protección: si el usuario ya tenía datos guardados sin categoryXp
   if (!state.user.categoryXp) {
-    state.user.categoryXp = {deporte: 0, estudio: 0, ocio: 0, hogar: 0, creatividad: 0, otros: 0};
+    state.user.categoryXp = { otros: 0, deporte: 0, estudio: 0, ocio: 0, hogar: 0, creatividad: 0 };
   }
 
   // Suma XP a la categoría correspondiente
@@ -188,15 +223,19 @@ function addXp(amount, category) {
     state.user.categoryXp[category] += amount;
   }
 
+  // Bucle "while": se repite MIENTRAS la condición sea verdadera.
+  // Esto permite subir varios niveles a la vez si se gana mucha XP de golpe.
   while (state.user.xp >= xpNeededForLevel(state.user.level)) {
-    state.user.xp -= xpNeededForLevel(state.user.level);
-    state.user.level++;
+    // Si la XP actual supera lo necesario para el nivel actual:
+    state.user.xp -= xpNeededForLevel(state.user.level); // Resta la XP del nivel
+    state.user.level++;                                   // Sube un nivel (++ suma 1)
     alert(`¡Has subido a nivel ${state.user.level}!`);
+    // Las comillas invertidas ` ` permiten meter variables dentro con ${variable}
   }
 
-  applyThemeByLevel();
-  saveState();
-  render();
+  applyThemeByLevel(); // Actualiza el tema visual según el nuevo nivel
+  saveState();         // Guarda el estado actualizado en localStorage
+  render();            // Redibuja toda la interfaz
 }
 
 function getUnlockedItems() {
@@ -242,12 +281,12 @@ taskForm.addEventListener("submit", function (e) {
 
   // Creamos el objeto de la nueva tarea con todos sus datos
   const task = {
-    id: generateId(),           // ID único
-    title,                      // Nombre de la tarea (equivale a title: title)
-    difficulty,                 // Nivel de dificultad
-    category: taskCategory.value, // Categoría elegida por el usuario
+    id: generateId(),              // ID único
+    title,                         // Nombre de la tarea (equivale a title: title)
+    difficulty,                    // Nivel de dificultad
+    category: taskCategory.value,  // Categoría elegida por el usuario
     xpReward: TASK_XP[difficulty], // XP según la dificultad elegida
-    completed: false            // Al crearla, aún no está completada
+    completed: false               // Al crearla, aún no está completada
   };
 
   state.tasks.push(task); // .push() añade el nuevo objeto al final del array
@@ -265,8 +304,8 @@ function completeTask(taskId) {
   if (!task || task.completed) return;
   // Si no existe la tarea, o ya está completada, no hacemos nada
 
-  task.completed = true;      // La marcamos como completada
-  addXp(task.xpReward, task.category);       // Damos la XP correspondiente y la categoria
+  task.completed = true;                    // La marcamos como completada
+  addXp(task.xpReward, task.category);      // Damos la XP correspondiente y la categoría
   saveState();
   render();
 }
@@ -295,10 +334,10 @@ habitForm.addEventListener("submit", function (e) {
     id: generateId(),
     title,
     difficulty,
-    category: habitCategory.value, // Categoría elegida por el usuario
+    category: habitCategory.value,  // Categoría elegida por el usuario
     xpReward: HABIT_XP[difficulty],
-    streak: 0,         // Racha actual de días consecutivos
-    bestStreak: 0,     // La mejor racha que ha tenido este hábito
+    streak: 0,          // Racha actual de días consecutivos
+    bestStreak: 0,      // La mejor racha que ha tenido este hábito
     lastCompleted: null // Última vez que se completó (null = nunca)
   };
 
@@ -329,7 +368,7 @@ function completeHabit(habitId) {
 
   // Si el último día completado fue ayer → racha continúa
   if (habit.lastCompleted === yesterdayString) {
-    habit.streak++;          // Suma 1 a la racha actual
+    habit.streak++;        // Suma 1 a la racha actual
   } else {
     // Si no fue ayer (o nunca se completó), la racha se reinicia a 1
     habit.streak = 1;
@@ -342,7 +381,7 @@ function completeHabit(habitId) {
 
   habit.lastCompleted = today; // Guardamos que hoy fue completado
 
-  addXp(habit.xpReward, habit.category); // Damos la XP correspondiente y la categoria
+  addXp(habit.xpReward, habit.category); // Damos la XP correspondiente y la categoría
   saveState();
   render();
 }
@@ -353,8 +392,11 @@ function deleteHabit(habitId) {
   render();
 }
 
-
-//render categorias
+// ===============================
+// RENDER DEL GRÁFICO DE HABILIDADES
+// ===============================
+// Dibuja el hexágono de categorías en el <canvas> del perfil.
+// Se llama cada vez que render() se ejecuta.
 
 function renderSkillChart() {
   const canvas = document.getElementById("skillChart");
@@ -365,18 +407,22 @@ function renderSkillChart() {
   const cy = canvas.height / 2;
   const radius = 90;
 
-  const keys =   ["deporte", "estudio", "ocio", "hogar", "creatividad", "otros"];
-  const labels = ["Deporte", "Estudio", "Ocio", "Hogar", "Creatividad", "Otros"];
+  const keys   = ["otros","deporte", "estudio", "ocio", "hogar", "creatividad"];
+  const labels = ["Otros","Deporte", "Estudio", "Ocio", "Hogar", "Creatividad"];
 
+  // Protección por si no existe categoryXp aún (datos guardados antiguos)
   const catXp = state.user.categoryXp || {};
+
+  // Calculamos el máximo para normalizar (mínimo 1 para evitar dividir por 0)
   const maxXp = Math.max(1, ...keys.map(k => catXp[k] || 0));
 
-  // 6 categorías → 360° / 6 = 60° entre cada vértice
+  // Calculamos los ángulos: empezamos arriba (-90°) y repartimos 360° entre 6
   const angles = keys.map((_, i) => (Math.PI * 2 * i) / keys.length - Math.PI / 2);
 
+  // Limpiamos el canvas antes de redibujar
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Cuadrícula de fondo
+  // --- Dibujamos la cuadrícula de fondo (3 niveles) ---
   for (let level = 1; level <= 3; level++) {
     const r = (radius * level) / 3;
     ctx.beginPath();
@@ -391,7 +437,7 @@ function renderSkillChart() {
     ctx.stroke();
   }
 
-  // Líneas desde el centro a cada vértice
+  // --- Dibujamos las líneas desde el centro a cada vértice ---
   angles.forEach(angle => {
     ctx.beginPath();
     ctx.moveTo(cx, cy);
@@ -401,7 +447,7 @@ function renderSkillChart() {
     ctx.stroke();
   });
 
-  // Polígono de datos
+  // --- Dibujamos el polígono de datos ---
   ctx.beginPath();
   keys.forEach((key, i) => {
     const value = (catXp[key] || 0) / maxXp;
@@ -410,13 +456,13 @@ function renderSkillChart() {
     i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
   });
   ctx.closePath();
-  ctx.fillStyle = "rgba(34, 197, 94, 0.25)";
+  ctx.fillStyle = "rgba(34, 197, 94, 0.25)"; // Verde semitransparente
   ctx.fill();
   ctx.strokeStyle = "#22c55e";
   ctx.lineWidth = 2;
   ctx.stroke();
 
-  // Etiquetas
+  // --- Dibujamos las etiquetas ---
   ctx.fillStyle = "#e2e8f0";
   ctx.font = "12px Arial";
   ctx.textAlign = "center";
@@ -427,6 +473,7 @@ function renderSkillChart() {
     ctx.fillText(labels[i], x, y);
   });
 }
+
 // ===============================
 // RENDER DE LA INTERFAZ
 // ===============================
@@ -434,10 +481,10 @@ function renderSkillChart() {
 // refleje el estado actual de los datos. Se llama cada vez que algo cambia.
 
 function render() {
-  renderProfile(); // Actualiza el panel de usuario
-  renderTasks();   // Actualiza la lista de tareas
-  renderHabits();  // Actualiza la lista de hábitos
-  renderStats();   // Actualiza las estadísticas
+  renderProfile();    // Actualiza el panel de usuario
+  renderTasks();      // Actualiza la lista de tareas
+  renderHabits();     // Actualiza la lista de hábitos
+  renderStats();      // Actualiza las estadísticas
   renderSkillChart(); // Actualiza el gráfico de habilidades
 }
 
@@ -462,7 +509,7 @@ function renderProfile() {
   unlocked.forEach(item => {
     const li = document.createElement("li"); // Creamos un nuevo elemento <li>
     li.textContent = item.text;              // Le ponemos el texto
-    unlockList.appendChild(li);              // Lo añadimos al <ul> del HTML
+    unlockList.appendChild(li);             // Lo añadimos al <ul> del HTML
   });
 
   // Actualizamos el resumen con los contadores
@@ -497,11 +544,10 @@ function renderTasks() {
           <!-- Operador ternario: condición ? si_true : si_false -->
           <!-- Si está completada añade la clase "done", si no, nada -->
           <div class="item-meta">
-            Dificultad: ${difficultyLabel(task.difficulty)} | Recompensa: ${task.xpReward} XP
+            Dificultad: ${difficultyLabel(task.difficulty)} | Recompensa: ${task.xpReward} XP | Categoría: ${CATEGORIES[task.category] || task.category}
           </div>
         </div>
       </div>
-
       <div class="item-actions">
         <button class="btn-complete" ${task.completed ? "disabled" : ""}>
           ${task.completed ? "Completada" : "Completar"}
@@ -544,14 +590,13 @@ function renderHabits() {
         <div>
           <div class="item-title">${habit.title}</div>
           <div class="item-meta">
-            Dificultad: ${difficultyLabel(habit.difficulty)} | Recompensa: ${habit.xpReward} XP
+            Dificultad: ${difficultyLabel(habit.difficulty)} | Recompensa: ${habit.xpReward} XP | Categoría: ${CATEGORIES[habit.category] || habit.category}
           </div>
           <div class="item-meta">
             Racha actual: ${habit.streak} | Mejor racha: ${habit.bestStreak}
           </div>
         </div>
       </div>
-
       <div class="item-actions">
         <button class="btn-habit" ${completedToday ? "disabled" : ""}>
           ${completedToday ? "Hecho hoy" : "Marcar hoy"}
@@ -607,6 +652,46 @@ function renderStats() {
   bestHabitText.textContent = bestHabit.title;
 }
 
+
+// Edición del nombre del jugador
+// Se registra al final para asegurar que todo el DOM está listo
+editNameBtn.addEventListener("click", function () {
+  const newName = prompt("Introduce tu nombre:", state.user.name);
+  if (newName && newName.trim()) {
+    state.user.name = newName.trim();
+    saveState();
+    render();
+  }
+});
+
+// ===============================
+// MODAL DE ACTUALIZACIÓN
+// ===============================
+// Este código muestra un modal con las novedades cada vez que se actualiza la app.
+function checkUpdateModal() {
+  // Leemos la última versión que el usuario ya vio
+  const seenVersion = localStorage.getItem("levelup_seen_version");
+
+  // Si ya vio esta versión, no hacemos nada
+  if (seenVersion === APP_VERSION) return;
+
+  // Inyectamos el contenido del mensaje
+  const notes = document.getElementById("updateNotes");
+  if (notes) notes.innerHTML = UPDATE_NOTES;
+  
+  // Mostramos el modal
+  const overlay = document.getElementById("updateOverlay");
+  if (overlay) overlay.style.display = "flex";
+}
+
+function closeUpdateModal() {
+  // Guardamos la versión actual para no volver a mostrarla
+  localStorage.setItem("levelup_seen_version", APP_VERSION);
+
+  const overlay = document.getElementById("updateOverlay");
+  if (overlay) overlay.style.display = "none";
+}
+
 // ===============================
 // INICIO DE LA APLICACIÓN
 // ===============================
@@ -615,3 +700,4 @@ function renderStats() {
 
 applyThemeByLevel();
 render();
+checkUpdateModal(); // Comprueba si hay que mostrar el modal de actualización al cargar la app

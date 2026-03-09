@@ -23,9 +23,9 @@
   <!-- =============================== -->
   <header class="topbar">
     <!-- class="topbar" le asigna estilos CSS definidos en styles.css -->
-    <h1>LevelUp Tasks</h1>
+    <h1>LevelUp-Tasks</h1>
     <!-- Título principal de la app -->
-    <p>Convierte tus tareas y hábitos en experiencia</p>
+    <p>Haz de tus tareas misiones</p>
     <!-- Subtítulo descriptivo -->
   </header>
 
@@ -41,8 +41,11 @@
       <div class="profile-top">
         <!-- Fila superior del perfil: nombre + nivel a la izquierda, XP a la derecha -->
         <div>
-          <h2 id="playerName">Jugador</h2>
-          <!-- id="playerName" permite que app.js lo encuentre y cambie el texto -->
+          <div class="player-name-row">
+            <h2 id="playerName">Jugador</h2>
+            <!-- id="playerName" permite que app.js lo encuentre y cambie el texto -->
+            <button id="editNameBtn">✏️</button>
+          </div>
           <p id="levelText">Nivel 1</p>
           <!-- app.js actualizará este texto cuando el jugador suba de nivel -->
         </div>
@@ -66,38 +69,11 @@
         <!-- Lista vacía. app.js la llenará con los desbloqueos conseguidos -->
       </div>
 
-      <dic class="skill-chart-box">
+      <divclass="skill-chart-box">
         <h3>Habilidades</h3>
         <canvas id="skillChart" width="260" height="260"></canvas>
         <!-- Canvas es un espacio donde app.js dibujará el gráfico de habilidades -->
       </dic>
-    </section>
-
-    <!-- =============================== -->
-    <!-- RESUMEN + ESTADÍSTICAS          -->
-    <!-- =============================== -->
-    <section class="grid-2">
-      <!-- grid-2 pone estas dos tarjetas en dos columnas (una al lado de la otra) -->
-
-      <!-- Tarjeta de resumen general -->
-      <div class="card">
-        <h3>Resumen</h3>
-        <p>Tareas pendientes: <strong id="pendingTasksCount">0</strong></p>
-        <!-- app.js actualizará estos números automáticamente -->
-        <p>Tareas completadas: <strong id="completedTasksCount">0</strong></p>
-        <p>Hábitos activos: <strong id="habitCount">0</strong></p>
-        <p>XP total ganada: <strong id="totalXpText">0</strong></p>
-      </div>
-
-      <!-- Tarjeta de estadísticas (se desbloquea en nivel 2) -->
-      <div class="card" id="statsCard">
-        <h3>Estadísticas</h3>
-        <p>Racha media: <strong id="avgStreakText">0</strong></p>
-        <!-- Promedio de días seguidos completando hábitos -->
-        <p>Mejor hábito: <strong id="bestHabitText">Ninguno</strong></p>
-        <!-- El hábito con la racha más larga -->
-        <p>Desbloqueo: estas estadísticas se ven mejor a partir de nivel 2 😄</p>
-      </div>
     </section>
 
     <!-- =============================== -->
@@ -125,12 +101,12 @@
           <option value="5">Dificultad 5 - Difícil</option>
         </select>
         <select id="taskCategory">
+          <option value="otros">Otros</option>
           <option value="deporte">Deporte</option>
           <option value="estudio">Estudio</option>
           <option value="ocio">Ocio</option>
           <option value="hogar">Tareas del hogar</option>
           <option value="creatividad">Creatividad</option>
-          <option value="otros">Otros</option>
         </select>
 
         <button type="submit">Añadir tarea</button>
@@ -159,13 +135,13 @@
           <option value="2">Dificultad 2</option>
           <option value="3">Dificultad 3</option>
         </select>
-        <select id="taskCategory">
+        <select id="habitCategory">
+          <option value="otros">Otros</option>
           <option value="deporte">Deporte</option>
           <option value="estudio">Estudio</option>
           <option value="ocio">Ocio</option>
           <option value="hogar">Tareas del hogar</option>
           <option value="creatividad">Creatividad</option>
-          <option value="otros">Otros</option>
         </select>
 
         <button type="submit">Añadir hábito</button>
@@ -174,11 +150,48 @@
       <div id="habitList" class="list"></div>
       <!-- Contenedor vacío donde app.js insertará las tarjetas de cada hábito -->
     </section>
+    
+    <!-- =============================== -->
+    <!-- RESUMEN + ESTADÍSTICAS          -->
+    <!-- =============================== -->
+    <section class="grid-2">
+      <!-- grid-2 pone estas dos tarjetas en dos columnas (una al lado de la otra) -->
+
+      <!-- Tarjeta de resumen general -->
+      <div class="card">
+        <h3>Resumen</h3>
+        <p>Tareas pendientes: <strong id="pendingTasksCount">0</strong></p>
+        <!-- app.js actualizará estos números automáticamente -->
+        <p>Tareas completadas: <strong id="completedTasksCount">0</strong></p>
+        <p>Hábitos activos: <strong id="habitCount">0</strong></p>
+        <p>XP total ganada: <strong id="totalXpText">0</strong></p>
+      </div>
+
+      <!-- Tarjeta de estadísticas (se desbloquea en nivel 2) -->
+      <div class="card" id="statsCard">
+        <h3>Estadísticas</h3>
+        <p>Racha media: <strong id="avgStreakText">0</strong></p>
+        <!-- Promedio de días seguidos completando hábitos -->
+        <p>Mejor hábito: <strong id="bestHabitText">Ninguno</strong></p>
+        <!-- El hábito con la racha más larga -->
+        <p>Desbloqueo: estas estadísticas se ven mejor a partir de nivel 2 😄</p>
+      </div>
+    </section>
+
+    
 
   </main>
 
   <script src="app.js"></script>
   <!-- Conecta el HTML con JavaScript. Va al FINAL del body para que el HTML
        ya esté cargado cuando el JS empiece a ejecutarse -->
+
+  <!-- MODAL DE ACTUALIZACIONES -->
+<div id="updateOverlay" class="update-overlay">
+  <div class="update-modal">
+    <div id="updateNotes"></div>
+    <button onclick="closeUpdateModal()">¡Entendido!</button>
+  </div>
+</div>
 </body>
 </html>
