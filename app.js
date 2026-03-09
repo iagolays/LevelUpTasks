@@ -159,15 +159,6 @@ const habitCategory = document.getElementById("habitCategory");
 const editNameBtn = document.getElementById("editNameBtn");
 
 // ===============================
-// EVENTOS DE LA INTERFAZ
-// ===============================
-
-// Edición del nombre del jugador.
-// Comprobamos que el botón existe antes de añadir el evento,
-// así evitamos errores si por algún motivo no se encuentra en el HTML.
-
-
-// ===============================
 // UTILIDADES
 // ===============================
 
@@ -393,6 +384,37 @@ function deleteHabit(habitId) {
 }
 
 // ===============================
+// MODAL DE ACTUALIZACIÓN
+// ===============================
+// Muestra un modal con las novedades cada vez que APP_VERSION cambia.
+// El usuario solo lo ve una vez por versión, gracias a localStorage.
+
+function checkUpdateModal() {
+  // Leemos la última versión que el usuario ya vio
+  const seenVersion = localStorage.getItem("levelup_seen_version");
+
+  // Si ya vio esta versión, no hacemos nada
+  if (seenVersion === APP_VERSION) return;
+
+  // Inyectamos el contenido del mensaje en el div del modal
+  const notes = document.getElementById("updateNotes");
+  if (notes) notes.innerHTML = UPDATE_NOTES;
+
+  // Mostramos el modal
+  const overlay = document.getElementById("updateOverlay");
+  if (overlay) overlay.style.display = "flex";
+}
+
+function closeUpdateModal() {
+  // Guardamos la versión actual para no volver a mostrarla
+  // hasta que APP_VERSION cambie en una futura update
+  localStorage.setItem("levelup_seen_version", APP_VERSION);
+
+  const overlay = document.getElementById("updateOverlay");
+  if (overlay) overlay.style.display = "none";
+}
+
+// ===============================
 // RENDER DEL GRÁFICO DE HABILIDADES
 // ===============================
 // Dibuja el hexágono de categorías en el <canvas> del perfil.
@@ -407,8 +429,8 @@ function renderSkillChart() {
   const cy = canvas.height / 2;
   const radius = 90;
 
-  const keys   = ["otros","deporte", "estudio", "ocio", "hogar", "creatividad"];
-  const labels = ["Otros","Deporte", "Estudio", "Ocio", "Hogar", "Creatividad"];
+  const keys   = ["otros", "deporte", "estudio", "ocio", "hogar", "creatividad"];
+  const labels = ["Otros", "Deporte", "Estudio", "Ocio", "Hogar", "Creatividad"];
 
   // Protección por si no existe categoryXp aún (datos guardados antiguos)
   const catXp = state.user.categoryXp || {};
@@ -652,52 +674,28 @@ function renderStats() {
   bestHabitText.textContent = bestHabit.title;
 }
 
-
-// Edición del nombre del jugador
-// Se registra al final para asegurar que todo el DOM está listo
-editNameBtn.addEventListener("click", function () {
-  const newName = prompt("Introduce tu nombre:", state.user.name);
-  if (newName && newName.trim()) {
-    state.user.name = newName.trim();
-    saveState();
-    render();
-  }
-});
-
-// ===============================
-// MODAL DE ACTUALIZACIÓN
-// ===============================
-// Este código muestra un modal con las novedades cada vez que se actualiza la app.
-function checkUpdateModal() {
-  // Leemos la última versión que el usuario ya vio
-  const seenVersion = localStorage.getItem("levelup_seen_version");
-
-  // Si ya vio esta versión, no hacemos nada
-  if (seenVersion === APP_VERSION) return;
-
-  // Inyectamos el contenido del mensaje
-  const notes = document.getElementById("updateNotes");
-  if (notes) notes.innerHTML = UPDATE_NOTES;
-  
-  // Mostramos el modal
-  const overlay = document.getElementById("updateOverlay");
-  if (overlay) overlay.style.display = "flex";
-}
-
-function closeUpdateModal() {
-  // Guardamos la versión actual para no volver a mostrarla
-  localStorage.setItem("levelup_seen_version", APP_VERSION);
-
-  const overlay = document.getElementById("updateOverlay");
-  if (overlay) overlay.style.display = "none";
-}
-
 // ===============================
 // INICIO DE LA APLICACIÓN
 // ===============================
-// Este código se ejecuta UNA SOLA VEZ cuando la página carga.
-// Aplica el tema según el nivel guardado y pinta la interfaz inicial.
+// DOMContentLoaded garantiza que este bloque se ejecuta solo cuando
+// el HTML está 100% cargado y todos los elementos existen en el DOM.
+// Esto evita errores de "elemento no encontrado" al arrancar.
 
-applyThemeByLevel();
-render();
-checkUpdateModal(); // Comprueba si hay que mostrar el modal de actualización al cargar la app
+document.addEventListener("DOMContentLoaded", function () {
+  applyThemeByLevel();
+  render();
+  checkUpdateModal(); // Muestra el modal de novedades si hay una versión nueva
+
+  // Edición del nombre del jugador.
+  // Se registra aquí dentro para asegurar que el botón ya existe en el DOM.
+  editNameBtn.addEventListener("click", function () {
+    const newName = prompt("Introduce tu nombre:", state.user.name);
+    // prompt() abre una ventana emergente con un campo de texto.
+    // Devuelve null si el usuario pulsa "Cancelar".
+    if (newName && newName.trim()) {
+      state.user.name = newName.trim();
+      saveState();
+      render();
+    }
+  });
+});
