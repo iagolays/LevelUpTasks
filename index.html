@@ -45,6 +45,7 @@
             <h2 id="playerName">Jugador</h2>
             <!-- id="playerName" permite que app.js lo encuentre y cambie el texto -->
             <button id="editNameBtn">✏️</button>
+            
           </div>
           <p id="levelText">Nivel 1</p>
           <!-- app.js actualizará este texto cuando el jugador suba de nivel -->
@@ -53,6 +54,7 @@
           <span id="xpText">0 / 100 XP</span>
           <!-- Muestra la XP actual y la XP necesaria para el siguiente nivel -->
         </div>
+        <button id="settingsBtn">⚙️</button>
       </div>
 
       <!-- Barra de progreso de XP -->
@@ -63,11 +65,10 @@
       </div>
 
       <!-- Lista de recompensas desbloqueadas por nivel -->
-      <div class="unlock-box">
-        <h3>Desbloqueos</h3>
-        <ul id="unlockList"></ul>
-        <!-- Lista vacía. app.js la llenará con los desbloqueos conseguidos -->
-      </div>
+      <details class="unlock-box">
+      <summary>Desbloqueos</summary>
+      <ul id="unlockList"></ul>
+    </details>
 
       <divclass="skill-chart-box">
         <h3>Habilidades</h3>
@@ -75,6 +76,8 @@
         <!-- Canvas es un espacio donde app.js dibujará el gráfico de habilidades -->
       </dic>
     </section>
+
+
 
     <!-- =============================== -->
     <!-- SECCIÓN DE TAREAS               -->
@@ -93,12 +96,12 @@
 
         <select id="taskDifficulty">
           <!-- Menú desplegable para elegir la dificultad -->
-          <option value="1">Dificultad 1 - Fácil</option>
+          <option value="1">Dificultad 1 - Ez</option>
           <!-- value="1" es el número que leerá app.js para calcular la XP -->
-          <option value="2">Dificultad 2</option>
-          <option value="3">Dificultad 3</option>
-          <option value="4">Dificultad 4</option>
-          <option value="5">Dificultad 5 - Difícil</option>
+          <option value="2">Dificultad 2 - Sencillito</option>
+          <option value="3">Dificultad 3 - Media</option>
+          <option value="4">Dificultad 4 - Difícil</option>
+          <option value="5">Dificultad 5 - Job Finding</option>
         </select>
         <select id="taskCategory">
           <option value="otros">Otros</option>
@@ -107,6 +110,8 @@
           <option value="ocio">Ocio</option>
           <option value="hogar">Tareas del hogar</option>
           <option value="creatividad">Creatividad</option>
+          <option value="salud">Salud</option>
+          <option value="trabajo">Trabajo</option>
         </select>
 
         <button type="submit">Añadir tarea</button>
@@ -114,6 +119,12 @@
       </form>
 
       <div id="taskList" class="list"></div>
+
+      <!-- Desplegable de tareas completadas -->
+      <details id="completedTasksSection">
+        <summary>Tareas completadas (<span id="completedTasksToggleCount">0</span>)</summary>
+        <div id="completedTaskList" class="list"></div>
+      </details>
       <!-- Contenedor vacío donde app.js insertará las tarjetas de cada tarea -->
     </section>
 
@@ -131,9 +142,9 @@
 
         <select id="habitDifficulty">
           <!-- Los hábitos solo tienen 3 niveles de dificultad -->
-          <option value="1">Dificultad 1 - Fácil</option>
-          <option value="2">Dificultad 2</option>
-          <option value="3">Dificultad 3</option>
+          <option value="1">Dificultad 1 - Ez</option>
+          <option value="2">Dificultad 2 - Media</option>
+          <option value="3">Dificultad 3 - Job Finding</option>
         </select>
         <select id="habitCategory">
           <option value="otros">Otros</option>
@@ -142,6 +153,8 @@
           <option value="ocio">Ocio</option>
           <option value="hogar">Tareas del hogar</option>
           <option value="creatividad">Creatividad</option>
+          <option value="salud">Salud</option>
+          <option value="trabajo">Trabajo</option>
         </select>
 
         <button type="submit">Añadir hábito</button>
@@ -195,3 +208,22 @@
 </div>
 </body>
 </html>
+
+<!-- =============================== -->
+<!-- MODAL DE AJUSTES                -->
+<!-- =============================== -->
+<!-- Se muestra al pulsar el botón ⚙️ del perfil -->
+<div id="settingsOverlay" class="update-overlay">
+  <div class="update-modal">
+    <h3>⚙️ Ajustes</h3>
+
+    <!-- Selector de tema visual -->
+    <div class="settings-row">
+      <h4>Tema visual</h4>
+      <p class="settings-desc">Elige entre los temas que has desbloqueado al subir de nivel.</p>
+      <div id="themeSelector" class="theme-selector"></div>
+    </div>
+
+    <button onclick="closeSettings()">Cerrar</button>
+  </div>
+</div>

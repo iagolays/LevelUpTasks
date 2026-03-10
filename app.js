@@ -32,7 +32,9 @@ const CATEGORIES = {
   estudio: "Estudio",
   ocio: "Ocio",
   hogar: "Tareas del hogar",
-  creatividad: "Creatividad"
+  creatividad: "Creatividad",
+  salud: "Salud",
+  trabajo: "Trabajo"
 };
 
 // Array (lista) de objetos. Cada objeto tiene el nivel mínimo necesario
@@ -44,22 +46,40 @@ const UNLOCKS = [
   { level: 5, text: "Tema dorado desbloqueado" }
 ];
 
+// Objeto con todos los temas disponibles.
+// key: nombre interno, label: texto visible, level: nivel mínimo para desbloquearlo,
+// className: clase CSS que se aplica al <body>
+const THEMES = {
+  verde:  { label: "Verde",       level: 1,  className: ""             },
+  azul:   { label: "Azul",        level: 3,  className: "theme-blue"   },
+  dorado: { label: "Dorado",      level: 5,  className: "theme-gold"   },
+  rojo:   { label: "Rojo/Sangre", level: 7,  className: "theme-red"    },
+  morado: { label: "Morado",      level: 10, className: "theme-purple" }
+};
+
 // Versión actual de la app. Cámbiala cada vez que hagas una update
 // para que el modal se muestre de nuevo a todos los usuarios.
-const APP_VERSION = "1.1";
+const APP_VERSION = "1.2";
 
 // Mensaje que se mostrará en el modal para esta versión.
 // Puedes usar saltos de línea con \n o escribir HTML directamente.
 const UPDATE_NOTES = `
   <h3>¡Bienvenido a LevelUp Tasks!</h3>
-  <h4> Milagro!! He subido una update!! </h4>
+  <h4> Otra update, vaya racha! </h4>
   <ul>
-    <li> Lo primero es esta pantalla de novedades que deberías estar viendo ahora mismo! </li>
-    <li> Tambien hemos solucionado algunos bug que habia con los hábitos! </li>
-    <li> Hemos añadido el cambio de nombre del jugador! </li>
-    <li> Ahora puedes asignar categorías a tus tareas y hábitos! </li>
-    <li> Hemos añadido un gráfico de habilidades por categoría en el perfil! </li>
-    <li> ¡Y muchas mejoras más que te invitamos a descubrir! </li>
+    <li> Lo primero que puedes noatar es que esta pantallita es diferente, como hemos añadido bastantes novedades (aunque sean chorradas) no nos cabian en la antigua ventana 
+    sin que resultase dañina a la vista, así que hemos hecho un rediseño del modal de actualización para que sea más claro y visualmente agradable. </li>
+    <li> Los desbloqueos ahora se muestran en un desplegable para no saturar el perfil, pero siguen ahí para que puedas ver tu progreso. </li>
+    <li> Hemos añadido un botón de ajustes, por ahora solo tiene el selector de temas pero en el futuro añadiremos más opciones de personalización. </li>
+    <li> Como has podido observar, ahora puedes elegir entre los temas desbloqueados para cambiar el aspecto de la app. ¡Pruébalos todos! </li>
+    <li> Hemos reducido el ruido visual de las tareas completadas, para que puedas centrarte en lo que queda por hacer (ahora es un desplegable). </li>
+    <li> Se han añadido etiquetas para las dificultades (buena sugerencia marta). </li>
+    <li> Se han añadido dos nuevas categorías para las tareas y hábitos: Salud y Trabajo (créditos una vez mas a marta y a paupe). </li>
+    <li> El gráfico de habilidades ahora muestra 8 categorías en lugar de 6, para reflejar las nuevas categorías añadidas. Ademas ahora se ajusta a los temas! </li>
+    <li> Se buscan ideas para la próxima update, sobre todo sobre desbloqueos y estadísticas que os gustaría poder comprobar. Cualquier sugerencia al correo: iago.leis@rai.usc.es </li>
+    <li> No nos hemos olvidade del resto de peticiones! Seguiremos trayendo updates cuando la fokin universidad nos deje un hueco, y seguiremos añadiendo mejoras poco a poco. 
+    Podeis comprobar que features ya estan planeadas para próximas updates en el README de este proyecto: https://github.com/iagolays/LevelUpTasks</li>
+    
   </ul>
 `;
 
@@ -88,13 +108,16 @@ function loadState() {
       level: 1,
       xp: 0,       // XP dentro del nivel actual (se resetea al subir)
       totalXp: 0,  // XP acumulada de toda la vida del personaje
+      selectedTheme: "verde", // Tema inicial por defecto
       categoryXp: { // Aquí guardaremos la XP acumulada por categoría
         otros: 0,
         deporte: 0,
         estudio: 0,
         ocio: 0,
         hogar: 0,
-        creatividad: 0
+        creatividad: 0,
+        salud: 0,
+        trabajo: 0
       }
     },
     tasks: [],   // Lista vacía de tareas
@@ -158,6 +181,9 @@ const habitCategory = document.getElementById("habitCategory");
 // Referencia al botón de editar nombre
 const editNameBtn = document.getElementById("editNameBtn");
 
+// Referencia al botón de ajustes
+const settingsBtn = document.getElementById("settingsBtn");
+
 // ===============================
 // UTILIDADES
 // ===============================
@@ -206,7 +232,7 @@ function addXp(amount, category) {
 
   // Protección: si el usuario ya tenía datos guardados sin categoryXp
   if (!state.user.categoryXp) {
-    state.user.categoryXp = { otros: 0, deporte: 0, estudio: 0, ocio: 0, hogar: 0, creatividad: 0 };
+    state.user.categoryXp = { otros: 0, deporte: 0, estudio: 0, ocio: 0, hogar: 0, creatividad: 0, salud: 0, trabajo: 0 };
   }
 
   // Suma XP a la categoría correspondiente
@@ -236,16 +262,34 @@ function getUnlockedItems() {
 }
 
 function applyThemeByLevel() {
-  // Primero eliminamos cualquier tema anterior para no acumularlos
-  document.body.classList.remove("theme-blue", "theme-gold");
+  // Protección: si no hay tema guardado, usamos el verde por defecto
+  if (!state.user.selectedTheme) state.user.selectedTheme = "verde";
 
-  // Luego añadimos el tema correspondiente al nivel actual
-  if (state.user.level >= 5) {
-    document.body.classList.add("theme-gold");
-  } else if (state.user.level >= 3) {
-    document.body.classList.add("theme-blue");
+  // Eliminamos todas las clases de tema anteriores
+  document.body.classList.remove("theme-blue", "theme-gold", "theme-red", "theme-purple");
+
+  // Aplicamos la clase CSS del tema elegido (verde no tiene clase, es el default)
+  const theme = THEMES[state.user.selectedTheme];
+  if (theme && theme.className) {
+    document.body.classList.add(theme.className);
   }
-  // Si es nivel 1 o 2, no se añade ninguna clase (queda el tema por defecto)
+}
+
+function selectTheme(themeKey) {
+  const theme = THEMES[themeKey];
+
+  // Comprobamos que el tema existe y que el jugador tiene el nivel suficiente
+  if (!theme) return;
+  if (state.user.level < theme.level) {
+    alert(`Necesitas nivel ${theme.level} para desbloquear este tema.`);
+    return;
+  }
+
+  // Guardamos el tema elegido y lo aplicamos
+  state.user.selectedTheme = themeKey;
+  applyThemeByLevel();
+  saveState();
+  renderThemeSelector(); // Actualiza el selector para reflejar el tema activo
 }
 
 // ===============================
@@ -414,6 +458,20 @@ function closeUpdateModal() {
   if (overlay) overlay.style.display = "none";
 }
 
+function openSettings() {
+  // Renderizamos el selector de temas antes de mostrar el modal
+  // para que siempre esté actualizado al abrirlo
+  renderThemeSelector();
+
+  const overlay = document.getElementById("settingsOverlay");
+  if (overlay) overlay.style.display = "flex";
+}
+
+function closeSettings() {
+  const overlay = document.getElementById("settingsOverlay");
+  if (overlay) overlay.style.display = "none";
+}
+
 // ===============================
 // RENDER DEL GRÁFICO DE HABILIDADES
 // ===============================
@@ -429,8 +487,8 @@ function renderSkillChart() {
   const cy = canvas.height / 2;
   const radius = 90;
 
-  const keys   = ["otros", "deporte", "estudio", "ocio", "hogar", "creatividad"];
-  const labels = ["Otros", "Deporte", "Estudio", "Ocio", "Hogar", "Creatividad"];
+  const keys   = ["otros", "deporte", "estudio", "ocio", "hogar", "creatividad", "salud", "trabajo"];
+  const labels = ["Otros", "Deporte", "Estudio", "Ocio", "Hogar", "Creatividad", "Salud", "Trabajo"];
 
   // Protección por si no existe categoryXp aún (datos guardados antiguos)
   const catXp = state.user.categoryXp || {};
@@ -478,9 +536,10 @@ function renderSkillChart() {
     i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
   });
   ctx.closePath();
-  ctx.fillStyle = "rgba(34, 197, 94, 0.25)"; // Verde semitransparente
+  const accentColor = getComputedStyle(document.body).getPropertyValue("--accent").trim();
+  ctx.fillStyle = accentColor + "40"; // 40 en hex = ~25% de opacidad
   ctx.fill();
-  ctx.strokeStyle = "#22c55e";
+  ctx.strokeStyle = accentColor;
   ctx.lineWidth = 2;
   ctx.stroke();
 
@@ -493,6 +552,36 @@ function renderSkillChart() {
     const x = cx + labelRadius * Math.cos(angles[i]);
     const y = cy + labelRadius * Math.sin(angles[i]) + 4;
     ctx.fillText(labels[i], x, y);
+  });
+}
+
+// ===============================
+// RENDER DEL SELECTOR DE TEMAS
+// ===============================
+// Dibuja los botones para elegir el tema visual, mostrando cuáles
+// están desbloqueados y cuál es el activo. Se llama cada vez que render()
+// se ejecuta para mantenerlo actualizado.
+function renderThemeSelector() {
+  const container = document.getElementById("themeSelector");
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  // Recorremos todos los temas y creamos un botón para cada uno
+  Object.entries(THEMES).forEach(([key, theme]) => {
+    const unlocked = state.user.level >= theme.level;
+    const isActive = state.user.selectedTheme === key;
+
+    const btn = document.createElement("button");
+    btn.className = "theme-btn" +
+      (isActive ? " theme-btn-active" : "") +
+      (!unlocked ? " theme-btn-locked" : "");
+
+    // Si está bloqueado mostramos el nivel necesario
+    btn.textContent = unlocked ? theme.label : `🔒 ${theme.label} (Nv. ${theme.level})`;
+
+    btn.addEventListener("click", () => selectTheme(key));
+    container.appendChild(btn);
   });
 }
 
@@ -543,53 +632,71 @@ function renderProfile() {
 }
 
 function renderTasks() {
-  taskList.innerHTML = ""; // Limpiamos la lista antes de regenerarla
+  taskList.innerHTML = "";
 
-  if (state.tasks.length === 0) {
-    taskList.innerHTML = "<p>No hay tareas todavía.</p>";
-    return; // Salimos de la función, no hace falta seguir
-  }
+  const completedList = document.getElementById("completedTaskList");
+  const completedSection = document.getElementById("completedTasksSection");
+  const completedCount = document.getElementById("completedTasksToggleCount");
 
-  state.tasks.forEach(task => {
-    const div = document.createElement("div");
-    div.className = "item"; // Le asignamos la clase CSS
+  completedList.innerHTML = "";
 
-    // innerHTML nos permite insertar HTML completo como texto.
-    // Usamos template literals (comillas invertidas) para insertar
-    // los datos de cada tarea de forma legible.
-    div.innerHTML = `
-      <div class="item-top">
-        <div>
-          <div class="item-title ${task.completed ? "done" : ""}">
-            ${task.title}
-          </div>
-          <!-- Operador ternario: condición ? si_true : si_false -->
-          <!-- Si está completada añade la clase "done", si no, nada -->
-          <div class="item-meta">
-            Dificultad: ${difficultyLabel(task.difficulty)} | Recompensa: ${task.xpReward} XP | Categoría: ${CATEGORIES[task.category] || task.category}
+  // Separamos las tareas en dos arrays: pendientes y completadas
+  const pending = state.tasks.filter(t => !t.completed);
+  const completed = state.tasks.filter(t => t.completed);
+
+  // --- Tareas pendientes ---
+  if (pending.length === 0) {
+    taskList.innerHTML = "<p>No hay tareas pendientes.</p>";
+  } else {
+    pending.forEach(task => {
+      const div = document.createElement("div");
+      div.className = "item";
+      div.innerHTML = `
+        <div class="item-top">
+          <div>
+            <div class="item-title">${task.title}</div>
+            <div class="item-meta">
+              Dificultad: ${difficultyLabel(task.difficulty)} | Recompensa: ${task.xpReward} XP | Categoría: ${CATEGORIES[task.category] || task.category}
+            </div>
           </div>
         </div>
-      </div>
-      <div class="item-actions">
-        <button class="btn-complete" ${task.completed ? "disabled" : ""}>
-          ${task.completed ? "Completada" : "Completar"}
-        </button>
-        <!-- "disabled" es un atributo HTML que desactiva el botón -->
-        <button class="btn-delete">Eliminar</button>
-      </div>
-    `;
+        <div class="item-actions">
+          <button class="btn-complete">Completar</button>
+          <button class="btn-delete">Eliminar</button>
+        </div>
+      `;
+      div.querySelector(".btn-complete").addEventListener("click", () => completeTask(task.id));
+      div.querySelector(".btn-delete").addEventListener("click", () => deleteTask(task.id));
+      taskList.appendChild(div);
+    });
+  }
 
-    // Buscamos los botones DENTRO de este div concreto
-    const completeBtn = div.querySelector(".btn-complete");
-    const deleteBtn = div.querySelector(".btn-delete");
+  // --- Tareas completadas (dentro del desplegable) ---
+  completedCount.textContent = completed.length;
 
-    // Asignamos las funciones que se ejecutarán al hacer clic
-    // Las arrow functions (=>) son una forma compacta de escribir funciones
-    completeBtn.addEventListener("click", () => completeTask(task.id));
-    deleteBtn.addEventListener("click", () => deleteTask(task.id));
-
-    taskList.appendChild(div); // Añadimos la tarjeta al contenedor del HTML
-  });
+  if (completed.length === 0) {
+    completedList.innerHTML = "<p>Ninguna tarea completada todavía.</p>";
+  } else {
+    completed.forEach(task => {
+      const div = document.createElement("div");
+      div.className = "item";
+      div.innerHTML = `
+        <div class="item-top">
+          <div>
+            <div class="item-title done">${task.title}</div>
+            <div class="item-meta">
+              Dificultad: ${difficultyLabel(task.difficulty)} | Recompensa: ${task.xpReward} XP | Categoría: ${CATEGORIES[task.category] || task.category}
+            </div>
+          </div>
+        </div>
+        <div class="item-actions">
+          <button class="btn-delete">Eliminar</button>
+        </div>
+      `;
+      div.querySelector(".btn-delete").addEventListener("click", () => deleteTask(task.id));
+      completedList.appendChild(div);
+    });
+  }
 }
 
 function renderHabits() {
@@ -698,4 +805,10 @@ document.addEventListener("DOMContentLoaded", function () {
       render();
     }
   });
+
+  // Abre el modal de ajustes al pulsar la tuerca
+  settingsBtn.addEventListener("click", function () {
+    openSettings();
+  });
+
 });
