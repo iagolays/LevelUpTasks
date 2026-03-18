@@ -76,20 +76,15 @@ const THEMES = {
 
 // Versión actual de la app. Cámbiala cada vez que hagas una update
 // para que el modal se muestre de nuevo a todos los usuarios.
-const APP_VERSION = "1.3";
+const APP_VERSION = "1.4";
 
 // Mensaje que se mostrará en el modal para esta versión.
 // Puedes usar saltos de línea con \n o escribir HTML directamente.
 const UPDATE_NOTES = `
   <h3>¡Bienvenido a LevelUp Tasks!</h3>
-  <h4>Update, puta uni </h4>
+  <h4>Update, cositas q considero útiles </h4>
   <ul>
-    <li> Hemos solucionado el bug realativo a que el gráfico no se actualizaba con ciertas categorias (creo) </li>
-    <li> El tema desbloqueado en el nivel 3 ahora es azul puro, para que se note más la diferencia con el verde inicial. </li>
-    <li> DOPAMINA, hemos añadido progreso visual en tus rachas de habitos para engancharte a completarlos. </li>
-    <li> Hemos cambiado la sección de estadísticas que era un mierdon vibecodeado por otras vibecodedas pero mas guapas e útiles, un gráfico al estilo github </li>
-    <li> La app ha sido reestructurada, hemos decidido tener secciones independientes para organizalo todo mejor, por ahora son escasas pero iremos añadiendo más poco a poco. </li>
-    <li> Se ha añadido una sección de la compra, para que puedas organizar tu lista de la compra y ganar XP al completarla. </li>
+    <li> Ahora puedes añadir fechas límite a las tareas. Si no las completas a tiempo, perderás la XP que habrías ganado al completarlas. ¡Date prisa! </li>
     <li> Se buscan ideas para la próxima update, sobre todo sobre desbloqueos y estadísticas que os gustaría poder comprobar. Cualquier sugerencia al correo: iago.leis@rai.usc.es </li>
     <li> No nos hemos olvidade del resto de peticiones! Seguiremos trayendo updates cuando la fokin universidad nos deje un hueco, y seguiremos añadiendo mejoras poco a poco. 
     Podeis comprobar que features ya estan planeadas para próximas updates en el README de este proyecto: https://github.com/iagolays/LevelUpTasks</li>
@@ -188,6 +183,9 @@ const shoppingList = document.getElementById("shoppingList");
 const completeShoppingBtn = document.getElementById("completeShoppingBtn");
 const clearShoppingBtn = document.getElementById("clearShoppingBtn");
 
+// Referencia para la fecha límite de las tareas (opcional)
+const taskDueDate = document.getElementById("taskDueDate");
+
 // ===============================
 // NAVEGACIÓN ENTRE PÁGINAS
 // ===============================
@@ -258,6 +256,46 @@ function getTodayString() {
   // .toISOString() → "2024-03-15T10:30:00.000Z"
   // .split("T")[0] → coge solo la parte antes de la T → "2024-03-15"
 }
+
+
+// Calcula los días que quedan hasta la fecha límite de una tarea.
+// Devuelve un número positivo si queda tiempo, 0 si es hoy, negativo si ha vencido.
+function getDaysRemaining(dueDate) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Ignoramos la hora, solo comparamos fechas
+  const due = new Date(dueDate);
+  due.setHours(0, 0, 0, 0);
+  const diff = due - today;
+  return Math.round(diff / (1000 * 60 * 60 * 24)); // Convertimos ms a días
+}
+
+
+// Comprueba si hay tareas con fecha límite vencida y aplica penalización de XP.
+// Se llama al arrancar la app para detectar vencimientos mientras estaba cerrada.
+function checkTaskPenalties() {
+  let penalized = false;
+
+  state.tasks.forEach(task => {
+    // Solo penalizamos tareas pendientes con fecha límite vencida
+    // y que no hayan sido penalizadas ya (evita penalizar dos veces)
+    if (!task.completed && task.dueDate && !task.penalized) {
+      const days = getDaysRemaining(task.dueDate);
+      if (days < 0) {
+        // Restamos XP pero nunca por debajo de 0
+        state.user.xp = Math.max(0, state.user.xp - task.xpReward);
+        state.user.totalXp = Math.max(0, state.user.totalXp - task.xpReward);
+        task.penalized = true; // Marcamos para no penalizar dos veces
+        penalized = true;
+      }
+    }
+  });
+
+  if (penalized) {
+    saveState();
+    alert("⚠️ Tienes tareas vencidas. Has perdido XP por no completarlas a tiempo.");
+  }
+}
+
 
 // Devuelve el tier de racha correspondiente a los días actuales.
 // Recorre los tiers de mayor a menor y devuelve el primero que se cumple.
@@ -375,6 +413,7 @@ taskForm.addEventListener("submit", function (e) {
     title,                         // Nombre de la tarea (equivale a title: title)
     difficulty,                    // Nivel de dificultad
     category: taskCategory.value,  // Categoría elegida por el usuario
+    dueDate: taskDueDate.value || null, // Fecha límite (opcional, null si no se ha establecido)
     xpReward: TASK_XP[difficulty], // XP según la dificultad elegida
     completed: false               // Al crearla, aún no está completada
   };
@@ -799,6 +838,30 @@ function renderTasks() {
     pending.forEach(task => {
       const div = document.createElement("div");
       div.className = "item";
+
+      // Calculamos el estado de la fecha límite si la tarea tiene una
+      let dueDateHTML = "";
+      let urgencyClass = "";
+
+      if (task.dueDate) {
+        const days = getDaysRemaining(task.dueDate);
+        if (days < 0) {
+          // Tarea vencida
+          dueDateHTML = `<div class="item-meta due-date due-date-expired">❌ Vencida hace ${Math.abs(days)} día${Math.abs(days) !== 1 ? "s" : ""}</div>`;
+          urgencyClass = "task-expired";
+        } else if (days <= 2) {
+          // Quedan 2 días o menos → urgente
+          dueDateHTML = `<div class="item-meta due-date due-date-urgent">⚠️ ${days === 0 ? "Vence hoy" : `${days} día${days !== 1 ? "s" : ""} restante${days !== 1 ? "s" : ""}`}</div>`;
+          urgencyClass = "task-urgent";
+        } else {
+          // Queda tiempo suficiente
+          dueDateHTML = `<div class="item-meta due-date">📅 ${days} días restantes</div>`;
+        }
+      }
+
+      // Añadimos la clase de urgencia al div si corresponde
+      if (urgencyClass) div.classList.add(urgencyClass);
+
       div.innerHTML = `
         <div class="item-top">
           <div>
@@ -806,6 +869,7 @@ function renderTasks() {
             <div class="item-meta">
               Dificultad: ${difficultyLabel(task.difficulty)} | Recompensa: ${task.xpReward} XP | Categoría: ${CATEGORIES[task.category] || task.category}
             </div>
+            ${dueDateHTML}
           </div>
         </div>
         <div class="item-actions">
@@ -813,6 +877,7 @@ function renderTasks() {
           <button class="btn-delete">Eliminar</button>
         </div>
       `;
+
       div.querySelector(".btn-complete").addEventListener("click", () => completeTask(task.id));
       div.querySelector(".btn-delete").addEventListener("click", () => deleteTask(task.id));
       taskList.appendChild(div);
@@ -1030,6 +1095,7 @@ function renderStats() {
 
 document.addEventListener("DOMContentLoaded", function () {
   applyThemeByLevel();
+  checkTaskPenalties(); // Verifica si hay tareas vencidas y aplica penalizaciones
   render();
   checkUpdateModal(); // Muestra el modal de novedades si hay una versión nueva
 

@@ -752,6 +752,38 @@ details#completedTasksSection .list {
 }
 
 /* ===============================
+   FECHA LÍMITE DE TAREAS
+   =============================== */
+
+/* Texto de días restantes */
+.due-date {
+  margin-top: 4px;
+  font-size: 13px;
+}
+
+/* Tarea urgente (≤2 días) — texto naranja */
+.due-date-urgent {
+  color: var(--warning);
+  font-weight: bold;
+}
+
+/* Tarea vencida — texto rojo */
+.due-date-expired {
+  color: var(--danger);
+  font-weight: bold;
+}
+
+/* Borde naranja para tareas urgentes */
+.task-urgent {
+  border-color: var(--warning);
+}
+
+/* Borde rojo para tareas vencidas */
+.task-expired {
+  border-color: var(--danger);
+}
+
+/* ===============================
    RESPONSIVE (MÓVILES)
    ===============================
    @media es una "media query". El CSS dentro solo se aplica
@@ -764,8 +796,11 @@ details#completedTasksSection .list {
   }
 
   .form {
-    grid-template-columns: 1fr;
-    /* El formulario también pasa a ser de una columna (apilado verticalmente) */
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1fr auto;
+    /* Cinco columnas: texto, dificultad, categoría, fecha y botón */
+    gap: 10px;
+    margin-bottom: 16px;
   }
 
   .profile-top {
