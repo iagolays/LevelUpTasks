@@ -22,208 +22,233 @@
   <!-- BARRA SUPERIOR (HEADER)         -->
   <!-- =============================== -->
   <header class="topbar">
-    <!-- class="topbar" le asigna estilos CSS definidos en styles.css -->
     <h1>LevelUp-Tasks</h1>
-    <!-- Título principal de la app -->
     <p>Haz de tus tareas misiones</p>
-    <!-- Subtítulo descriptivo -->
   </header>
 
+  <!-- =============================== -->
+  <!-- BARRA DE NAVEGACIÓN             -->
+  <!-- =============================== -->
+  <!-- Cada botón llama a navigateTo() con el nombre de la página -->
+  <nav class="navbar">
+    <button class="nav-btn nav-btn-active" onclick="navigateTo('inicio')">🏠 Inicio</button>
+    <button class="nav-btn" onclick="navigateTo('stats')">📊 Estadísticas</button>
+    <button class="nav-btn" onclick="navigateTo('compra')">🛒 Lista de la compra</button>
+  </nav>
+
   <main class="container">
-    <!-- <main> es el contenido principal. "container" limita el ancho y centra todo -->
 
     <!-- =============================== -->
-    <!-- PANEL DE USUARIO (PERFIL)       -->
+    <!-- PÁGINA: INICIO                  -->
     <!-- =============================== -->
-    <section class="card profile-card">
-      <!-- <section> agrupa contenido relacionado. "card" le da el estilo de tarjeta -->
+    <div id="page-inicio">
 
-      <div class="profile-top">
-        <!-- Fila superior del perfil: nombre + nivel a la izquierda, XP a la derecha -->
-        <div>
-          <div class="player-name-row">
-            <h2 id="playerName">Jugador</h2>
-            <!-- id="playerName" permite que app.js lo encuentre y cambie el texto -->
-            <button id="editNameBtn">✏️</button>
-            
+      <!-- PANEL DE USUARIO (PERFIL) -->
+      <!-- Tal cual estaba antes, con nombre, nivel, XP, gráfico y ajustes -->
+      <section class="card profile-card">
+
+        <div class="profile-top">
+          <div>
+            <div class="player-name-row">
+              <h2 id="playerName">Jugador</h2>
+              <!-- id="playerName" permite que app.js lo encuentre y cambie el texto -->
+              <button id="editNameBtn">✏️</button>
+            </div>
+            <p id="levelText">Nivel 1</p>
+            <!-- app.js actualizará este texto cuando el jugador suba de nivel -->
           </div>
-          <p id="levelText">Nivel 1</p>
-          <!-- app.js actualizará este texto cuando el jugador suba de nivel -->
+          <div class="xp-box">
+            <span id="xpText">0 / 100 XP</span>
+            <!-- Muestra la XP actual y la XP necesaria para el siguiente nivel -->
+          </div>
+          <button id="settingsBtn">⚙️</button>
         </div>
-        <div class="xp-box">
-          <span id="xpText">0 / 100 XP</span>
-          <!-- Muestra la XP actual y la XP necesaria para el siguiente nivel -->
+
+        <!-- Barra de progreso de XP -->
+        <div class="xp-bar">
+          <div id="xpFill" class="xp-fill"></div>
+          <!-- La parte coloreada que crece. app.js cambia su width (anchura) -->
         </div>
-        <button id="settingsBtn">⚙️</button>
-      </div>
 
-      <!-- Barra de progreso de XP -->
-      <div class="xp-bar">
-        <!-- El contenedor gris (fondo) de la barra -->
-        <div id="xpFill" class="xp-fill"></div>
-        <!-- La parte coloreada que crece. app.js cambia su width (anchura) -->
-      </div>
+        <!-- Lista de recompensas desbloqueadas por nivel -->
+        <details class="unlock-box">
+          <summary>Desbloqueos</summary>
+          <ul id="unlockList"></ul>
+          <!-- Lista vacía. app.js la llenará con los desbloqueos conseguidos -->
+        </details>
 
-      <!-- Lista de recompensas desbloqueadas por nivel -->
-      <details class="unlock-box">
-      <summary>Desbloqueos</summary>
-      <ul id="unlockList"></ul>
-    </details>
+        <!-- Gráfico de habilidades por categoría -->
+        <div class="skill-chart-box">
+          <h3>Habilidades</h3>
+          <canvas id="skillChart" width="260" height="260"></canvas>
+          <!-- Canvas es un espacio donde app.js dibujará el gráfico de habilidades -->
+        </div>
 
-      <divclass="skill-chart-box">
-        <h3>Habilidades</h3>
-        <canvas id="skillChart" width="260" height="260"></canvas>
-        <!-- Canvas es un espacio donde app.js dibujará el gráfico de habilidades -->
-      </dic>
-    </section>
+      </section>
 
+      <!-- SECCIÓN DE TAREAS -->
+      <section class="card">
+        <div class="section-header">
+          <h2>Tareas</h2>
+        </div>
 
+        <!-- Formulario para crear una nueva tarea -->
+        <form id="taskForm" class="form">
+          <input type="text" id="taskTitle" placeholder="Nueva tarea..." required />
+          <select id="taskDifficulty">
+            <option value="1">Dificultad 1 - Ez</option>
+            <option value="2">Dificultad 2 - Sencillito</option>
+            <option value="3">Dificultad 3 - Media</option>
+            <option value="4">Dificultad 4 - Difícil</option>
+            <option value="5">Dificultad 5 - Job Finding</option>
+          </select>
+          <select id="taskCategory">
+            <option value="otros">Otros</option>
+            <option value="deporte">Deporte</option>
+            <option value="estudio">Estudio</option>
+            <option value="ocio">Ocio</option>
+            <option value="hogar">Tareas del hogar</option>
+            <option value="creatividad">Creatividad</option>
+            <option value="salud">Salud</option>
+            <option value="trabajo">Trabajo</option>
+          </select>
+          <button type="submit">Añadir tarea</button>
+        </form>
+
+        <div id="taskList" class="list"></div>
+
+        <!-- Desplegable de tareas completadas -->
+        <details id="completedTasksSection">
+          <summary>Tareas completadas (<span id="completedTasksToggleCount">0</span>)</summary>
+          <div id="completedTaskList" class="list"></div>
+        </details>
+      </section>
+
+      <!-- SECCIÓN DE HÁBITOS -->
+      <section class="card">
+        <div class="section-header">
+          <h2>Hábitos</h2>
+        </div>
+
+        <!-- Formulario para crear un nuevo hábito -->
+        <form id="habitForm" class="form">
+          <input type="text" id="habitTitle" placeholder="Nuevo hábito..." required />
+          <select id="habitDifficulty">
+            <option value="1">Dificultad 1 - Ez</option>
+            <option value="2">Dificultad 2 - Media</option>
+            <option value="3">Dificultad 3 - Job Finding</option>
+          </select>
+          <select id="habitCategory">
+            <option value="otros">Otros</option>
+            <option value="deporte">Deporte</option>
+            <option value="estudio">Estudio</option>
+            <option value="ocio">Ocio</option>
+            <option value="hogar">Tareas del hogar</option>
+            <option value="creatividad">Creatividad</option>
+            <option value="salud">Salud</option>
+            <option value="trabajo">Trabajo</option>
+          </select>
+          <button type="submit">Añadir hábito</button>
+        </form>
+
+        <div id="habitList" class="list"></div>
+      </section>
+
+      <!-- RESUMEN + ESTADÍSTICAS -->
+      <section class="grid-2">
+        <div class="card">
+          <h3>Resumen</h3>
+          <p>Tareas pendientes: <strong id="pendingTasksCount">0</strong></p>
+          <p>Tareas completadas: <strong id="completedTasksCount">0</strong></p>
+          <p>Hábitos activos: <strong id="habitCount">0</strong></p>
+          <p>XP total ganada: <strong id="totalXpText">0</strong></p>
+        </div>
+
+        <div class="card" id="statsCard">
+          <h3>Estadísticas</h3>
+          <!-- app.js rellenará este contenido con la cuadrícula de actividad -->
+        </div>
+      </section>
+
+    </div>
 
     <!-- =============================== -->
-    <!-- SECCIÓN DE TAREAS               -->
+    <!-- PÁGINA: ESTADÍSTICAS            -->
     <!-- =============================== -->
-    <section class="card">
-      <div class="section-header">
-        <h2>Tareas</h2>
-      </div>
-
-      <!-- Formulario para crear una nueva tarea -->
-      <form id="taskForm" class="form">
-        <!-- id="taskForm" permite que app.js detecte cuando se envía este formulario -->
-
-        <input type="text" id="taskTitle" placeholder="Nueva tarea..." required />
-        <!-- Campo de texto. "required" impide enviarlo vacío -->
-
-        <select id="taskDifficulty">
-          <!-- Menú desplegable para elegir la dificultad -->
-          <option value="1">Dificultad 1 - Ez</option>
-          <!-- value="1" es el número que leerá app.js para calcular la XP -->
-          <option value="2">Dificultad 2 - Sencillito</option>
-          <option value="3">Dificultad 3 - Media</option>
-          <option value="4">Dificultad 4 - Difícil</option>
-          <option value="5">Dificultad 5 - Job Finding</option>
-        </select>
-        <select id="taskCategory">
-          <option value="otros">Otros</option>
-          <option value="deporte">Deporte</option>
-          <option value="estudio">Estudio</option>
-          <option value="ocio">Ocio</option>
-          <option value="hogar">Tareas del hogar</option>
-          <option value="creatividad">Creatividad</option>
-          <option value="salud">Salud</option>
-          <option value="trabajo">Trabajo</option>
-        </select>
-
-        <button type="submit">Añadir tarea</button>
-        <!-- type="submit" envía el formulario al hacer clic (o pulsar Enter) -->
-      </form>
-
-      <div id="taskList" class="list"></div>
-
-      <!-- Desplegable de tareas completadas -->
-      <details id="completedTasksSection">
-        <summary>Tareas completadas (<span id="completedTasksToggleCount">0</span>)</summary>
-        <div id="completedTaskList" class="list"></div>
-      </details>
-      <!-- Contenedor vacío donde app.js insertará las tarjetas de cada tarea -->
-    </section>
+    <div id="page-stats" style="display: none;">
+      <section class="card coming-soon-section">
+        <div class="coming-soon-content">
+          <span class="coming-soon-main-icon">🚧</span>
+          <h2>Estadísticas avanzadas</h2>
+          <p class="coming-soon-text">Esto está en obras. Aquí vendrán cosas más guapas cuando la uni nos deje respirar.</p>
+          <span class="coming-soon-main-badge">Coming Soon</span>
+        </div>
+      </section>
+    </div>
 
     <!-- =============================== -->
-    <!-- SECCIÓN DE HÁBITOS              -->
+    <!-- PÁGINA: LISTA DE LA COMPRA      -->
     <!-- =============================== -->
-    <section class="card">
-      <div class="section-header">
-        <h2>Hábitos</h2>
-      </div>
+    <div id="page-compra" style="display: none;">
+      <section class="card">
+        <div class="section-header">
+          <h2>Lista de la compra</h2>
+        </div>
 
-      <!-- Formulario para crear un nuevo hábito -->
-      <form id="habitForm" class="form">
-        <input type="text" id="habitTitle" placeholder="Nuevo hábito..." required />
+        <!-- Formulario para añadir un artículo -->
+        <form id="shoppingForm" class="form form-shopping">
+          <input type="text" id="shoppingItem" placeholder="Nuevo artículo..." required />
+          <select id="shoppingCategory">
+            <option value="otros">Otros</option>
+            <option value="deporte">Deporte</option>
+            <option value="estudio">Estudio</option>
+            <option value="ocio">Ocio</option>
+            <option value="hogar">Tareas del hogar</option>
+            <option value="creatividad">Creatividad</option>
+            <option value="salud">Salud</option>
+            <option value="trabajo">Trabajo</option>
+          </select>
+          <button type="submit">Añadir</button>
+        </form>
 
-        <select id="habitDifficulty">
-          <!-- Los hábitos solo tienen 3 niveles de dificultad -->
-          <option value="1">Dificultad 1 - Ez</option>
-          <option value="2">Dificultad 2 - Media</option>
-          <option value="3">Dificultad 3 - Job Finding</option>
-        </select>
-        <select id="habitCategory">
-          <option value="otros">Otros</option>
-          <option value="deporte">Deporte</option>
-          <option value="estudio">Estudio</option>
-          <option value="ocio">Ocio</option>
-          <option value="hogar">Tareas del hogar</option>
-          <option value="creatividad">Creatividad</option>
-          <option value="salud">Salud</option>
-          <option value="trabajo">Trabajo</option>
-        </select>
+        <div id="shoppingList" class="list"></div>
 
-        <button type="submit">Añadir hábito</button>
-      </form>
-
-      <div id="habitList" class="list"></div>
-      <!-- Contenedor vacío donde app.js insertará las tarjetas de cada hábito -->
-    </section>
-    
-    <!-- =============================== -->
-    <!-- RESUMEN + ESTADÍSTICAS          -->
-    <!-- =============================== -->
-    <section class="grid-2">
-      <!-- grid-2 pone estas dos tarjetas en dos columnas (una al lado de la otra) -->
-
-      <!-- Tarjeta de resumen general -->
-      <div class="card">
-        <h3>Resumen</h3>
-        <p>Tareas pendientes: <strong id="pendingTasksCount">0</strong></p>
-        <!-- app.js actualizará estos números automáticamente -->
-        <p>Tareas completadas: <strong id="completedTasksCount">0</strong></p>
-        <p>Hábitos activos: <strong id="habitCount">0</strong></p>
-        <p>XP total ganada: <strong id="totalXpText">0</strong></p>
-      </div>
-
-      <!-- Tarjeta de estadísticas (se desbloquea en nivel 2) -->
-      <div class="card" id="statsCard">
-        <h3>Estadísticas</h3>
-        <p>Racha media: <strong id="avgStreakText">0</strong></p>
-        <!-- Promedio de días seguidos completando hábitos -->
-        <p>Mejor hábito: <strong id="bestHabitText">Ninguno</strong></p>
-        <!-- El hábito con la racha más larga -->
-        <p>Desbloqueo: estas estadísticas se ven mejor a partir de nivel 2 😄</p>
-      </div>
-    </section>
-
-    
+        <!-- Botones de acción global de la lista -->
+        <div class="shopping-actions">
+          <button id="completeShoppingBtn" class="btn-complete">✅ Completar lista</button>
+          <button id="clearShoppingBtn" class="btn-delete">🗑️ Vaciar lista</button>
+        </div>
+      </section>
+    </div>
 
   </main>
 
-  <script src="app.js"></script>
-  <!-- Conecta el HTML con JavaScript. Va al FINAL del body para que el HTML
-       ya esté cargado cuando el JS empiece a ejecutarse -->
-
-  <!-- MODAL DE ACTUALIZACIONES -->
-<div id="updateOverlay" class="update-overlay">
-  <div class="update-modal">
-    <div id="updateNotes"></div>
-    <button onclick="closeUpdateModal()">¡Entendido!</button>
+  <!-- =============================== -->
+  <!-- MODAL DE ACTUALIZACIONES        -->
+  <!-- =============================== -->
+  <div id="updateOverlay" class="update-overlay">
+    <div class="update-modal">
+      <div id="updateNotes"></div>
+      <button onclick="closeUpdateModal()">¡Entendido!</button>
+    </div>
   </div>
-</div>
+
+  <!-- =============================== -->
+  <!-- MODAL DE AJUSTES                -->
+  <!-- =============================== -->
+  <div id="settingsOverlay" class="update-overlay">
+    <div class="update-modal">
+      <h3>⚙️ Ajustes</h3>
+      <div class="settings-row">
+        <h4>Tema visual</h4>
+        <p class="settings-desc">Elige entre los temas que has desbloqueado al subir de nivel.</p>
+        <div id="themeSelector" class="theme-selector"></div>
+      </div>
+      <button onclick="closeSettings()">Cerrar</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+
 </body>
 </html>
-
-<!-- =============================== -->
-<!-- MODAL DE AJUSTES                -->
-<!-- =============================== -->
-<!-- Se muestra al pulsar el botón ⚙️ del perfil -->
-<div id="settingsOverlay" class="update-overlay">
-  <div class="update-modal">
-    <h3>⚙️ Ajustes</h3>
-
-    <!-- Selector de tema visual -->
-    <div class="settings-row">
-      <h4>Tema visual</h4>
-      <p class="settings-desc">Elige entre los temas que has desbloqueado al subir de nivel.</p>
-      <div id="themeSelector" class="theme-selector"></div>
-    </div>
-
-    <button onclick="closeSettings()">Cerrar</button>
-  </div>
-</div>

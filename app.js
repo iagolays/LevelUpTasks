@@ -25,6 +25,14 @@ const HABIT_XP = {
   3: 15
 };
 
+// XP que da completar la lista de la compra según categoría
+const SHOPPING_XP = {
+  hogar: 15,
+  trabajo: 20,
+  salud: 15,
+  otros: 10
+};
+
 // Aquí definimos las categorias de los habitos y las tareas
 const CATEGORIES = {
   otros: "Otros",
@@ -46,6 +54,15 @@ const UNLOCKS = [
   { level: 5, text: "Tema dorado desbloqueado" }
 ];
 
+// Define los niveles visuales de racha.
+// Cada 7 días el hábito sube de tier cambiando su emoji y color de borde.
+const STREAK_TIERS = [
+  { minDays: 0,  emoji: "🌱", borderClass: "streak-tier-0", label: "Iniciado"  },
+  { minDays: 7,  emoji: "🔥", borderClass: "streak-tier-1", label: "En racha"  },
+  { minDays: 14, emoji: "⚡", borderClass: "streak-tier-2", label: "Imparable" },
+  { minDays: 21, emoji: "👑", borderClass: "streak-tier-3", label: "Leyenda"   }
+];
+
 // Objeto con todos los temas disponibles.
 // key: nombre interno, label: texto visible, level: nivel mínimo para desbloquearlo,
 // className: clase CSS que se aplica al <body>
@@ -59,27 +76,23 @@ const THEMES = {
 
 // Versión actual de la app. Cámbiala cada vez que hagas una update
 // para que el modal se muestre de nuevo a todos los usuarios.
-const APP_VERSION = "1.2";
+const APP_VERSION = "1.3";
 
 // Mensaje que se mostrará en el modal para esta versión.
 // Puedes usar saltos de línea con \n o escribir HTML directamente.
 const UPDATE_NOTES = `
   <h3>¡Bienvenido a LevelUp Tasks!</h3>
-  <h4> Otra update, vaya racha! </h4>
+  <h4>Update, puta uni </h4>
   <ul>
-    <li> Lo primero que puedes noatar es que esta pantallita es diferente, como hemos añadido bastantes novedades (aunque sean chorradas) no nos cabian en la antigua ventana 
-    sin que resultase dañina a la vista, así que hemos hecho un rediseño del modal de actualización para que sea más claro y visualmente agradable. </li>
-    <li> Los desbloqueos ahora se muestran en un desplegable para no saturar el perfil, pero siguen ahí para que puedas ver tu progreso. </li>
-    <li> Hemos añadido un botón de ajustes, por ahora solo tiene el selector de temas pero en el futuro añadiremos más opciones de personalización. </li>
-    <li> Como has podido observar, ahora puedes elegir entre los temas desbloqueados para cambiar el aspecto de la app. ¡Pruébalos todos! </li>
-    <li> Hemos reducido el ruido visual de las tareas completadas, para que puedas centrarte en lo que queda por hacer (ahora es un desplegable). </li>
-    <li> Se han añadido etiquetas para las dificultades (buena sugerencia marta). </li>
-    <li> Se han añadido dos nuevas categorías para las tareas y hábitos: Salud y Trabajo (créditos una vez mas a marta y a paupe). </li>
-    <li> El gráfico de habilidades ahora muestra 8 categorías en lugar de 6, para reflejar las nuevas categorías añadidas. Ademas ahora se ajusta a los temas! </li>
+    <li> Hemos solucionado el bug realativo a que el gráfico no se actualizaba con ciertas categorias (creo) </li>
+    <li> El tema desbloqueado en el nivel 3 ahora es azul puro, para que se note más la diferencia con el verde inicial. </li>
+    <li> DOPAMINA, hemos añadido progreso visual en tus rachas de habitos para engancharte a completarlos. </li>
+    <li> Hemos cambiado la sección de estadísticas que era un mierdon vibecodeado por otras vibecodedas pero mas guapas e útiles, un gráfico al estilo github </li>
+    <li> La app ha sido reestructurada, hemos decidido tener secciones independientes para organizalo todo mejor, por ahora son escasas pero iremos añadiendo más poco a poco. </li>
+    <li> Se ha añadido una sección de la compra, para que puedas organizar tu lista de la compra y ganar XP al completarla. </li>
     <li> Se buscan ideas para la próxima update, sobre todo sobre desbloqueos y estadísticas que os gustaría poder comprobar. Cualquier sugerencia al correo: iago.leis@rai.usc.es </li>
     <li> No nos hemos olvidade del resto de peticiones! Seguiremos trayendo updates cuando la fokin universidad nos deje un hueco, y seguiremos añadiendo mejoras poco a poco. 
     Podeis comprobar que features ya estan planeadas para próximas updates en el README de este proyecto: https://github.com/iagolays/LevelUpTasks</li>
-    
   </ul>
 `;
 
@@ -120,8 +133,9 @@ function loadState() {
         trabajo: 0
       }
     },
-    tasks: [],   // Lista vacía de tareas
-    habits: []   // Lista vacía de hábitos
+    tasks: [],    // Lista vacía de tareas
+    habits: [],   // Lista vacía de hábitos
+    shopping: []  // Lista vacía de artículos de la compra
   };
 }
 
@@ -141,6 +155,9 @@ function saveState() {
 // IMPORTANTE: loadState() debe estar definida antes de esta línea.
 let state = loadState();
 
+// Protección: si el state guardado no tiene shopping, lo añadimos
+if (!state.shopping) state.shopping = [];
+
 // ===============================
 // REFERENCIAS AL DOM
 // ===============================
@@ -159,30 +176,51 @@ const habitTitle = document.getElementById("habitTitle");
 const habitDifficulty = document.getElementById("habitDifficulty");
 const habitList = document.getElementById("habitList");
 
-const playerName = document.getElementById("playerName");
-const levelText = document.getElementById("levelText");
-const xpText = document.getElementById("xpText");
-const xpFill = document.getElementById("xpFill");
-const unlockList = document.getElementById("unlockList");
-
-const pendingTasksCount = document.getElementById("pendingTasksCount");
-const completedTasksCount = document.getElementById("completedTasksCount");
-const habitCount = document.getElementById("habitCount");
-const totalXpText = document.getElementById("totalXpText");
-
-const avgStreakText = document.getElementById("avgStreakText");
-const bestHabitText = document.getElementById("bestHabitText");
-const statsCard = document.getElementById("statsCard");
-
 // Referencias para las categorías
 const taskCategory = document.getElementById("taskCategory");
 const habitCategory = document.getElementById("habitCategory");
 
-// Referencia al botón de editar nombre
-const editNameBtn = document.getElementById("editNameBtn");
+// Referencias de la lista de la compra
+const shoppingForm = document.getElementById("shoppingForm");
+const shoppingItem = document.getElementById("shoppingItem");
+const shoppingCategory = document.getElementById("shoppingCategory");
+const shoppingList = document.getElementById("shoppingList");
+const completeShoppingBtn = document.getElementById("completeShoppingBtn");
+const clearShoppingBtn = document.getElementById("clearShoppingBtn");
 
-// Referencia al botón de ajustes
-const settingsBtn = document.getElementById("settingsBtn");
+// ===============================
+// NAVEGACIÓN ENTRE PÁGINAS
+// ===============================
+// navigateTo() oculta todas las páginas y muestra solo la activa.
+// También actualiza el botón activo en el navbar.
+
+function navigateTo(page) {
+  // Lista de todas las páginas disponibles
+  const pages = ["inicio", "stats", "compra"];
+
+  // Ocultamos todas las páginas
+  pages.forEach(p => {
+    const el = document.getElementById(`page-${p}`);
+    if (el) el.style.display = "none";
+  });
+
+  // Mostramos la página activa
+  const activePage = document.getElementById(`page-${page}`);
+  if (activePage) activePage.style.display = "block";
+
+  // Actualizamos el botón activo en el navbar
+  document.querySelectorAll(".nav-btn").forEach(btn => {
+    btn.classList.remove("nav-btn-active");
+  });
+  // El botón activo es el que llama a navigateTo con esta página
+  const activeBtn = document.querySelector(`.nav-btn[onclick="navigateTo('${page}')"]`);
+  if (activeBtn) activeBtn.classList.add("nav-btn-active");
+
+  // Si navegamos al perfil o estadísticas, re-renderizamos para que estén actualizados
+  if (page === "stats") {
+    renderStats();
+  }
+}
 
 // ===============================
 // UTILIDADES
@@ -221,6 +259,17 @@ function getTodayString() {
   // .split("T")[0] → coge solo la parte antes de la T → "2024-03-15"
 }
 
+// Devuelve el tier de racha correspondiente a los días actuales.
+// Recorre los tiers de mayor a menor y devuelve el primero que se cumple.
+function getStreakTier(streak) {
+  for (let i = STREAK_TIERS.length - 1; i >= 0; i--) {
+    if (streak >= STREAK_TIERS[i].minDays) {
+      return STREAK_TIERS[i];
+    }
+  }
+  return STREAK_TIERS[0]; // Por defecto, tier inicial
+}
+
 // ===============================
 // SISTEMA DE XP Y NIVELES
 // ===============================
@@ -234,6 +283,14 @@ function addXp(amount, category) {
   if (!state.user.categoryXp) {
     state.user.categoryXp = { otros: 0, deporte: 0, estudio: 0, ocio: 0, hogar: 0, creatividad: 0, salud: 0, trabajo: 0 };
   }
+
+  // Añade claves que falten por si el usuario tiene datos de una versión anterior
+  const allKeys = ["otros", "deporte", "estudio", "ocio", "hogar", "creatividad", "salud", "trabajo"];
+  allKeys.forEach(key => {
+    if (state.user.categoryXp[key] === undefined) {
+      state.user.categoryXp[key] = 0;
+    }
+  });
 
   // Suma XP a la categoría correspondiente
   if (category && state.user.categoryXp[category] !== undefined) {
@@ -277,19 +334,17 @@ function applyThemeByLevel() {
 
 function selectTheme(themeKey) {
   const theme = THEMES[themeKey];
-
-  // Comprobamos que el tema existe y que el jugador tiene el nivel suficiente
   if (!theme) return;
   if (state.user.level < theme.level) {
     alert(`Necesitas nivel ${theme.level} para desbloquear este tema.`);
     return;
   }
 
-  // Guardamos el tema elegido y lo aplicamos
   state.user.selectedTheme = themeKey;
   applyThemeByLevel();
   saveState();
-  renderThemeSelector(); // Actualiza el selector para reflejar el tema activo
+  render();
+  renderThemeSelector();
 }
 
 // ===============================
@@ -373,7 +428,8 @@ habitForm.addEventListener("submit", function (e) {
     xpReward: HABIT_XP[difficulty],
     streak: 0,          // Racha actual de días consecutivos
     bestStreak: 0,      // La mejor racha que ha tenido este hábito
-    lastCompleted: null // Última vez que se completó (null = nunca)
+    lastCompleted: null, // Última vez que se completó (null = nunca)
+    completedDates: []   // Array para guardar las fechas de cada vez que se completa el hábito
   };
 
   state.habits.push(habit);
@@ -416,6 +472,12 @@ function completeHabit(habitId) {
 
   habit.lastCompleted = today; // Guardamos que hoy fue completado
 
+  // Guardamos la fecha en el historial si no está ya
+  if (!habit.completedDates) habit.completedDates = []; // protección datos antiguos
+  if (!habit.completedDates.includes(today)) {
+    habit.completedDates.push(today);
+  }
+
   addXp(habit.xpReward, habit.category); // Damos la XP correspondiente y la categoría
   saveState();
   render();
@@ -425,6 +487,81 @@ function deleteHabit(habitId) {
   state.habits = state.habits.filter(h => h.id != habitId);
   saveState();
   render();
+}
+
+// ===============================
+// LISTA DE LA COMPRA
+// ===============================
+
+shoppingForm.addEventListener("submit", function (e) {
+  e.preventDefault();
+
+  const title = shoppingItem.value.trim();
+  const category = shoppingCategory.value;
+
+  if (!title) return;
+
+  // Creamos el objeto del artículo
+  const item = {
+    id: generateId(),
+    title,
+    category,
+    checked: false // Al crearlo, aún no está tachado
+  };
+
+  state.shopping.push(item);
+  saveState();
+  renderShopping();
+
+  shoppingForm.reset();
+});
+
+function toggleShoppingItem(itemId) {
+  // Busca el artículo y cambia su estado entre marcado y no marcado
+  const item = state.shopping.find(i => i.id == itemId);
+  if (!item) return;
+  item.checked = !item.checked; // Invierte el estado
+  saveState();
+  renderShopping();
+}
+
+function deleteShoppingItem(itemId) {
+  state.shopping = state.shopping.filter(i => i.id != itemId);
+  saveState();
+  renderShopping();
+}
+
+function completeShoppingList() {
+  // Solo completamos si hay artículos
+  if (state.shopping.length === 0) {
+    alert("La lista está vacía.");
+    return;
+  }
+
+  // Calculamos la XP total según las categorías de los artículos
+  // Agrupamos por categoría y damos XP una vez por categoría presente
+  const categoriesPresent = [...new Set(state.shopping.map(i => i.category))];
+  let totalXp = 0;
+  categoriesPresent.forEach(cat => {
+    totalXp += SHOPPING_XP[cat] || SHOPPING_XP.otros;
+    addXp(SHOPPING_XP[cat] || SHOPPING_XP.otros, cat);
+  });
+
+  alert(`¡Lista completada! Has ganado ${totalXp} XP.`);
+
+  // Vaciamos la lista
+  state.shopping = [];
+  saveState();
+  renderShopping();
+}
+
+function clearShoppingList() {
+  // Vaciamos la lista sin dar XP
+  if (state.shopping.length === 0) return;
+  if (!confirm("¿Seguro que quieres vaciar la lista?")) return;
+  state.shopping = [];
+  saveState();
+  renderShopping();
 }
 
 // ===============================
@@ -475,7 +612,7 @@ function closeSettings() {
 // ===============================
 // RENDER DEL GRÁFICO DE HABILIDADES
 // ===============================
-// Dibuja el hexágono de categorías en el <canvas> del perfil.
+// Dibuja el octógono de categorías en el <canvas> del perfil.
 // Se llama cada vez que render() se ejecuta.
 
 function renderSkillChart() {
@@ -496,7 +633,7 @@ function renderSkillChart() {
   // Calculamos el máximo para normalizar (mínimo 1 para evitar dividir por 0)
   const maxXp = Math.max(1, ...keys.map(k => catXp[k] || 0));
 
-  // Calculamos los ángulos: empezamos arriba (-90°) y repartimos 360° entre 6
+  // Calculamos los ángulos: empezamos arriba (-90°) y repartimos 360° entre 8
   const angles = keys.map((_, i) => (Math.PI * 2 * i) / keys.length - Math.PI / 2);
 
   // Limpiamos el canvas antes de redibujar
@@ -559,8 +696,8 @@ function renderSkillChart() {
 // RENDER DEL SELECTOR DE TEMAS
 // ===============================
 // Dibuja los botones para elegir el tema visual, mostrando cuáles
-// están desbloqueados y cuál es el activo. Se llama cada vez que render()
-// se ejecuta para mantenerlo actualizado.
+// están desbloqueados y cuál es el activo. Se llama al abrir ajustes.
+
 function renderThemeSelector() {
   const container = document.getElementById("themeSelector");
   if (!container) return;
@@ -595,50 +732,61 @@ function render() {
   renderProfile();    // Actualiza el panel de usuario
   renderTasks();      // Actualiza la lista de tareas
   renderHabits();     // Actualiza la lista de hábitos
+  renderShopping();   // Actualiza la lista de la compra
   renderStats();      // Actualiza las estadísticas
   renderSkillChart(); // Actualiza el gráfico de habilidades
 }
 
 function renderProfile() {
-  // .textContent cambia el texto visible de un elemento HTML
-  playerName.textContent = state.user.name;
-  levelText.textContent = `Nivel ${state.user.level}`;
+  // Usamos getElementById en vez de variables globales porque el perfil
+  // está en page-perfil y puede no estar visible. Si el elemento no existe
+  // en el DOM activo simplemente no hacemos nada.
+  const playerName = document.getElementById("playerName");
+  const levelText = document.getElementById("levelText");
+  const xpText = document.getElementById("xpText");
+  const xpFill = document.getElementById("xpFill");
+  const unlockList = document.getElementById("unlockList");
+  const pendingTasksCount = document.getElementById("pendingTasksCount");
+  const completedTasksCount = document.getElementById("completedTasksCount");
+  const habitCount = document.getElementById("habitCount");
+  const totalXpText = document.getElementById("totalXpText");
 
-  const needed = xpNeededForLevel(state.user.level);
-  xpText.textContent = `${state.user.xp} / ${needed} XP`;
+  if (playerName) playerName.textContent = state.user.name;
+  if (levelText) levelText.textContent = `Nivel ${state.user.level}`;
 
-  // Calculamos el porcentaje para la barra de progreso
-  const percent = (state.user.xp / needed) * 100;
-  xpFill.style.width = `${percent}%`;
-  // .style.width modifica directamente el CSS del elemento desde JavaScript
+  if (xpText && xpFill) {
+    const needed = xpNeededForLevel(state.user.level);
+    xpText.textContent = `${state.user.xp} / ${needed} XP`;
+    const percent = (state.user.xp / needed) * 100;
+    xpFill.style.width = `${percent}%`;
+  }
 
   // Regeneramos la lista de desbloqueos
-  unlockList.innerHTML = ""; // Limpiamos la lista antes de rellenarla
-  const unlocked = getUnlockedItems();
-
-  // .forEach() recorre cada elemento del array y ejecuta la función para él
-  unlocked.forEach(item => {
-    const li = document.createElement("li"); // Creamos un nuevo elemento <li>
-    li.textContent = item.text;              // Le ponemos el texto
-    unlockList.appendChild(li);             // Lo añadimos al <ul> del HTML
-  });
+  if (unlockList) {
+    unlockList.innerHTML = "";
+    const unlocked = getUnlockedItems();
+    unlocked.forEach(item => {
+      const li = document.createElement("li");
+      li.textContent = item.text;
+      unlockList.appendChild(li);
+    });
+  }
 
   // Actualizamos el resumen con los contadores
-  pendingTasksCount.textContent = state.tasks.filter(t => !t.completed).length;
-  // .filter() filtra las no completadas → .length cuenta cuántas son
-  completedTasksCount.textContent = state.tasks.filter(t => t.completed).length;
-  habitCount.textContent = state.habits.length;
-  totalXpText.textContent = state.user.totalXp;
+  if (pendingTasksCount) pendingTasksCount.textContent = state.tasks.filter(t => !t.completed).length;
+  if (completedTasksCount) completedTasksCount.textContent = state.tasks.filter(t => t.completed).length;
+  if (habitCount) habitCount.textContent = state.habits.length;
+  if (totalXpText) totalXpText.textContent = state.user.totalXp;
 }
 
 function renderTasks() {
+  if (!taskList) return;
   taskList.innerHTML = "";
 
   const completedList = document.getElementById("completedTaskList");
-  const completedSection = document.getElementById("completedTasksSection");
   const completedCount = document.getElementById("completedTasksToggleCount");
 
-  completedList.innerHTML = "";
+  if (completedList) completedList.innerHTML = "";
 
   // Separamos las tareas en dos arrays: pendientes y completadas
   const pending = state.tasks.filter(t => !t.completed);
@@ -672,34 +820,37 @@ function renderTasks() {
   }
 
   // --- Tareas completadas (dentro del desplegable) ---
-  completedCount.textContent = completed.length;
+  if (completedCount) completedCount.textContent = completed.length;
 
-  if (completed.length === 0) {
-    completedList.innerHTML = "<p>Ninguna tarea completada todavía.</p>";
-  } else {
-    completed.forEach(task => {
-      const div = document.createElement("div");
-      div.className = "item";
-      div.innerHTML = `
-        <div class="item-top">
-          <div>
-            <div class="item-title done">${task.title}</div>
-            <div class="item-meta">
-              Dificultad: ${difficultyLabel(task.difficulty)} | Recompensa: ${task.xpReward} XP | Categoría: ${CATEGORIES[task.category] || task.category}
+  if (completedList) {
+    if (completed.length === 0) {
+      completedList.innerHTML = "<p>Ninguna tarea completada todavía.</p>";
+    } else {
+      completed.forEach(task => {
+        const div = document.createElement("div");
+        div.className = "item";
+        div.innerHTML = `
+          <div class="item-top">
+            <div>
+              <div class="item-title done">${task.title}</div>
+              <div class="item-meta">
+                Dificultad: ${difficultyLabel(task.difficulty)} | Recompensa: ${task.xpReward} XP | Categoría: ${CATEGORIES[task.category] || task.category}
+              </div>
             </div>
           </div>
-        </div>
-        <div class="item-actions">
-          <button class="btn-delete">Eliminar</button>
-        </div>
-      `;
-      div.querySelector(".btn-delete").addEventListener("click", () => deleteTask(task.id));
-      completedList.appendChild(div);
-    });
+          <div class="item-actions">
+            <button class="btn-delete">Eliminar</button>
+          </div>
+        `;
+        div.querySelector(".btn-delete").addEventListener("click", () => deleteTask(task.id));
+        completedList.appendChild(div);
+      });
+    }
   }
 }
 
 function renderHabits() {
+  if (!habitList) return;
   habitList.innerHTML = "";
 
   if (state.habits.length === 0) {
@@ -711,19 +862,48 @@ function renderHabits() {
     const div = document.createElement("div");
     div.className = "item";
 
-    // Comprobamos si el hábito ya fue completado hoy
     const completedToday = habit.lastCompleted === getTodayString();
+
+    // Obtenemos el tier actual y el siguiente para la barra de progreso
+    const tier = getStreakTier(habit.streak);
+    const nextTierIndex = STREAK_TIERS.indexOf(tier) + 1;
+    const nextTier = STREAK_TIERS[nextTierIndex] || null;
+
+    // Añadimos la clase de color de borde según el tier
+    div.classList.add(tier.borderClass);
+
+    // Calculamos el progreso hacia el siguiente hito
+    let progressHTML = "";
+    if (nextTier) {
+      const daysInCurrentTier = habit.streak - tier.minDays;
+      const daysNeeded = nextTier.minDays - tier.minDays;
+      const percent = Math.min((daysInCurrentTier / daysNeeded) * 100, 100);
+      progressHTML = `
+        <div class="streak-progress-bar">
+          <div class="streak-progress-fill" style="width: ${percent}%"></div>
+        </div>
+        <div class="streak-progress-label">
+          ${nextTier.emoji} Siguiente hito: ${nextTier.label} en ${nextTier.minDays - habit.streak} días
+        </div>
+      `;
+    } else {
+      // Ya está en el tier máximo
+      progressHTML = `<div class="streak-progress-label">👑 Hito máximo alcanzado</div>`;
+    }
 
     div.innerHTML = `
       <div class="item-top">
         <div>
-          <div class="item-title">${habit.title}</div>
+          <div class="item-title">
+            ${tier.emoji} ${habit.title}
+          </div>
           <div class="item-meta">
             Dificultad: ${difficultyLabel(habit.difficulty)} | Recompensa: ${habit.xpReward} XP | Categoría: ${CATEGORIES[habit.category] || habit.category}
           </div>
           <div class="item-meta">
-            Racha actual: ${habit.streak} | Mejor racha: ${habit.bestStreak}
+            Racha actual: ${habit.streak} días | Mejor racha: ${habit.bestStreak} días
           </div>
+          ${progressHTML}
         </div>
       </div>
       <div class="item-actions">
@@ -734,51 +914,111 @@ function renderHabits() {
       </div>
     `;
 
-    const completeBtn = div.querySelector(".btn-habit");
-    const deleteBtn = div.querySelector(".btn-delete");
-
-    completeBtn.addEventListener("click", () => completeHabit(habit.id));
-    deleteBtn.addEventListener("click", () => deleteHabit(habit.id));
+    div.querySelector(".btn-habit").addEventListener("click", () => completeHabit(habit.id));
+    div.querySelector(".btn-delete").addEventListener("click", () => deleteHabit(habit.id));
 
     habitList.appendChild(div);
+  });
+}
+
+function renderShopping() {
+  if (!shoppingList) return;
+  shoppingList.innerHTML = "";
+
+  if (state.shopping.length === 0) {
+    shoppingList.innerHTML = "<p>La lista está vacía. ¡Añade artículos!</p>";
+    return;
+  }
+
+  state.shopping.forEach(item => {
+    const div = document.createElement("div");
+    div.className = "item";
+
+    div.innerHTML = `
+      <div class="item-top">
+        <div class="shopping-item-left">
+          <input type="checkbox" class="shopping-checkbox" ${item.checked ? "checked" : ""} />
+          <div>
+            <div class="item-title ${item.checked ? "done" : ""}">${item.title}</div>
+            <div class="item-meta">Categoría: ${CATEGORIES[item.category] || item.category}</div>
+          </div>
+        </div>
+        <button class="btn-delete shopping-delete">Eliminar</button>
+      </div>
+    `;
+
+    // Al hacer clic en el checkbox, marcamos o desmarcamos el artículo
+    div.querySelector(".shopping-checkbox").addEventListener("change", () => toggleShoppingItem(item.id));
+    div.querySelector(".shopping-delete").addEventListener("click", () => deleteShoppingItem(item.id));
+
+    shoppingList.appendChild(div);
   });
 }
 
 function renderStats() {
   const habits = state.habits;
 
-  // Las estadísticas avanzadas están bloqueadas hasta nivel 2
-  if (state.user.level < 2) {
-    avgStreakText.textContent = "Bloqueado";
-    bestHabitText.textContent = "Bloqueado";
-    return;
+  // Generamos los últimos 30 días en formato "YYYY-MM-DD"
+  const days = [];
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    days.push(d.toISOString().split("T")[0]);
   }
+
+  // Construimos el HTML de la cuadrícula
+  let html = '<div class="activity-grid">';
+
+  // Cabecera con las fechas (solo mostramos el día del mes)
+  html += '<div class="activity-row">';
+  html += '<div class="activity-habit-label"></div>'; // celda vacía para alinear
+  days.forEach(day => {
+    const dayNum = day.split("-")[2]; // solo el número del día
+    html += `<div class="activity-day-header">${dayNum}</div>`;
+  });
+  html += '</div>';
 
   if (habits.length === 0) {
-    avgStreakText.textContent = "0";
-    bestHabitText.textContent = "Ninguno";
-    return;
+    html += '<p style="color: var(--muted); margin-top: 12px;">No hay hábitos todavía.</p>';
+  } else {
+    habits.forEach(habit => {
+      const completedDates = habit.completedDates || [];
+
+      html += '<div class="activity-row">';
+      // Etiqueta con el nombre del hábito
+      html += `<div class="activity-habit-label" title="${habit.title}">${habit.title}</div>`;
+
+      // Un cuadrado por cada día
+      days.forEach(day => {
+        const done = completedDates.includes(day);
+        html += `<div class="activity-cell ${done ? "activity-cell-done" : ""}" title="${day}"></div>`;
+      });
+
+      html += '</div>';
+    });
   }
 
-  // .reduce() recorre el array acumulando un valor.
-  // Empieza con 0 (el segundo argumento) y va sumando el streak de cada hábito.
-  const totalStreak = habits.reduce((acc, habit) => acc + habit.streak, 0);
-  // acc = acumulador (empieza en 0), habit = elemento actual del array
+  html += '</div>';
 
-  const avgStreak = (totalStreak / habits.length).toFixed(1);
-  // .toFixed(1) redondea a 1 decimal → "3.7" en vez de "3.666666..."
-
-  // Buscamos el hábito con la mejor racha histórica
-  let bestHabit = habits[0]; // Empezamos asumiendo que el primero es el mejor
-  for (let i = 1; i < habits.length; i++) {
-    // Recorremos el resto del array comparando rachas
-    if (habits[i].bestStreak > bestHabit.bestStreak) {
-      bestHabit = habits[i]; // Actualizamos si encontramos uno mejor
+  // Racha media y mejor hábito solo si nivel >= 2
+  if (state.user.level >= 2 && habits.length > 0) {
+    const totalStreak = habits.reduce((acc, h) => acc + h.streak, 0);
+    const avgStreak = (totalStreak / habits.length).toFixed(1);
+    let bestHabit = habits[0];
+    for (let i = 1; i < habits.length; i++) {
+      if (habits[i].bestStreak > bestHabit.bestStreak) bestHabit = habits[i];
     }
+    html += `
+      <div class="activity-summary">
+        <p>Racha media: <strong>${avgStreak}</strong></p>
+        <p>Mejor hábito: <strong>${bestHabit.title}</strong></p>
+      </div>
+    `;
   }
 
-  avgStreakText.textContent = avgStreak;
-  bestHabitText.textContent = bestHabit.title;
+  // Inyectamos todo en la tarjeta de estadísticas
+  const card = document.getElementById("statsCard");
+  if (card) card.innerHTML = '<h3>Estadísticas</h3>' + html;
 }
 
 // ===============================
@@ -795,20 +1035,29 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Edición del nombre del jugador.
   // Se registra aquí dentro para asegurar que el botón ya existe en el DOM.
-  editNameBtn.addEventListener("click", function () {
-    const newName = prompt("Introduce tu nombre:", state.user.name);
-    // prompt() abre una ventana emergente con un campo de texto.
-    // Devuelve null si el usuario pulsa "Cancelar".
-    if (newName && newName.trim()) {
-      state.user.name = newName.trim();
-      saveState();
-      render();
-    }
-  });
+  const editNameBtn = document.getElementById("editNameBtn");
+  if (editNameBtn) {
+    editNameBtn.addEventListener("click", function () {
+      const newName = prompt("Introduce tu nombre:", state.user.name);
+      // prompt() abre una ventana emergente con un campo de texto.
+      // Devuelve null si el usuario pulsa "Cancelar".
+      if (newName && newName.trim()) {
+        state.user.name = newName.trim();
+        saveState();
+        render();
+      }
+    });
+  }
 
   // Abre el modal de ajustes al pulsar la tuerca
-  settingsBtn.addEventListener("click", function () {
-    openSettings();
-  });
+  const settingsBtn = document.getElementById("settingsBtn");
+  if (settingsBtn) {
+    settingsBtn.addEventListener("click", function () {
+      openSettings();
+    });
+  }
 
+  // Botones de la lista de la compra
+  if (completeShoppingBtn) completeShoppingBtn.addEventListener("click", completeShoppingList);
+  if (clearShoppingBtn) clearShoppingBtn.addEventListener("click", clearShoppingList);
 });
