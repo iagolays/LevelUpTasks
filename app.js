@@ -194,7 +194,7 @@ const taskDueDate = document.getElementById("taskDueDate");
 
 function navigateTo(page) {
   // Lista de todas las páginas disponibles
-  const pages = ["inicio", "stats", "compra"];
+  const pages = ["inicio", "studyos", "stats", "compra"];
 
   // Ocultamos todas las páginas
   pages.forEach(p => {
