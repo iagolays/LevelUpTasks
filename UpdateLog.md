@@ -4,6 +4,25 @@ Todos los cambios notables de LevelUp Tasks se documentan aquí.
 
 ---
 
+## [1.3] - 2025
+
+### ✨ Nuevo
+- **Navegación por secciones** — La app ahora tiene una barra de navegación superior con tres secciones: Inicio, Estadísticas y Lista de la compra.
+- **Lista de la compra** — Nueva sección para gestionar la compra. Añade artículos con categoría, táchales al comprarlos, y completa la lista para ganar XP según las categorías presentes.
+- **Rachas visuales** — Los hábitos evolucionan visualmente según su racha: 🌱 Iniciado → 🔥 En racha (7d) → ⚡ Imparable (14d) → 👑 Leyenda (21d). Incluye barra de progreso hacia el siguiente hito y color de borde según el tier.
+- **Cuadrícula de actividad** — Nueva sección de estadísticas con un gráfico estilo GitHub que muestra los últimos 30 días de cada hábito.
+- **Página de estadísticas avanzadas** — Sección dedicada con Coming Soon para las próximas features de estadísticas.
+
+### 🔧 Mejoras
+- Las categorías de la lista de la compra son las mismas que las de tareas y hábitos.
+- El gráfico de actividad de hábitos pasa a estar en la pantalla principal junto al resumen.
+
+### 🐛 Correcciones
+- Corregido un bug por el que las categorías nuevas (Salud y Trabajo) no actualizaban el gráfico de habilidades en usuarios con datos guardados de versiones anteriores.
+- Corregido el tema Azul que visualmente era demasiado similar al Verde inicial.
+
+---
+
 ## [1.2] - 2025
 
 ### ✨ Nuevo
