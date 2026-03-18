@@ -719,6 +719,19 @@ details#completedTasksSection .list {
     padding: 8px 12px;
     font-size: 13px;
   }
+
+  .activity-grid {
+  max-width: 100%;
+  overflow-x: scroll; /* Permite scroll solo dentro del gráfico, no en toda la página */
+}
+
+  .activity-row {
+    min-width: max-content; /* Los cuadrados no se encogen, el scroll es interno */
+  }
+
+  #statsCard {
+  overflow: hidden; /* Contiene el desbordamiento dentro de la tarjeta */
+}
 }
 
 /* ===============================
