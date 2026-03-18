@@ -82,7 +82,7 @@ const APP_VERSION = "1.4";
 // Puedes usar saltos de línea con \n o escribir HTML directamente.
 const UPDATE_NOTES = `
   <h3>¡Bienvenido a LevelUp Tasks!</h3>
-  <h4>Update, cositas q considero útiles </h4>
+  <h4>Update, fix rápido para marta</h4>
   <ul>
     <li> Ahora puedes añadir fechas límite a las tareas. Si no las completas a tiempo, perderás la XP que habrías ganado al completarlas. ¡Date prisa! </li>
     <li> Se buscan ideas para la próxima update, sobre todo sobre desbloqueos y estadísticas que os gustaría poder comprobar. Cualquier sugerencia al correo: iago.leis@rai.usc.es </li>
