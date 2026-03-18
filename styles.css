@@ -40,6 +40,9 @@ body {
   /* Usa la variable de color de fondo definida en :root */
   color: var(--text);
   /* Color del texto por defecto para toda la página */
+
+  /* Evita que cualquier elemento desborde horizontalmente la página */
+  overflow-x: hidden;
 }
 
 /* ===============================
@@ -114,6 +117,9 @@ body {
      min() elige el valor más pequeño de los dos. Así funciona el responsive. */
   margin: 0 auto 40px;
   /* 0 arriba, "auto" a los lados (centra el bloque), 40px abajo */
+
+  /* Evita que el contenedor desborde en móvil */
+  max-width: 100%;
 }
 
 /* ===============================
@@ -125,6 +131,9 @@ body {
   border-radius: 16px;              /* Esquinas redondeadas */
   padding: 18px;                    /* Espaciado interior */
   margin-bottom: 18px;              /* Espacio entre tarjetas */
+
+  /* Evita que el contenido de la tarjeta desborde horizontalmente */
+  overflow: hidden;
 }
 
 .profile-card {
@@ -577,8 +586,12 @@ details#completedTasksSection .list {
    CUADRÍCULA DE ACTIVIDAD
    =============================== */
 .activity-grid {
-  overflow-x: auto;        /* Scroll horizontal si no caben todos los días */
+  /* El scroll horizontal queda contenido dentro de esta caja */
+  display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch; /* Scroll suave en iOS */
   padding-bottom: 8px;
+  max-width: 100%;
 }
 
 .activity-row {
@@ -586,6 +599,8 @@ details#completedTasksSection .list {
   align-items: center;
   gap: 4px;
   margin-bottom: 4px;
+  /* min-width: max-content hace que la fila no se comprima y el scroll sea interno */
+  min-width: max-content;
 }
 
 /* Etiqueta con el nombre del hábito */
@@ -684,57 +699,6 @@ details#completedTasksSection .list {
 }
 
 /* ===============================
-   RESPONSIVE (MÓVILES)
-   ===============================
-   @media es una "media query". El CSS dentro solo se aplica
-   cuando la pantalla tiene 700px o menos (móviles y tablets pequeñas) */
-@media (max-width: 700px) {
-
-  .grid-2 {
-    grid-template-columns: 1fr;
-    /* En móvil, las dos columnas pasan a ser una sola (una debajo de la otra) */
-  }
-
-  .form {
-    grid-template-columns: 1fr;
-    /* El formulario también pasa a ser de una columna (apilado verticalmente) */
-  }
-
-  .profile-top {
-    flex-direction: column;      /* Los elementos se apilan verticalmente */
-    align-items: flex-start;     /* Se alinean a la izquierda */
-  }
-
-  #skillChart {
-    width: 220px;   /* En móvil el canvas es un poco más pequeño */
-    height: 220px;
-  }
-
-  .navbar {
-    gap: 6px;
-    padding: 8px;
-  }
-
-  .nav-btn {
-    padding: 8px 12px;
-    font-size: 13px;
-  }
-
-  .activity-grid {
-  max-width: 100%;
-  overflow-x: scroll; /* Permite scroll solo dentro del gráfico, no en toda la página */
-}
-
-  .activity-row {
-    min-width: max-content; /* Los cuadrados no se encogen, el scroll es interno */
-  }
-
-  #statsCard {
-  overflow: hidden; /* Contiene el desbordamiento dentro de la tarjeta */
-}
-}
-
-/* ===============================
    COMING SOON
    =============================== */
 
@@ -785,4 +749,61 @@ details#completedTasksSection .list {
   font-weight: bold;
   font-size: 14px;
   letter-spacing: 1px;
+}
+
+/* ===============================
+   RESPONSIVE (MÓVILES)
+   ===============================
+   @media es una "media query". El CSS dentro solo se aplica
+   cuando la pantalla tiene 700px o menos (móviles y tablets pequeñas) */
+@media (max-width: 700px) {
+
+  .grid-2 {
+    grid-template-columns: 1fr;
+    /* En móvil, las dos columnas pasan a ser una sola (una debajo de la otra) */
+  }
+
+  .form {
+    grid-template-columns: 1fr;
+    /* El formulario también pasa a ser de una columna (apilado verticalmente) */
+  }
+
+  .profile-top {
+    flex-direction: column;      /* Los elementos se apilan verticalmente */
+    align-items: flex-start;     /* Se alinean a la izquierda */
+  }
+
+  #skillChart {
+    width: 220px;   /* En móvil el canvas es un poco más pequeño */
+    height: 220px;
+  }
+
+  .navbar {
+    gap: 6px;
+    padding: 8px;
+  }
+
+  .nav-btn {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+
+  /* Cuadrados y etiquetas más pequeños en móvil para reducir el scroll */
+  .activity-habit-label {
+    width: 80px;
+    min-width: 80px;
+    font-size: 10px;
+  }
+
+  .activity-cell {
+    width: 14px;
+    min-width: 14px;
+    height: 14px;
+  }
+
+  .activity-day-header {
+    width: 14px;
+    min-width: 14px;
+    font-size: 9px;
+  }
 }
