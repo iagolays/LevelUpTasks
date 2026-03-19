@@ -21,7 +21,7 @@ Está bastante vibecodeado, si ves algo raro o tienes alguna duda puedes pregunt
 
 ## 🚀 Demo
 
-Puedes probar la app directamente en: [LevelUp Tasks en GitHub Pages](https://iago-leis.github.io/LevelTasksUp)
+Puedes probar la app directamente en: [LevelUp Tasks en GitHub Pages](https://iagolays.github.io/LevelUpTasks/)
 
 ---
 
