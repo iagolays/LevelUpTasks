@@ -1143,21 +1143,15 @@ details#completedTasksSection .list {
 
   .grid-2 {
     grid-template-columns: 1fr;
-    /* En móvil, las dos columnas pasan a ser una sola (una debajo de la otra) */
   }
 
   .form {
-    grid-template-columns: 1fr; /* Una sola columna en móvil para todos los formularios */
-  }
-
-  /* El formulario de tareas también una columna en móvil */
-  #taskForm {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr;  /* ← una sola columna en móvil */
   }
 
   .profile-top {
-    flex-direction: column;      /* Los elementos se apilan verticalmente */
-    align-items: flex-start;     /* Se alinean a la izquierda */
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   #skillChart {
