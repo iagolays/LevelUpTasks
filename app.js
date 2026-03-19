@@ -7,6 +7,10 @@
 // en el navegador (localStorage). Así siempre usamos el mismo nombre.
 const STORAGE_KEY = "levelup_tasks_app";
 
+// Nombre de la moneda de la tienda. Cámbialo aquí para que se actualice en toda la app.
+const CURRENCY_NAME = "PaupeDolars";
+const CURRENCY_ICON = "🤑";
+
 // Objeto que relaciona cada nivel de dificultad con su XP.
 // Ejemplo: una tarea de dificultad 3 da 35 XP.
 // La sintaxis { clave: valor } se llama "objeto literal" en JavaScript.
@@ -23,6 +27,22 @@ const HABIT_XP = {
   1: 5,
   2: 10,
   3: 15
+};
+
+// Monedas que se ganan al completar tareas según dificultad
+const TASK_COINS = {
+  1: 5,
+  2: 8,
+  3: 12,
+  4: 16,
+  5: 20
+};
+
+// Monedas que se ganan al completar hábitos según dificultad
+const HABIT_COINS = {
+  1: 3,
+  2: 5,
+  3: 8
 };
 
 // XP que da completar la lista de la compra según categoría
@@ -71,23 +91,66 @@ const THEMES = {
   azul:   { label: "Azul",        level: 3,  className: "theme-blue"   },
   dorado: { label: "Dorado",      level: 5,  className: "theme-gold"   },
   rojo:   { label: "Rojo/Sangre", level: 7,  className: "theme-red"    },
-  morado: { label: "Morado",      level: 10, className: "theme-purple" }
+  morado: { label: "Morado",      level: 10, className: "theme-purple" },
+  bordo:   { label: "Burdeos",     level: 13,  className: "theme-bordo"   },
+  tierra:  { label: "Tierra",      level: 15, className: "theme-tierra"  },
 };
+
+// Catálogo de artículos de la tienda.
+// type: "font" | "border" | "title"
+// value: el valor CSS o texto que se aplica al equiparlo
+const SHOP_ITEMS = [
+  // Tipografías
+  { id: "font_mono",      type: "font",   label: "Monospace",   icon: "⌨️",  price: 50,  value: "'Courier New', monospace",  description: "Fuente de programador" },
+  { id: "font_serif",     type: "font",   label: "Serif",       icon: "📜",  price: 50,  value: "Georgia, serif",             description: "Fuente clásica con serifa" },
+  { id: "font_minecraft", type: "font",   label: "Minecraft",   icon: "⛏️",  price: 120, value: "'Press Start 2P', cursive",  description: "Chicken Jockye" },
+  { id: "font_comicsans", type: "font",   label: "Comic Sans",  icon: "...", price: 1,   value: "'Comic Neue', cursive",      description: "Realmente vas a comprar esto?" },
+  { id: "font_skyrim",    type: "font",   label: "Skyrim",      icon: "🐉",  price: 120, value: "'Cinzel', serif",            description: "Fus Ro Dah" },
+  { id: "font_burgerking",type: "font",   label: "Burger King", icon: "🍔",  price: 90,  value: "'Lilita One', cursive",      description: "Gabilol trae una whooper" },
+  // Marcos del perfil
+  { id: "border_gold",     type: "border", label: "Dorado",    icon: "🥇", price: 50,  value: "gold",      description: "Un marco digno de un campeón" },
+  { id: "border_rainbow",  type: "border", label: "Arcoíris",  icon: "🌈", price: 200, value: "rainbow",   description: "Hay un enano pelirrojo al final del arcoiris" },
+  { id: "border_latido",   type: "border", label: "Latido",    icon: "💗", price: 120, value: "latido",    description: "Pulsante" },
+  { id: "border_electrico",type: "border", label: "Eléctrico", icon: "⚡", price: 180, value: "electrico", description: "Zap" },
+  { id: "border_hielo",    type: "border", label: "Hielo",     icon: "❄️", price: 150, value: "hielo",     description: "Tutorial de como ser frio como Saske" },
+  { id: "border_sombra",   type: "border", label: "Sombra",    icon: "🌑", price: 170, value: "sombra",    description: "Edgy malita de la cabeza" },
+  { id: "border_neon",     type: "border", label: "Neón",      icon: "🟢", price: 130, value: "neon",      description: "Brilla en la oscuridad" },
+  // Títulos
+  { id: "title_noob",    type: "title", label: "Novato",        icon: "🌱", price: 0,   value: "Novato",        description: "Lvl-1 Rookie" },
+  { id: "title_grinder", type: "title", label: "El Incansable", icon: "⚙️", price: 80,  value: "El Incansable", description: "Para los que nunca paran" },
+  { id: "title_legend",  type: "title", label: "Leyenda",       icon: "👑", price: 300, value: "Leyenda",       description: "Lvl-100 Mafia Boss" },
+  { id: "title_paupero", type: "title", label: "El Paupérrimo", icon: "💸", price: 1,   value: "El Paupérrimo", description: "Estamos dando vueltas en círculos" }
+];
 
 // Versión actual de la app. Cámbiala cada vez que hagas una update
 // para que el modal se muestre de nuevo a todos los usuarios.
-const APP_VERSION = "1.4";
+const APP_VERSION = "1.6";
 
 // Mensaje que se mostrará en el modal para esta versión.
 // Puedes usar saltos de línea con \n o escribir HTML directamente.
 const UPDATE_NOTES = `
   <h3>¡Bienvenido a LevelUp Tasks!</h3>
-  <h4>Update, fix rápido para marta</h4>
+  <h4>Update grande!! Dos developers, el doble de caos!!</h4>
   <ul>
-    <li> Ahora puedes añadir fechas límite a las tareas. Si no las completas a tiempo, perderás la XP que habrías ganado al completarlas. ¡Date prisa! </li>
-    <li> Se buscan ideas para la próxima update, sobre todo sobre desbloqueos y estadísticas que os gustaría poder comprobar. Cualquier sugerencia al correo: iago.leis@rai.usc.es </li>
-    <li> No nos hemos olvidade del resto de peticiones! Seguiremos trayendo updates cuando la fokin universidad nos deje un hueco, y seguiremos añadiendo mejoras poco a poco. 
-    Podeis comprobar que features ya estan planeadas para próximas updates en el README de este proyecto: https://github.com/iagolays/LevelUpTasks</li>
+    <li>Antes de nada, anunciar que tenemos a una nueva developer con nosotros, Nuria!! Aquí su github: https://github.com/nuriaguerra/nuriaguerra</li>
+    <li>A partir de ahora, cada vez que veáis una update recomendamos recargar con Ctrl+Shift+R para asegurarse de que tenéis la última versión sin caché (en el móvil deberéis borrar los datos de navegación).</li>
+    <li>Hemos añadido la pestaña de tienda!! Explórala, investiga cómo conseguir dinero (y gástalo). Queremos vuestra opinión sobre qué debería estar en la tienda y qué se debería desbloquear con niveles.</li>
+    <li>No más coming soon en la sección de estadísticas, ve a comprobarlo tú mismo!!</li>
+    <li>Se han solucionado algunos aspectos estéticos que nos daban toc.</li>
+    <li> Os animamos a personalizar la app a vuestra manera, cambiando los temas, comprando artículos en la tienda y equipándolos. Queremos que cada uno tenga una experiencia única y se sienta identificado con su personaje.</li>
+    <li>📚 Nueva pestaña StudyOS, desarrollada por Nuria:</li>
+    <ul>
+      <li>Asignaturas con progreso automático: el 70% depende de los temas en estado "Me lo sé" y el 30% de las tareas completadas.</li>
+      <li>Temas por asignatura con estados propios: No empezado, Leyendo, Repasar o Me lo sé. Cada cambio suma XP.</li>
+      <li>Tareas con dificultad, XP y división por días. Cada día que marcas un cuadradito mantiene tu racha activa.</li>
+      <li>Notas automáticas en tareas y temas.</li>
+      <li>Exámenes vinculados a asignaturas con estado de preparación. Si aprobaste recibes XP; si suspendiste, se resta.</li>
+      <li>Pomodoro con anillo circular y colores que siguen el tema visual.</li>
+      <li>Nuevos temas: Burdeos y Tierra</li>
+      <li>Cualquier sugerencia para StudyOS a nuria.guerra.casal@rai.usc.es</li>
+    </ul>
+    <li>Se buscan ideas para la próxima update. Cualquier sugerencia al correo: iago.leis@rai.usc.es</li>
+    <li>Podéis comprobar qué features están planeadas en el README: https://github.com/iagolays/LevelUpTasks</li>
   </ul>
 `;
 
@@ -117,6 +180,14 @@ function loadState() {
       xp: 0,       // XP dentro del nivel actual (se resetea al subir)
       totalXp: 0,  // XP acumulada de toda la vida del personaje
       selectedTheme: "verde", // Tema inicial por defecto
+      paupeDolars: 0, // Moneda para la tienda
+      totalPaupeDolars: 0, // Total histórico de PaupeDolars ganados (para estadísticas)
+      ownedItems: ["title_noob"], // siempre tiene el título inicial
+      equippedItems: { // que lleva equipado en cada slot
+        font: null,
+        border: null,
+        title: "title_noob"
+      },
       categoryXp: { // Aquí guardaremos la XP acumulada por categoría
         otros: 0,
         deporte: 0,
@@ -152,6 +223,15 @@ let state = loadState();
 
 // Protección: si el state guardado no tiene shopping, lo añadimos
 if (!state.shopping) state.shopping = [];
+// Protección: si el state guardado no tiene paupeDolárs, lo añadimos
+if (state.user.paupeDolárs === undefined) state.user.paupeDolárs = 0;
+if (state.user.paupeDolars === undefined) state.user.paupeDolars = 0;
+// Protección: total histórico de PaupeDolars para estadísticas
+if (state.user.totalPaupeDolars === undefined) state.user.totalPaupeDolars = 0;
+// Protección: si no tiene ownedItems, lo inicializamos con el título inicial
+if (!state.user.ownedItems) state.user.ownedItems = ["title_noob"];
+// Protección: si no tiene equippedItems, lo inicializamos
+if (!state.user.equippedItems) state.user.equippedItems = { font: null, border: null, title: "title_noob" };
 
 // ===============================
 // REFERENCIAS AL DOM
@@ -194,7 +274,7 @@ const taskDueDate = document.getElementById("taskDueDate");
 
 function navigateTo(page) {
   // Lista de todas las páginas disponibles
-  const pages = ["inicio", "stats", "compra"];
+  const pages = ["inicio", "studyos", "stats", "compra", "tienda"];
 
   // Ocultamos todas las páginas
   pages.forEach(p => {
@@ -214,7 +294,7 @@ function navigateTo(page) {
   const activeBtn = document.querySelector(`.nav-btn[onclick="navigateTo('${page}')"]`);
   if (activeBtn) activeBtn.classList.add("nav-btn-active");
 
-  // Si navegamos al perfil o estadísticas, re-renderizamos para que estén actualizados
+  // Si navegamos a estadísticas, re-renderizamos para que estén actualizadas
   if (page === "stats") {
     renderStats();
   }
@@ -257,7 +337,6 @@ function getTodayString() {
   // .split("T")[0] → coge solo la parte antes de la T → "2024-03-15"
 }
 
-
 // Calcula los días que quedan hasta la fecha límite de una tarea.
 // Devuelve un número positivo si queda tiempo, 0 si es hoy, negativo si ha vencido.
 function getDaysRemaining(dueDate) {
@@ -268,7 +347,6 @@ function getDaysRemaining(dueDate) {
   const diff = due - today;
   return Math.round(diff / (1000 * 60 * 60 * 24)); // Convertimos ms a días
 }
-
 
 // Comprueba si hay tareas con fecha límite vencida y aplica penalización de XP.
 // Se llama al arrancar la app para detectar vencimientos mientras estaba cerrada.
@@ -296,7 +374,6 @@ function checkTaskPenalties() {
   }
 }
 
-
 // Devuelve el tier de racha correspondiente a los días actuales.
 // Recorre los tiers de mayor a menor y devuelve el primero que se cumple.
 function getStreakTier(streak) {
@@ -306,6 +383,38 @@ function getStreakTier(streak) {
     }
   }
   return STREAK_TIERS[0]; // Por defecto, tier inicial
+}
+
+// Registra que el usuario ha abierto la app hoy.
+// Guarda la fecha en localStorage y calcula los días consecutivos de uso.
+function trackAppUsage() {
+  const today = getTodayString();
+  const lastOpen = localStorage.getItem("levelup_last_open");
+  let streak = parseInt(localStorage.getItem("levelup_app_streak") || "0");
+
+  if (lastOpen === today) {
+    // Ya se abrió hoy, no hacemos nada
+    return;
+  }
+
+  // Calculamos si fue ayer para mantener la racha
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yesterdayString = yesterday.toISOString().split("T")[0];
+
+  if (lastOpen === yesterdayString) {
+    streak++; // La racha continúa
+  } else {
+    streak = 1; // Se rompe la racha, empezamos de 1
+  }
+
+  localStorage.setItem("levelup_last_open", today);
+  localStorage.setItem("levelup_app_streak", streak.toString());
+}
+
+// Devuelve los días consecutivos que el usuario ha abierto la app
+function getAppStreak() {
+  return parseInt(localStorage.getItem("levelup_app_streak") || "0");
 }
 
 // ===============================
@@ -338,12 +447,18 @@ function addXp(amount, category) {
   // Bucle "while": se repite MIENTRAS la condición sea verdadera.
   // Esto permite subir varios niveles a la vez si se gana mucha XP de golpe.
   while (state.user.xp >= xpNeededForLevel(state.user.level)) {
-    // Si la XP actual supera lo necesario para el nivel actual:
-    state.user.xp -= xpNeededForLevel(state.user.level); // Resta la XP del nivel
-    state.user.level++;                                   // Sube un nivel (++ suma 1)
+  state.user.xp -= xpNeededForLevel(state.user.level);
+  state.user.level++;
+
+  // Cada 5 niveles se dan 50 PaupeDolars como recompensa
+  if (state.user.level % 5 === 0) {
+    state.user.paupeDolars += 50;
+    state.user.totalPaupeDolars = (state.user.totalPaupeDolars || 0) + 50;
+    alert(`¡Has subido a nivel ${state.user.level}! 🎉 +50 PaupeDolars de recompensa`);
+  } else {
     alert(`¡Has subido a nivel ${state.user.level}!`);
-    // Las comillas invertidas ` ` permiten meter variables dentro con ${variable}
   }
+}
 
   applyThemeByLevel(); // Actualiza el tema visual según el nuevo nivel
   saveState();         // Guarda el estado actualizado en localStorage
@@ -361,7 +476,8 @@ function applyThemeByLevel() {
   if (!state.user.selectedTheme) state.user.selectedTheme = "verde";
 
   // Eliminamos todas las clases de tema anteriores
-  document.body.classList.remove("theme-blue", "theme-gold", "theme-red", "theme-purple");
+  document.body.classList.remove("theme-blue", "theme-gold", "theme-red", "theme-purple", 
+    "theme-bordo", "theme-tierra" );
 
   // Aplicamos la clase CSS del tema elegido (verde no tiene clase, es el default)
   const theme = THEMES[state.user.selectedTheme];
@@ -435,6 +551,11 @@ function completeTask(taskId) {
 
   task.completed = true;                    // La marcamos como completada
   addXp(task.xpReward, task.category);      // Damos la XP correspondiente y la categoría
+
+  // Damos monedas según la dificultad y las sumamos también al total histórico
+  const coins = TASK_COINS[task.difficulty] || 5;
+  state.user.paupeDolars += coins;
+  state.user.totalPaupeDolars = (state.user.totalPaupeDolars || 0) + coins;
   saveState();
   render();
 }
@@ -465,8 +586,8 @@ habitForm.addEventListener("submit", function (e) {
     difficulty,
     category: habitCategory.value,  // Categoría elegida por el usuario
     xpReward: HABIT_XP[difficulty],
-    streak: 0,          // Racha actual de días consecutivos
-    bestStreak: 0,      // La mejor racha que ha tenido este hábito
+    streak: 0,           // Racha actual de días consecutivos
+    bestStreak: 0,       // La mejor racha que ha tenido este hábito
     lastCompleted: null, // Última vez que se completó (null = nunca)
     completedDates: []   // Array para guardar las fechas de cada vez que se completa el hábito
   };
@@ -517,6 +638,11 @@ function completeHabit(habitId) {
     habit.completedDates.push(today);
   }
 
+  // Damos monedas según la dificultad y las sumamos al total histórico
+  const coins = HABIT_COINS[habit.difficulty] || 3;
+  state.user.paupeDolars += coins;
+  state.user.totalPaupeDolars = (state.user.totalPaupeDolars || 0) + coins;
+
   addXp(habit.xpReward, habit.category); // Damos la XP correspondiente y la categoría
   saveState();
   render();
@@ -552,7 +678,10 @@ shoppingForm.addEventListener("submit", function (e) {
   saveState();
   renderShopping();
 
+  // Guardamos la categoría antes de resetear y la restauramos después
+  const savedCategory = shoppingCategory.value;
   shoppingForm.reset();
+  shoppingCategory.value = savedCategory;
 });
 
 function toggleShoppingItem(itemId) {
@@ -761,6 +890,199 @@ function renderThemeSelector() {
   });
 }
 
+function buyItem(itemId) {
+  const item = SHOP_ITEMS.find(i => i.id === itemId);
+  if (!item) return;
+
+  // Comprobamos que no lo tenga ya
+  if (!state.user.ownedItems) state.user.ownedItems = [];
+  if (state.user.ownedItems.includes(itemId)) {
+    alert("Ya tienes este artículo.");
+    return;
+  }
+
+  // Comprobamos que tenga suficientes monedas
+  if (state.user.paupeDolars < item.price) {
+    alert(`No tienes suficientes ${CURRENCY_NAME}. Necesitas ${item.price} ${CURRENCY_ICON}`);
+    return;
+  }
+
+  // Realizamos la compra
+  state.user.paupeDolars -= item.price;
+  state.user.ownedItems.push(itemId);
+  saveState();
+  renderShop();
+  renderProfile();
+  alert(`¡${item.icon} ${item.label} comprado!`);
+}
+
+function equipItem(itemId) {
+  const item = SHOP_ITEMS.find(i => i.id === itemId);
+  if (!item) return;
+
+  // Solo se pueden equipar artículos que se posean
+  if (!state.user.ownedItems.includes(itemId)) return;
+
+  // Guardamos el artículo equipado en su slot
+  if (!state.user.equippedItems) state.user.equippedItems = { font: null, border: null, title: null };
+  state.user.equippedItems[item.type] = itemId;
+
+  // Aplicamos el efecto visual
+  applyEquippedItems();
+  saveState();
+  renderShop();
+  renderProfile();
+}
+
+function unequipItem(type) {
+  if (!state.user.equippedItems) return;
+
+  // Quitamos el artículo equipado en ese slot
+  state.user.equippedItems[type] = null;
+
+  applyEquippedItems();
+  saveState();
+  renderShop();
+  renderProfile();
+}
+
+function applyEquippedItems() {
+  if (!state.user.equippedItems) return;
+
+  // --- Tipografía ---
+  const fontId = state.user.equippedItems.font;
+  if (fontId) {
+    const fontItem = SHOP_ITEMS.find(i => i.id === fontId);
+    if (fontItem) document.body.style.fontFamily = fontItem.value;
+  } else {
+    document.body.style.fontFamily = "Arial, Helvetica, sans-serif";
+  }
+
+  // --- Marco del perfil ---
+  const borderId = state.user.equippedItems.border;
+  const profileCard = document.querySelector(".profile-card");
+  if (profileCard) {
+    // Limpiamos todos los marcos anteriores
+    profileCard.classList.remove(
+      "border-rainbow", "border-latido", "border-electrico",
+      "border-hielo", "border-sombra", "border-neon"
+    );
+    profileCard.style.borderWidth = "";
+    profileCard.style.borderStyle = "";
+    profileCard.style.borderColor = "";
+
+    if (borderId) {
+      const borderItem = SHOP_ITEMS.find(i => i.id === borderId);
+      if (borderItem) {
+        if (borderItem.value === "gold") {
+          // Marco dorado: aplicamos estilo inline directamente
+          profileCard.style.borderWidth = "3px";
+          profileCard.style.borderStyle = "solid";
+          profileCard.style.borderColor = "#facc15";
+        } else {
+          // Todos los demás usan clases CSS con animación
+          profileCard.classList.add("border-" + borderItem.value);
+        }
+      }
+    }
+  }
+}
+
+function renderShop() {
+  const container = document.getElementById("shopItemsGrid");
+  const coinsDisplay = document.getElementById("shopCoinsDisplay");
+
+  // Actualizamos el saldo de monedas en la cabecera de la tienda
+  if (coinsDisplay) {
+    coinsDisplay.textContent = `${CURRENCY_ICON} ${state.user.paupeDolars} ${CURRENCY_NAME}`;
+  }
+
+  // Inyectamos la tabla informativa de recompensas en el desplegable
+  const infoBox = document.getElementById("shopRewardsInfo");
+  if (infoBox) {
+    infoBox.innerHTML = `
+      <h4>💡 ¿Cómo ganar ${CURRENCY_NAME}?</h4>
+      <div class="shop-rewards-grid">
+        <div>
+          <strong>Tareas</strong>
+          <ul>
+            <li>Ez → ${TASK_COINS[1]} ${CURRENCY_ICON}</li>
+            <li>Sencillito → ${TASK_COINS[2]} ${CURRENCY_ICON}</li>
+            <li>Media → ${TASK_COINS[3]} ${CURRENCY_ICON}</li>
+            <li>Difícil → ${TASK_COINS[4]} ${CURRENCY_ICON}</li>
+            <li>Job Finding → ${TASK_COINS[5]} ${CURRENCY_ICON}</li>
+          </ul>
+        </div>
+        <div>
+          <strong>Hábitos</strong>
+          <ul>
+            <li>Ez → ${HABIT_COINS[1]} ${CURRENCY_ICON}</li>
+            <li>Media → ${HABIT_COINS[2]} ${CURRENCY_ICON}</li>
+            <li>Job Finding → ${HABIT_COINS[3]} ${CURRENCY_ICON}</li>
+          </ul>
+        </div>
+        <div>
+          <strong> Subiendo de nivel</strong>
+          <ul>
+            <li>Cada 5 niveles → ${CURRENCY_ICON} 50 ${CURRENCY_NAME}</li>
+          </ul>
+        </div>
+      </div>
+    `;
+  }
+
+  if (!container) return;
+  container.innerHTML = "";
+
+  // Agrupamos los artículos por tipo para mostrarlos en secciones
+  const types = {
+    font:   { label: "Tipografías",      icon: "🔤" },
+    border: { label: "Marcos de perfil", icon: "🖼️" },
+    title:  { label: "Títulos",          icon: "📛" }
+  };
+
+  Object.entries(types).forEach(([type, info]) => {
+    const items = SHOP_ITEMS.filter(i => i.type === type);
+
+    // Cabecera de categoría
+    const header = document.createElement("h3");
+    header.className = "shop-category-header";
+    header.textContent = `${info.icon} ${info.label}`;
+    container.appendChild(header);
+
+    // Cuadrícula de artículos
+    const grid = document.createElement("div");
+    grid.className = "shop-grid";
+
+    items.forEach(item => {
+      const owned = state.user.ownedItems?.includes(item.id);
+      const equipped = state.user.equippedItems?.[item.type] === item.id;
+
+      const card = document.createElement("div");
+      card.className = "shop-card" + (owned ? " shop-card-owned" : "") + (equipped ? " shop-card-equipped" : "");
+
+      card.innerHTML = `
+        <div class="shop-card-icon">${item.icon}</div>
+        <div class="shop-card-label">${item.label}</div>
+        <div class="shop-card-desc">${item.description}</div>
+        <div class="shop-card-price">${item.price === 0 ? "Gratis" : CURRENCY_ICON + " " + item.price}</div>
+        <div class="shop-card-actions">
+          ${!owned
+            ? `<button class="btn-buy" onclick="buyItem('${item.id}')">Comprar</button>`
+            : equipped
+              ? `<button class="btn-unequip" onclick="unequipItem('${item.type}')">Desequipar</button>`
+              : `<button class="btn-equip" onclick="equipItem('${item.id}')">Equipar</button>`
+          }
+        </div>
+      `;
+
+      grid.appendChild(card);
+    });
+
+    container.appendChild(grid);
+  });
+}
+
 // ===============================
 // RENDER DE LA INTERFAZ
 // ===============================
@@ -772,26 +1094,33 @@ function render() {
   renderTasks();      // Actualiza la lista de tareas
   renderHabits();     // Actualiza la lista de hábitos
   renderShopping();   // Actualiza la lista de la compra
-  renderStats();      // Actualiza las estadísticas
   renderSkillChart(); // Actualiza el gráfico de habilidades
+  renderShop();       // Actualiza la tienda (por si cambian monedas o artículos)
 }
 
 function renderProfile() {
   // Usamos getElementById en vez de variables globales porque el perfil
-  // está en page-perfil y puede no estar visible. Si el elemento no existe
-  // en el DOM activo simplemente no hacemos nada.
+  // está en page-inicio y puede no estar visible en otras páginas.
   const playerName = document.getElementById("playerName");
   const levelText = document.getElementById("levelText");
   const xpText = document.getElementById("xpText");
   const xpFill = document.getElementById("xpFill");
   const unlockList = document.getElementById("unlockList");
-  const pendingTasksCount = document.getElementById("pendingTasksCount");
-  const completedTasksCount = document.getElementById("completedTasksCount");
-  const habitCount = document.getElementById("habitCount");
-  const totalXpText = document.getElementById("totalXpText");
 
   if (playerName) playerName.textContent = state.user.name;
   if (levelText) levelText.textContent = `Nivel ${state.user.level}`;
+
+  // Mostramos el título equipado si hay uno
+  const playerTitle = document.getElementById("playerTitle");
+  if (playerTitle) {
+    const titleId = state.user.equippedItems?.title;
+    if (titleId) {
+      const titleItem = SHOP_ITEMS.find(i => i.id === titleId);
+      if (titleItem) playerTitle.textContent = titleItem.value;
+    } else {
+      playerTitle.textContent = "";
+    }
+  }
 
   if (xpText && xpFill) {
     const needed = xpNeededForLevel(state.user.level);
@@ -810,12 +1139,6 @@ function renderProfile() {
       unlockList.appendChild(li);
     });
   }
-
-  // Actualizamos el resumen con los contadores
-  if (pendingTasksCount) pendingTasksCount.textContent = state.tasks.filter(t => !t.completed).length;
-  if (completedTasksCount) completedTasksCount.textContent = state.tasks.filter(t => t.completed).length;
-  if (habitCount) habitCount.textContent = state.habits.length;
-  if (totalXpText) totalXpText.textContent = state.user.totalXp;
 }
 
 function renderTasks() {
@@ -1020,9 +1343,30 @@ function renderShopping() {
   });
 }
 
+// ===============================
+// RENDER DE ESTADÍSTICAS
+// ===============================
+// Genera toda la página de estadísticas con resumen general,
+// gráfico de actividad de hábitos y distribución de XP por categoría.
+
 function renderStats() {
   const habits = state.habits;
 
+  // ---- RESUMEN GENERAL ----
+  // Actualizamos las tarjetas de resumen con los datos actuales del jugador
+  const statTotalXp = document.getElementById("statTotalXp");
+  const statTotalCoins = document.getElementById("statTotalCoins");
+  const statTasksDone = document.getElementById("statTasksDone");
+  const statTasksPending = document.getElementById("statTasksPending");
+  const statDaysStreak = document.getElementById("statDaysStreak");
+
+  if (statTotalXp) statTotalXp.textContent = state.user.totalXp;
+  if (statTotalCoins) statTotalCoins.textContent = state.user.totalPaupeDolars || 0;
+  if (statTasksDone) statTasksDone.textContent = state.tasks.filter(t => t.completed).length;
+  if (statTasksPending) statTasksPending.textContent = state.tasks.filter(t => !t.completed).length;
+  if (statDaysStreak) statDaysStreak.textContent = getAppStreak();
+
+  // ---- GRÁFICO DE ACTIVIDAD DE HÁBITOS ----
   // Generamos los últimos 30 días en formato "YYYY-MM-DD"
   const days = [];
   for (let i = 29; i >= 0; i--) {
@@ -1031,41 +1375,40 @@ function renderStats() {
     days.push(d.toISOString().split("T")[0]);
   }
 
-  // Construimos el HTML de la cuadrícula
-  let html = '<div class="activity-grid">';
+  // Construimos el HTML de la cuadrícula al estilo GitHub
+  let activityHtml = '<div class="activity-grid">';
 
-  // Cabecera con las fechas (solo mostramos el día del mes)
-  html += '<div class="activity-row">';
-  html += '<div class="activity-habit-label"></div>'; // celda vacía para alinear
+  // Cabecera con los números de día del mes
+  activityHtml += '<div class="activity-row">';
+  activityHtml += '<div class="activity-habit-label"></div>'; // celda vacía para alinear
   days.forEach(day => {
     const dayNum = day.split("-")[2]; // solo el número del día
-    html += `<div class="activity-day-header">${dayNum}</div>`;
+    activityHtml += `<div class="activity-day-header">${dayNum}</div>`;
   });
-  html += '</div>';
+  activityHtml += '</div>';
 
   if (habits.length === 0) {
-    html += '<p style="color: var(--muted); margin-top: 12px;">No hay hábitos todavía.</p>';
+    activityHtml += '<p style="color: var(--muted); margin-top: 12px;">No hay hábitos todavía.</p>';
   } else {
     habits.forEach(habit => {
       const completedDates = habit.completedDates || [];
 
-      html += '<div class="activity-row">';
-      // Etiqueta con el nombre del hábito
-      html += `<div class="activity-habit-label" title="${habit.title}">${habit.title}</div>`;
+      activityHtml += '<div class="activity-row">';
+      // Etiqueta con el nombre del hábito truncado si es muy largo
+      activityHtml += `<div class="activity-habit-label" title="${habit.title}">${habit.title}</div>`;
 
-      // Un cuadrado por cada día
+      // Un cuadrado por cada día, coloreado si fue completado
       days.forEach(day => {
         const done = completedDates.includes(day);
-        html += `<div class="activity-cell ${done ? "activity-cell-done" : ""}" title="${day}"></div>`;
+        activityHtml += `<div class="activity-cell ${done ? "activity-cell-done" : ""}" title="${day}"></div>`;
       });
 
-      html += '</div>';
+      activityHtml += '</div>';
     });
   }
+  activityHtml += '</div>';
 
-  html += '</div>';
-
-  // Racha media y mejor hábito solo si nivel >= 2
+  // Racha media y mejor hábito (solo disponibles desde nivel 2)
   if (state.user.level >= 2 && habits.length > 0) {
     const totalStreak = habits.reduce((acc, h) => acc + h.streak, 0);
     const avgStreak = (totalStreak / habits.length).toFixed(1);
@@ -1073,17 +1416,50 @@ function renderStats() {
     for (let i = 1; i < habits.length; i++) {
       if (habits[i].bestStreak > bestHabit.bestStreak) bestHabit = habits[i];
     }
-    html += `
+    activityHtml += `
       <div class="activity-summary">
-        <p>Racha media: <strong>${avgStreak}</strong></p>
-        <p>Mejor hábito: <strong>${bestHabit.title}</strong></p>
+        <p>Racha media: <strong>${avgStreak} días</strong></p>
+        <p>Mejor hábito: <strong>${bestHabit.title}</strong> (${bestHabit.bestStreak} días)</p>
       </div>
     `;
+  } else if (state.user.level < 2) {
+    activityHtml += `<p style="color: var(--muted); margin-top: 12px; font-size: 14px;">🔒 Racha media y mejor hábito disponibles desde nivel 2.</p>`;
   }
 
-  // Inyectamos todo en la tarjeta de estadísticas
-  const card = document.getElementById("statsCard");
-  if (card) card.innerHTML = '<h3>Estadísticas</h3>' + html;
+  // Inyectamos el gráfico en su contenedor
+  const activityCard = document.getElementById("statsActivityCard");
+  if (activityCard) activityCard.innerHTML = activityHtml;
+
+  // ---- DISTRIBUCIÓN DE XP POR CATEGORÍA ----
+  const catXp = state.user.categoryXp || {};
+  const totalCatXp = Object.values(catXp).reduce((acc, val) => acc + val, 0);
+
+  let categoryHtml = "";
+
+  if (totalCatXp === 0) {
+    categoryHtml = `<p style="color: var(--muted); font-size: 14px;">Completa tareas y hábitos para ver la distribución de XP.</p>`;
+  } else {
+    // Ordenamos las categorías de mayor a menor XP
+    const sortedCategories = Object.entries(catXp)
+      .filter(([, xp]) => xp > 0)
+      .sort(([, a], [, b]) => b - a);
+
+    sortedCategories.forEach(([key, xp]) => {
+      const percent = Math.round((xp / totalCatXp) * 100);
+      categoryHtml += `
+        <div class="stats-category-row">
+          <div class="stats-category-label">${CATEGORIES[key] || key}</div>
+          <div class="stats-category-bar-wrap">
+            <div class="stats-category-bar" style="width: ${percent}%"></div>
+          </div>
+          <div class="stats-category-value">${xp} XP (${percent}%)</div>
+        </div>
+      `;
+    });
+  }
+
+  const categoryCard = document.getElementById("statsCategoryCard");
+  if (categoryCard) categoryCard.innerHTML = categoryHtml;
 }
 
 // ===============================
@@ -1095,9 +1471,13 @@ function renderStats() {
 
 document.addEventListener("DOMContentLoaded", function () {
   applyThemeByLevel();
+  applyEquippedItems();
+  trackAppUsage();      // Registra que el usuario ha abierto la app hoy
   checkTaskPenalties(); // Verifica si hay tareas vencidas y aplica penalizaciones
   render();
-  checkUpdateModal(); // Muestra el modal de novedades si hay una versión nueva
+  renderStats();        // Renderizamos las estadísticas al arrancar
+  checkUpdateModal();   // Muestra el modal de novedades si hay una versión nueva
+  showStudyosUpdate();
 
   // Edición del nombre del jugador.
   // Se registra aquí dentro para asegurar que el botón ya existe en el DOM.

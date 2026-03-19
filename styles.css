@@ -115,8 +115,8 @@ body {
   width: min(1000px, 92%);
   /* Ancho máximo de 1000px, pero si la pantalla es más pequeña, usa el 92%.
      min() elige el valor más pequeño de los dos. Así funciona el responsive. */
-  margin: 0 auto 40px;
-  /* 0 arriba, "auto" a los lados (centra el bloque), 40px abajo */
+  margin: 10px auto 40px;
+  /* 10px arriba, "auto" a los lados (centra el bloque), 40px abajo */
 
   /* Evita que el contenedor desborde en móvil */
   max-width: 100%;
@@ -160,6 +160,14 @@ body {
   font-size: 16px;
   padding: 0;          /* Sin padding extra que desplace el botón */
   line-height: 1;      /* Evita que la altura de línea desplace el emoji */
+}
+
+/* Título del jugador (desbloqueado en la tienda) */
+.player-title {
+  margin: 0;
+  font-size: 13px;
+  color: var(--accent);
+  font-style: italic;
 }
 
 /* Botón de ajustes en el extremo derecho del perfil */
@@ -276,7 +284,12 @@ body {
   margin-bottom: 16px;
 }
 
-/* Estilos comunes para los 4 elementos del formulario */
+/* El formulario de tareas tiene una columna extra para la fecha límite */
+#taskForm {
+  grid-template-columns: 1.5fr 1fr 1fr 1fr auto;
+}
+
+/* Estilos comunes para todos los elementos del formulario */
 .form input,
 .form select,
 .form button {
@@ -406,6 +419,17 @@ body {
   --accent: #a855f7;   /* Morado */
   --accent-2: #7c3aed; /* Morado más oscuro */
 }
+
+.theme-bordo {
+  --accent: #7a1f2e;
+  --accent-2: #a84455;
+}
+
+.theme-tierra {
+  --accent: #7a4f2e;
+  --accent-2: #a86d45;
+}
+
 
 /* ===============================
    MODAL DE ACTUALIZACIONES
@@ -583,7 +607,7 @@ details#completedTasksSection .list {
 }
 
 /* ===============================
-   CUADRÍCULA DE ACTIVIDAD
+   CUADRÍCULA DE ACTIVIDAD (ESTADÍSTICAS)
    =============================== */
 .activity-grid {
   /* El scroll horizontal queda contenido dentro de esta caja */
@@ -655,6 +679,98 @@ details#completedTasksSection .list {
 
 .activity-summary strong {
   color: var(--text);
+}
+
+/* ===============================
+   TARJETAS DE RESUMEN (ESTADÍSTICAS)
+   =============================== */
+
+/* Grid de tarjetas pequeñas de resumen general */
+.stats-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  /* auto-fill crea tantas columnas como quepan de mínimo 140px */
+  gap: 12px;
+  margin-top: 16px;
+}
+
+/* Cada tarjeta individual de resumen */
+.stats-summary-card {
+  background: var(--card-2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 12px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Emoji grande de cada tarjeta */
+.stats-summary-icon {
+  font-size: 28px;
+  line-height: 1;
+}
+
+/* Número principal de cada tarjeta */
+.stats-summary-value {
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--accent);
+}
+
+/* Etiqueta descriptiva debajo del número */
+.stats-summary-label {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ===============================
+   BARRAS DE CATEGORÍA (ESTADÍSTICAS)
+   =============================== */
+
+/* Cada fila de categoría: nombre + barra + valor */
+.stats-category-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+/* Nombre de la categoría */
+.stats-category-label {
+  width: 130px;
+  min-width: 130px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* Contenedor de la barra de progreso */
+.stats-category-bar-wrap {
+  flex: 1;               /* Ocupa todo el espacio disponible */
+  height: 10px;
+  background: #0b1220;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+/* La barra coloreada de progreso */
+.stats-category-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+/* Valor de XP a la derecha de la barra */
+.stats-category-value {
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;   /* Evita que el texto se parta */
+  min-width: 100px;
+  text-align: right;
 }
 
 /* ===============================
@@ -783,6 +899,708 @@ details#completedTasksSection .list {
   border-color: var(--danger);
 }
 
+
+/* === STUDYOS === */
+
+.asignatura-row {
+  margin-bottom: 1rem;
+}
+
+.asig-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.asig-nombre {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.btn-delete-asig {
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 0.8rem;
+  padding: 2px 6px;
+}
+
+.btn-delete-asig:hover { color: #f87171; }
+
+.barra-fondo {
+  background: var(--card-2);
+  border-radius: 99px;
+  height: 10px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.barra-progreso {
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  transition: width 0.4s ease;
+}
+
+.asig-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-top: 6px;
+}
+
+.asig-footer input[type="range"] {
+  flex: 1;
+  accent-color: var(--accent);
+}
+
+.pct {
+  font-size: 0.8rem;
+  color: var(--accent);
+  min-width: 36px;
+  text-align: right;
+}
+
+/* Pomodoro */
+
+.pomodoro-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.pomodoro-ring-container {
+  position: relative;
+  width: 160px;
+  height: 160px;
+}
+
+.pomodoro-ring {
+  width: 160px;
+  height: 160px;
+  transform: rotate(-90deg);
+}
+
+.ring-bg {
+  fill: none;
+  stroke: #2d3148;
+  stroke-width: 8;
+}
+
+.ring-progress {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 8;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.8s ease, stroke 0.5s ease;
+}
+
+.pomodoro-center {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  pointer-events: none;
+}
+
+.pomodoro-time {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #e2e8f0;
+}
+
+.pomodoro-status {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.pomodoro-config {
+  display: flex;
+  gap: 1.5rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.pomodoro-config label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pomodoro-config input[type="number"] {
+  width: 52px;
+  background: var(--card-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  padding: 4px 6px;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.pomodoro-btns {
+  display: flex;
+  gap: 0.8rem;
+}
+
+.pomodoro-btns button {
+  padding: 0.5rem 1.2rem;
+  border-radius: 99px;
+  border: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.1s ease, opacity 0.2s ease;
+}
+
+.pomodoro-btns button {
+  background: var(--card-2);
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+
+.pomodoro-btns button.btn-active-start {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+
+.pomodoro-btns button.btn-active-pause {
+  background: var(--card-2);
+  color: var(--text);
+  border-color: var(--danger);;
+}
+
+.pomodoro-btns button:hover {
+  opacity: 0.85;
+  transform: scale(1.05);
+}
+
+.pomodoro-btns button:active {
+  transform: scale(0.97);
+}
+
+#page-studyos {
+  margin-top: 10px;
+}
+
+/* Acordeón de asignaturas */
+.asig-accordion {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 12px;
+  overflow: hidden;
+  transition: box-shadow 0.2s ease;
+}
+
+.asig-accordion:hover {
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+.asig-accordion-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  background: var(--card-2);
+  cursor: pointer;
+  user-select: none;
+  gap: 12px;
+}
+
+.asig-accordion-header:hover {
+  background: var(--card-2);
+  filter: brightness(1.1);
+}
+
+.asig-accordion-title {
+  font-weight: bold;
+  font-size: 1rem;
+  flex: 1;
+}
+
+.asig-accordion-meta {
+  font-size: 0.8rem;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.asig-accordion-arrow {
+  font-size: 0.8rem;
+  color: var(--muted);
+  transition: transform 0.25s ease;
+}
+
+.asig-accordion-arrow.open {
+  transform: rotate(180deg);
+}
+
+.asig-accordion-body {
+  display: none;
+  padding: 16px 18px;
+  background: var(--card);
+  border-top: 1px solid var(--border);
+}
+
+.asig-accordion-body.open {
+  display: block;
+}
+
+/* Mini barra de progreso en el header */
+.asig-mini-bar {
+  width: 80px;
+  height: 6px;
+  background: var(--border);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.asig-mini-fill {
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  transition: width 0.4s ease;
+}
+
+/* Notas */
+.asig-notes {
+  width: 100%;
+  min-height: 80px;
+  background: var(--card-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-size: 0.85rem;
+  padding: 10px 12px;
+  resize: vertical;
+  font-family: inherit;
+  margin-bottom: 12px;
+}
+
+.asig-notes:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+/* Tareas dentro del acordeón */
+.asig-task-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: var(--card-2);
+  border-radius: 8px;
+  margin-bottom: 6px;
+  border: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+
+.asig-task-item.done-task span {
+  text-decoration: line-through;
+  opacity: 0.5;
+}
+
+.asig-task-date {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.asig-task-date.urgente {
+  color: var(--warning);
+  font-weight: bold;
+}
+
+.asig-task-date.vencida {
+  color: var(--danger);
+  font-weight: bold;
+}
+
+.asig-form-inline {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.asig-form-inline input {
+  flex: 1;
+  min-width: 120px;
+  background: var(--card-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  padding: 8px 10px;
+  font-size: 0.85rem;
+}
+
+.asig-form-inline input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.asig-section-label {
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 12px 0 6px;
+}
+
+/* Temas */
+.tema-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 6px;
+  border-radius: 8px;
+  margin-bottom: 4px;
+  transition: background 0.15s ease;
+}
+
+.tema-row:hover {
+  background: var(--card-2);
+}
+
+.tema-estado-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  padding: 0;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.tema-info {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tema-nombre {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.tema-badge {
+  font-size: 0.7rem;
+  background: var(--card-2);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  padding: 2px 8px;
+  color: var(--muted);
+}
+
+.tema-estado-label {
+  font-size: 0.75rem;
+  border-radius: 99px;
+  padding: 2px 10px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.estado-none    { background: var(--card-2); color: var(--muted); }
+.estado-leyendo { background: #1e3a5f; color: #7dd3fc; }
+.estado-repasar { background: #3b2a00; color: #fbbf24; }
+.estado-sabido  { background: #14532d; color: #86efac; }
+
+.asig-add-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--muted);
+  font-size: 0.75rem;
+  padding: 3px 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.asig-add-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.asig-badge {
+  font-size: 0.72rem;
+  background: var(--warning);
+  color: white;
+  border-radius: 99px;
+  padding: 2px 8px;
+  font-weight: 600;
+}
+
+/* Chips de temas en exámenes */
+.tema-chip {
+  font-size: 0.75rem;
+  border-radius: 99px;
+  padding: 3px 10px;
+  font-weight: 500;
+}
+
+
+/* ===============================
+   TIENDA
+   =============================== */
+
+/* Cabecera de la tienda: título a la izquierda, monedas a la derecha */
+.shop-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.shop-header h2 {
+  margin: 0 0 4px 0;
+}
+
+/* Caja que muestra el saldo de monedas */
+.shop-coins {
+  background: var(--card-2);
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 16px;
+  white-space: nowrap; /* Evita que el texto se parta en dos líneas */
+}
+
+/* Placeholder del vendedor: menos altura que el coming soon normal */
+.shop-vendor-placeholder {
+  min-height: 200px;
+}
+
+/* Cabecera de cada categoría de artículos */
+.shop-category-header {
+  margin: 20px 0 10px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.shop-category-header:first-child {
+  margin-top: 0; /* El primero no necesita margen arriba */
+}
+
+/* Cuadrícula de artículos */
+.shop-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  /* auto-fill crea tantas columnas como quepan de mínimo 160px */
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+/* Tarjeta de cada artículo */
+.shop-card {
+  background: var(--card-2);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  transition: border-color 0.2s ease;
+}
+
+.shop-card:hover {
+  border-color: var(--accent);
+}
+
+/* Artículo ya comprado */
+.shop-card-owned {
+  border-color: var(--accent);
+}
+
+/* Artículo equipado */
+.shop-card-equipped {
+  border-color: var(--accent);
+  background: var(--card);
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.2);
+}
+
+.shop-card-icon {
+  font-size: 32px;
+  line-height: 1;
+}
+
+.shop-card-label {
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.shop-card-desc {
+  font-size: 12px;
+  color: var(--muted);
+  flex: 1; /* Ocupa el espacio disponible para alinear el precio abajo */
+}
+
+.shop-card-price {
+  font-weight: bold;
+  font-size: 13px;
+  color: var(--accent);
+}
+
+.shop-card-actions {
+  width: 100%;
+  margin-top: 4px;
+}
+
+.shop-card-actions button {
+  width: 100%;
+  padding: 8px;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+/* Botón comprar */
+.btn-buy {
+  background: var(--accent-2);
+  color: white;
+}
+
+/* Botón equipar */
+.btn-equip {
+  background: var(--accent);
+  color: white;
+}
+
+/* Botón desequipar */
+.btn-unequip {
+  background: var(--danger);
+  color: white;
+}
+
+/* Botón equipado (desactivado) */
+.btn-equipped {
+  background: var(--card);
+  color: var(--muted);
+  cursor: not-allowed !important;
+}
+
+/* Grid informativo de recompensas de la tienda */
+.shop-rewards-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.shop-rewards-grid ul {
+  padding-left: 16px;
+  margin: 6px 0 0 0;
+  line-height: 1.8;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+/* ===============================
+   MARCOS ANIMADOS DE PERFIL
+   =============================== */
+
+/* Marco arcoíris: cambia de color continuamente */
+.border-rainbow {
+  border-width: 3px !important;
+  border-style: solid !important;
+  animation: rainbow-border 3s linear infinite;
+}
+
+@keyframes rainbow-border {
+  0%   { border-color: #ef4444; }
+  17%  { border-color: #f97316; }
+  33%  { border-color: #facc15; }
+  50%  { border-color: #22c55e; }
+  67%  { border-color: #3b82f6; }
+  83%  { border-color: #a855f7; }
+  100% { border-color: #ef4444; }
+}
+
+/* Marco Latido — brillo pulsante rosa */
+.border-latido {
+  border-width: 3px !important;
+  border-style: solid !important;
+  border-color: #ec4899 !important;
+  animation: latido 1.5s ease-in-out infinite;
+}
+
+@keyframes latido {
+  0%, 100% { box-shadow: 0 0 6px rgba(236, 72, 153, 0.4); }
+  50%       { box-shadow: 0 0 18px rgba(236, 72, 153, 0.9); }
+}
+
+/* Marco Eléctrico — parpadeo azul */
+.border-electrico {
+  border-width: 3px !important;
+  border-style: solid !important;
+  border-color: #38bdf8 !important;
+  animation: electrico 0.8s steps(2) infinite;
+}
+
+@keyframes electrico {
+  0%   { box-shadow: 0 0 8px rgba(56, 189, 248, 0.8); border-color: #38bdf8; }
+  50%  { box-shadow: 0 0 2px rgba(56, 189, 248, 0.2); border-color: #0ea5e9; }
+  100% { box-shadow: 0 0 8px rgba(56, 189, 248, 0.8); border-color: #38bdf8; }
+}
+
+/* Marco Hielo — brillo suave azul frío */
+.border-hielo {
+  border-width: 3px !important;
+  border-style: solid !important;
+  border-color: #bae6fd !important;
+  animation: hielo 3s ease-in-out infinite;
+}
+
+@keyframes hielo {
+  0%, 100% { box-shadow: 0 0 6px rgba(186, 230, 253, 0.3); }
+  50%       { box-shadow: 0 0 14px rgba(186, 230, 253, 0.7); }
+}
+
+/* Marco Sombra — pulso morado oscuro */
+.border-sombra {
+  border-width: 3px !important;
+  border-style: solid !important;
+  border-color: #7c3aed !important;
+  animation: sombra 2.5s ease-in-out infinite;
+}
+
+@keyframes sombra {
+  0%, 100% { box-shadow: 0 0 4px rgba(124, 58, 237, 0.3); }
+  50%       { box-shadow: 0 0 16px rgba(124, 58, 237, 0.7); }
+}
+
+/* Marco Neón — brillo verde intenso */
+.border-neon {
+  border-width: 3px !important;
+  border-style: solid !important;
+  border-color: #22c55e !important;
+  animation: neon 1s ease-in-out infinite;
+}
+
+@keyframes neon {
+  0%, 100% { box-shadow: 0 0 8px rgba(34, 197, 94, 0.5), 0 0 20px rgba(34, 197, 94, 0.2); }
+  50%       { box-shadow: 0 0 16px rgba(34, 197, 94, 0.9), 0 0 40px rgba(34, 197, 94, 0.4); }
+}
+
 /* ===============================
    RESPONSIVE (MÓVILES)
    ===============================
@@ -792,15 +1610,21 @@ details#completedTasksSection .list {
 
   .grid-2 {
     grid-template-columns: 1fr;
+    /* En móvil, las dos columnas pasan a ser una sola (una debajo de la otra) */
   }
 
   .form {
-    grid-template-columns: 1fr;  /* ← una sola columna en móvil */
+    grid-template-columns: 1fr; /* Una sola columna en móvil para todos los formularios */
+  }
+
+  /* El formulario de tareas también una columna en móvil */
+  #taskForm {
+    grid-template-columns: 1fr;
   }
 
   .profile-top {
-    flex-direction: column;
-    align-items: flex-start;
+    flex-direction: column;      /* Los elementos se apilan verticalmente */
+    align-items: flex-start;     /* Se alinean a la izquierda */
   }
 
   #skillChart {
@@ -835,5 +1659,17 @@ details#completedTasksSection .list {
     width: 14px;
     min-width: 14px;
     font-size: 9px;
+  }
+
+  /* En móvil las barras de categoría se adaptan */
+  .stats-category-label {
+    width: 80px;
+    min-width: 80px;
+    font-size: 11px;
+  }
+
+  .stats-category-value {
+    min-width: 70px;
+    font-size: 11px;
   }
 }
