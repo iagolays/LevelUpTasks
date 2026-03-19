@@ -407,6 +407,17 @@ body {
   --accent-2: #7c3aed; /* Morado más oscuro */
 }
 
+.theme-bordo {
+  --accent: #7a1f2e;
+  --accent-2: #a84455;
+}
+
+.theme-tierra {
+  --accent: #7a4f2e;
+  --accent-2: #a86d45;
+}
+
+
 /* ===============================
    MODAL DE ACTUALIZACIONES
    =============================== */
