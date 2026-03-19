@@ -10,9 +10,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <!-- Hace que la página se vea bien en móviles (responsive) -->
   <title>LevelUp Tasks</title>
-  <!-- El texto que aparece en la pestaña del navegador -->
-  <link rel="stylesheet" href="styles.css" />
+  <!-- Fuentes de Google Fonts: Minecraft, Skyrim, Burger King y Comic Sans -->
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Cinzel&family=Lilita+One&family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
   <!-- Conecta este HTML con el archivo de estilos CSS -->
+  <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
@@ -35,6 +36,7 @@
     <button class="nav-btn" onclick="navigateTo('stats')">📊 Estadísticas</button>
     <button class="nav-btn" onclick="navigateTo('compra')">🛒 Lista de la compra</button>
     <button class="nav-btn" onclick="navigateTo('studyos')">📚 StudyOS</button>
+    <button class="nav-btn" onclick="navigateTo('tienda')">🛍️ Tienda</button>
   </nav>
 
   <main class="container">
@@ -45,7 +47,6 @@
     <div id="page-inicio">
 
       <!-- PANEL DE USUARIO (PERFIL) -->
-      <!-- Tal cual estaba antes, con nombre, nivel, XP, gráfico y ajustes -->
       <section class="card profile-card">
 
         <div class="profile-top">
@@ -55,6 +56,8 @@
               <!-- id="playerName" permite que app.js lo encuentre y cambie el texto -->
               <button id="editNameBtn">✏️</button>
             </div>
+            <!-- Título equipado desde la tienda -->
+            <p id="playerTitle" class="player-title"></p>
             <p id="levelText">Nivel 1</p>
             <!-- app.js actualizará este texto cuando el jugador suba de nivel -->
           </div>
@@ -62,6 +65,7 @@
             <span id="xpText">0 / 100 XP</span>
             <!-- Muestra la XP actual y la XP necesaria para el siguiente nivel -->
           </div>
+          <!-- Botón de ajustes en el extremo derecho -->
           <button id="settingsBtn">⚙️</button>
         </div>
 
@@ -71,7 +75,7 @@
           <!-- La parte coloreada que crece. app.js cambia su width (anchura) -->
         </div>
 
-        <!-- Lista de recompensas desbloqueadas por nivel -->
+        <!-- Lista de recompensas desbloqueadas por nivel (desplegable) -->
         <details class="unlock-box">
           <summary>Desbloqueos</summary>
           <ul id="unlockList"></ul>
@@ -113,13 +117,14 @@
             <option value="salud">Salud</option>
             <option value="trabajo">Trabajo</option>
           </select>
+          <!-- Fecha límite opcional: si no se pone, la tarea no tiene vencimiento -->
           <input type="date" id="taskDueDate" title="Fecha límite (opcional)" />
           <button type="submit">Añadir tarea</button>
         </form>
 
         <div id="taskList" class="list"></div>
 
-        <!-- Desplegable de tareas completadas -->
+        <!-- Desplegable de tareas completadas para no mezclarlas con las pendientes -->
         <details id="completedTasksSection">
           <summary>Tareas completadas (<span id="completedTasksToggleCount">0</span>)</summary>
           <div id="completedTaskList" class="list"></div>
@@ -156,36 +161,104 @@
         <div id="habitList" class="list"></div>
       </section>
 
-      <!-- RESUMEN + ESTADÍSTICAS -->
-      <section class="grid-2">
-        <div class="card">
-          <h3>Resumen</h3>
-          <p>Tareas pendientes: <strong id="pendingTasksCount">0</strong></p>
-          <p>Tareas completadas: <strong id="completedTasksCount">0</strong></p>
-          <p>Hábitos activos: <strong id="habitCount">0</strong></p>
-          <p>XP total ganada: <strong id="totalXpText">0</strong></p>
-        </div>
-
-        <div class="card" id="statsCard">
-          <h3>Estadísticas</h3>
-          <!-- app.js rellenará este contenido con la cuadrícula de actividad -->
-        </div>
-      </section>
-
     </div>
 
     <!-- =============================== -->
     <!-- PÁGINA: ESTADÍSTICAS            -->
     <!-- =============================== -->
     <div id="page-stats" style="display: none;">
-      <section class="card coming-soon-section">
+
+      <!-- Resumen general: tarjetas con los datos más importantes -->
+      <section class="card">
+        <h2>📊 Estadísticas</h2>
+        <div class="stats-summary-grid">
+          <div class="stats-summary-card">
+            <div class="stats-summary-icon">⭐</div>
+            <div class="stats-summary-value" id="statTotalXp">0</div>
+            <div class="stats-summary-label">XP total</div>
+          </div>
+          <div class="stats-summary-card">
+            <div class="stats-summary-icon">🤑</div>
+            <div class="stats-summary-value" id="statTotalCoins">0</div>
+            <div class="stats-summary-label">PaupeDolars ganados</div>
+          </div>
+          <div class="stats-summary-card">
+            <div class="stats-summary-icon">✅</div>
+            <div class="stats-summary-value" id="statTasksDone">0</div>
+            <div class="stats-summary-label">Tareas completadas</div>
+          </div>
+          <div class="stats-summary-card">
+            <div class="stats-summary-icon">📋</div>
+            <div class="stats-summary-value" id="statTasksPending">0</div>
+            <div class="stats-summary-label">Tareas pendientes</div>
+          </div>
+          <div class="stats-summary-card">
+            <div class="stats-summary-icon">🔥</div>
+            <div class="stats-summary-value" id="statDaysStreak">0</div>
+            <div class="stats-summary-label">Días usando la app</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Gráfico de actividad de hábitos (últimos 30 días, estilo GitHub) -->
+      <section class="card">
+        <h3>📅 Actividad de hábitos</h3>
+        <div id="statsActivityCard"></div>
+        <!-- app.js inyectará aquí la cuadrícula de actividad -->
+      </section>
+
+      <!-- Distribución de XP por categoría en barras horizontales -->
+      <section class="card">
+        <h3>🗂️ XP por categoría</h3>
+        <div id="statsCategoryCard"></div>
+        <!-- app.js inyectará aquí las barras de categoría -->
+      </section>
+
+    </div>
+
+    <!-- =============================== -->
+    <!-- PÁGINA: TIENDA                  -->
+    <!-- =============================== -->
+    <div id="page-tienda" style="display: none;">
+
+      <!-- Cabecera de la tienda con el saldo del jugador -->
+      <section class="card">
+        <div class="shop-header">
+          <div>
+            <h2>🛍️ Tienda</h2>
+            <p class="settings-desc">Gasta tus <strong>PaupeDolars</strong> en cosméticos para personalizar tu perfil.</p>
+          </div>
+          <div class="shop-coins">
+            <span id="shopCoinsDisplay">🤑 0 PaupeDolars</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Desplegable informativo de cómo ganar PaupeDolars -->
+      <section class="card">
+        <details>
+          <summary>💡 ¿Cómo ganar PaupeDolars?</summary>
+          <div id="shopRewardsInfo"></div>
+          <!-- app.js inyectará aquí la tabla de recompensas -->
+        </details>
+      </section>
+
+      <!-- Hueco para el personaje vendedor (coming soon) -->
+      <section class="card coming-soon-section shop-vendor-placeholder">
         <div class="coming-soon-content">
-          <span class="coming-soon-main-icon">🚧</span>
-          <h2>Estadísticas avanzadas</h2>
-          <p class="coming-soon-text">Esto está en obras. Aquí vendrán cosas más guapas cuando la uni nos deje respirar.</p>
+          <span class="coming-soon-main-icon">🧙</span>
+          <h2>El Vendedor</h2>
+          <p class="coming-soon-text">Pronto habrá aquí un personaje que te venderá sus mercancías. Por ahora... imagínatelo.</p>
           <span class="coming-soon-main-badge">Coming Soon</span>
         </div>
       </section>
+
+      <!-- Catálogo de artículos de la tienda -->
+      <section class="card">
+        <div id="shopItemsGrid"></div>
+        <!-- app.js generará aquí las tarjetas de cada artículo -->
+      </section>
+
     </div>
 
     <!-- =============================== -->
@@ -299,9 +372,11 @@
   <!-- =============================== -->
   <!-- MODAL DE ACTUALIZACIONES        -->
   <!-- =============================== -->
+  <!-- Se muestra al entrar por primera vez tras una nueva versión -->
   <div id="updateOverlay" class="update-overlay">
     <div class="update-modal">
       <div id="updateNotes"></div>
+      <!-- app.js inyectará aquí el contenido de UPDATE_NOTES -->
       <button onclick="closeUpdateModal()">¡Entendido!</button>
     </div>
   </div>
@@ -319,6 +394,7 @@
   <!-- =============================== -->
   <!-- MODAL DE AJUSTES                -->
   <!-- =============================== -->
+  <!-- Se muestra al pulsar el botón ⚙️ del perfil -->
   <div id="settingsOverlay" class="update-overlay">
     <div class="update-modal">
       <h3>⚙️ Ajustes</h3>
@@ -336,5 +412,7 @@
   <script src="app.js"></script>
   <script src="studyos.js"></script>
 
+  <!-- Conecta el HTML con JavaScript. Va al FINAL del body para que el HTML
+       ya esté cargado cuando el JS empiece a ejecutarse -->
 </body>
 </html>
