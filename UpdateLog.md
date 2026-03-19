@@ -4,6 +4,25 @@ Todos los cambios notables de LevelUp Tasks se documentan aquí.
 
 ---
 
+## [StudyOS 1.1] - 2025
+
+### ✨ Nuevo — StudyOS (sección de estudio por Nuria Guerra)
+- **Asignaturas** — Crea todas las asignaturas que necesites. Cada una muestra su progreso y tareas pendientes sin necesidad de abrirla.
+- **Temas por asignatura** — Organiza cada asignatura en temas con estados propios: No empezado, Leyendo, Repasar o Me lo sé. Cada cambio de estado suma XP al perfil.
+- **Progreso** — El progreso se calcula automáticamente: 70% según temas dominados y 30% según tareas completadas.
+- **Tareas con dificultad y XP** — Las tareas tienen nivel de dificultad configurable. Más difícil, más XP al completarla.
+- **Tareas divididas en días** — Cualquier tarea puede repartirse en N días con cuadraditos marcables. Cada cuadradito suma XP y mantiene la racha activa.
+- **Notas por tarea y tema** — Campo de notas independiente en cada tarea y cada tema, guardado automáticamente.
+- **Exámenes vinculados a asignaturas** — Al registrar un examen se selecciona una asignatura existente y se muestra el estado de cada uno de sus temas.
+- **Notas en exámenes** — Añade tu nota cuando pase el examen. Aprobar da XP proporcional a la calificación; suspender resta XP como penalización.
+- **Pomodoro** — Temporizador circular con tiempo de trabajo y descanso configurables.
+- **Nuevos temas de color** — Burdeos y Tierra, desbloqueables por nivel y disponibles para toda la app.
+
+### Mejoras
+- Cuando eliminas un tema, las tareas de los temas siguientes quedan con el temaId incorrecto porque los índices se desplazan. Si tienes 3 temas y eliminas el 1, las tareas del tema 2 pasan a apuntar al tema 1.
+- No hay forma de buscar una tarea concreta si tienes muchas asignaturas.
+
+
 ## [1.3] - 2025
 
 ### ✨ Nuevo
