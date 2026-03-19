@@ -71,7 +71,9 @@ const THEMES = {
   azul:   { label: "Azul",        level: 3,  className: "theme-blue"   },
   dorado: { label: "Dorado",      level: 5,  className: "theme-gold"   },
   rojo:   { label: "Rojo/Sangre", level: 7,  className: "theme-red"    },
-  morado: { label: "Morado",      level: 10, className: "theme-purple" }
+  morado: { label: "Morado",      level: 10, className: "theme-purple" },
+  bordo:   { label: "Burdeos",     level: 13,  className: "theme-bordo"   },
+  tierra:  { label: "Tierra",      level: 15, className: "theme-tierra"  },
 };
 
 // Versión actual de la app. Cámbiala cada vez que hagas una update
@@ -194,7 +196,7 @@ const taskDueDate = document.getElementById("taskDueDate");
 
 function navigateTo(page) {
   // Lista de todas las páginas disponibles
-  const pages = ["inicio", "stats", "compra"];
+  const pages = ["inicio", "studyos", "stats", "compra"];
 
   // Ocultamos todas las páginas
   pages.forEach(p => {
@@ -361,7 +363,8 @@ function applyThemeByLevel() {
   if (!state.user.selectedTheme) state.user.selectedTheme = "verde";
 
   // Eliminamos todas las clases de tema anteriores
-  document.body.classList.remove("theme-blue", "theme-gold", "theme-red", "theme-purple");
+  document.body.classList.remove("theme-blue", "theme-gold", "theme-red", "theme-purple", 
+    "theme-bordo", "theme-tierra" );
 
   // Aplicamos la clase CSS del tema elegido (verde no tiene clase, es el default)
   const theme = THEMES[state.user.selectedTheme];

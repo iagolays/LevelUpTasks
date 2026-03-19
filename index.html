@@ -34,6 +34,7 @@
     <button class="nav-btn nav-btn-active" onclick="navigateTo('inicio')">🏠 Inicio</button>
     <button class="nav-btn" onclick="navigateTo('stats')">📊 Estadísticas</button>
     <button class="nav-btn" onclick="navigateTo('compra')">🛒 Lista de la compra</button>
+    <button class="nav-btn" onclick="navigateTo('studyos')">📚 StudyOS</button>
   </nav>
 
   <main class="container">
@@ -222,6 +223,77 @@
       </section>
     </div>
 
+  <!-- =============================== -->
+  <!-- PÁGINA: STUDYOS                 -->
+  <!-- =============================== -->
+  <div id="page-studyos" style="display: none;">
+
+
+    <!-- MIS ASIGNATURAS -->
+    <section class="card">
+      <div class="section-header">
+        <h2>Mis asignaturas</h2>
+      </div>
+      <form id="asignaturaForm" class="form" style="margin-bottom:16px">
+        <input type="text" id="asignaturaName" placeholder="Nueva asignatura..." required />
+        <button type="submit" class="btn-complete">Añadir</button>
+      </form>
+      <div id="asignaturas-list"></div>
+      <div id="studyTaskList" style="display:none"></div>
+    </section>
+
+    <!-- POMODORO -->
+    <section class="card">
+      <div class="section-header">
+        <h2>Pomodoro</h2>
+      </div>
+      <div class="pomodoro-box">
+        <div class="pomodoro-ring-container">
+          <svg class="pomodoro-ring" viewBox="0 0 120 120">
+            <circle class="ring-bg" cx="60" cy="60" r="54"/>
+            <circle id="ringProgress" class="ring-progress" cx="60" cy="60" r="54"/>
+          </svg>
+          <div class="pomodoro-center">
+            <div id="pomodoroDisplay" class="pomodoro-time">25:00</div>
+            <p id="pomodoroStatus" class="pomodoro-status">Trabajo</p>
+          </div>
+        </div>
+
+        <div class="pomodoro-config">
+          <label>Trabajo
+            <input type="number" id="workMinutes" value="25" min="1" max="90"/> min
+          </label>
+          <label>Descanso
+            <input type="number" id="breakMinutes" value="5" min="1" max="30"/> min
+          </label>
+        </div>
+
+        <div class="pomodoro-btns">
+          <button onclick="startPomodoro()">▶ Iniciar</button>
+          <button onclick="pausePomodoro()">⏸ Pausar</button>
+          <button onclick="resetPomodoro()">↺ Reiniciar</button>
+        </div>
+      
+      </div>
+    </section>
+
+    <!-- CALENDARIO DE EXÁMENES -->
+    <section class="card">
+      <div class="section-header">
+        <h2>Exámenes</h2>
+      </div>
+      <form id="examForm" class="form">
+        <select id="examSubject" required>
+          <option value="">Selecciona asignatura...</option>
+        </select>
+        <input type="date" id="examDate" required />
+        <button type="submit" class="btn-complete">Añadir examen</button>
+      </form>
+      <div id="examList" class="list"></div>
+    </section>
+
+  </div>
+
   </main>
 
   <!-- =============================== -->
@@ -231,6 +303,16 @@
     <div class="update-modal">
       <div id="updateNotes"></div>
       <button onclick="closeUpdateModal()">¡Entendido!</button>
+    </div>
+  </div>
+
+  <!-- =============================== -->
+  <!-- MODAL DE ACTUALIZACIONES STUDYOS-->
+  <!-- =============================== -->
+  <div id="studyosUpdateOverlay" class="update-overlay">
+    <div class="update-modal">
+      <div id="studyosUpdateNotes"></div>
+      <button onclick="closeStudyosUpdate()">¡Entendido!</button>
     </div>
   </div>
 
@@ -249,7 +331,10 @@
     </div>
   </div>
 
+
+
   <script src="app.js"></script>
+  <script src="studyos.js"></script>
 
 </body>
 </html>
