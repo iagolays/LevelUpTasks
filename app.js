@@ -1477,7 +1477,7 @@ document.addEventListener("DOMContentLoaded", function () {
   render();
   renderStats();        // Renderizamos las estadísticas al arrancar
   checkUpdateModal();   // Muestra el modal de novedades si hay una versión nueva
-  showStudyosUpdate();
+  //showStudyosUpdate();
 
   // Edición del nombre del jugador.
   // Se registra aquí dentro para asegurar que el botón ya existe en el DOM.
