@@ -37,6 +37,10 @@
     <button class="nav-btn" onclick="navigateTo('stats')">📊 Estadísticas</button>
     <button class="nav-btn" onclick="navigateTo('compra')">🛒 Lista de la compra</button> 
     <button class="nav-btn" onclick="navigateTo('tienda')">🛍️ Tienda</button>
+    <!-- Botón de cuenta: sin sesión muestra "☁️ Sincronizar", con sesión muestra el nombre -->
+    <button class="nav-btn nav-btn-account" id="accountBtn" onclick="handleAccountBtnClick()">☁️ Sincronizar</button>
+    <!-- Indicador de estado: ✓ sincronizado | … sincronizando | ✕ error -->
+    <span id="syncIndicator" class="sync-indicator"></span>
   </nav>
 
   <main class="container">
@@ -301,11 +305,6 @@
   <!-- =============================== -->
   <div id="page-studyos" style="display: none;">
 
-  <!-- =============================== -->
-  <!-- PÁGINA: STUDYOS                 -->
-  <!-- =============================== -->
-  <div id="page-studyos" style="display: none;">
-
 
     <!-- MIS ASIGNATURAS -->
     <section class="card">
@@ -371,8 +370,7 @@
     </section>
 
   </div>
-
-  </main>
+</main>
 
   <!-- =============================== -->
   <!-- MODAL DE ACTUALIZACIONES        -->
@@ -419,5 +417,92 @@
 
   <!-- Conecta el HTML con JavaScript. Va al FINAL del body para que el HTML
        ya esté cargado cuando el JS empiece a ejecutarse -->
+
+  <!-- ============================================================ -->
+  <!-- MODAL DE AUTENTICACIÓN                                        -->
+  <!-- Se abre al pulsar "☁️ Sincronizar" si no hay sesión activa   -->
+  <!-- ============================================================ -->
+  <div id="authOverlay" class="update-overlay" style="display:none">
+    <div class="auth-modal">
+
+      <button class="auth-close-btn" onclick="closeAuthModal()" aria-label="Cerrar">✕</button>
+
+      <div class="auth-header-text">
+        <h3>☁️ Sincronización</h3>
+        <p class="settings-desc">
+          Guarda tu progreso en la nube y accede desde cualquier dispositivo.
+        </p>
+      </div>
+
+      <div class="auth-tabs">
+        <button id="authTabLogin" class="auth-tab auth-tab-active" onclick="switchAuthTab('login')">Iniciar sesión</button>
+        <button id="authTabRegister" class="auth-tab" onclick="switchAuthTab('register')">Crear cuenta</button>
+      </div>
+
+      <div id="authError" class="auth-error" style="display:none"></div>
+
+      <div id="authLoginForm" class="auth-form">
+        <input type="email" id="loginEmail" placeholder="Correo electrónico" class="auth-input" autocomplete="email" />
+        <input type="password" id="loginPassword" placeholder="Contraseña" class="auth-input" autocomplete="current-password" />
+        <button id="loginSubmitBtn" class="auth-btn-primary" onclick="loginWithEmail()">Entrar</button>
+        
+        <div class="auth-divider">o</div>
+
+        <button class="auth-btn-google" onclick="loginWithGoogle()">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="" width="18" />
+          Continuar con Google
+        </button>
+        <button class="auth-btn-link" onclick="sendPasswordReset()">¿Olvidaste tu contraseña?</button>
+      </div>
+
+      <div id="authRegisterForm" class="auth-form" style="display:none">
+        <input type="email" id="registerEmail" placeholder="Correo electrónico" class="auth-input" autocomplete="email" />
+        <input type="password" id="registerPassword" placeholder="Contraseña (mín. 6 caracteres)" class="auth-input" autocomplete="new-password" />
+        <input type="password" id="registerConfirm" placeholder="Repetir contraseña" class="auth-input" autocomplete="new-password" />
+        <button id="registerSubmitBtn" class="auth-btn-primary" onclick="registerWithEmail()">Crear cuenta</button>
+        
+        <div class="auth-divider">o</div>
+
+        <button class="auth-btn-google" onclick="loginWithGoogle()">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="" width="18" />
+          Continuar con Google
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="accountOverlay" class="update-overlay" style="display:none">
+    <div class="auth-modal">
+      <button class="auth-close-btn" onclick="closeAccountModal()">✕</button>
+      <h3>👤 Tu cuenta</h3>
+      <p id="accountEmail" class="settings-desc" style="word-break:break-all"></p>
+      <p class="settings-desc">
+        Tus datos se sincronizan automáticamente en la nube.
+      </p>
+      <button class="auth-btn-primary" style="margin-top:15px" onclick="logout()">Cerrar sesión</button>
+    </div>
+  </div>
+
+  <div id="conflictOverlay" class="update-overlay" style="display:none">
+    <div class="auth-modal">
+      <h3>⚠️ Datos diferentes</h3>
+      <p class="settings-desc">
+        Elige qué versión conservar. La otra se borrará permanentemente.
+      </p>
+      <div class="conflict-grid">
+        <div class="conflict-option" id="conflictLocalInfo"></div>
+        <div class="conflict-option" id="conflictCloudInfo"></div>
+      </div>
+      <div class="conflict-actions" style="display: flex; gap: 10px; margin-top: 20px;">
+        <button id="conflictKeepLocal" class="auth-btn-secondary">Locales</button>
+        <button id="conflictKeepCloud" class="auth-btn-primary">Nube</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+  <script src="studyos.js"></script>
+  <script type="module" src="firebase.js"></script>
+
 </body>
 </html>
