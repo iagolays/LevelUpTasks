@@ -122,7 +122,7 @@ const SHOP_ITEMS = [
 
 // Versión actual de la app. Cámbiala cada vez que hagas una update
 // para que el modal se muestre de nuevo a todos los usuarios.
-const APP_VERSION = "1.5";
+const APP_VERSION = "1.6";
 
 // Mensaje que se mostrará en el modal para esta versión.
 // Puedes usar saltos de línea con \n o escribir HTML directamente.
@@ -130,11 +130,7 @@ const UPDATE_NOTES = `
   <h3>¡Bienvenido a LevelUp Tasks!</h3>
   <h4>Update!! Mas recompensas!! </h4>
   <ul>
-    <li> Antes de nada, anunciar que tenemos a una nueva developer con nosotros (está trabajando en algo guapo), Nuria!! Aqui su github: https://github.com/nuriaguerra/nuriaguerra </li>
-    <li> A partir de ahora, cada vez que veais una update recomendamos recargar con Ctrl+Shift+R para asegurarse de que teneis la última versión sin caché (en el movil debereis borrar los datos de navegación). </li>
-    <li> Hemos añadido la pestaña de tienda!! Explorala, investiga como conseguir dinero (y gastalo), (queremos vuestra opinión sobre que debería estar en la tienda y que se debería desbloquear con niveles)</li>
-    <li> No mas coming soon en la sección de estadísticas, ve a comprobarlo tu mismo!! </li>
-    <li> Se han solucionado algunos aspectos estéticos que me daban toc </li>
+    <li> AHemos (intentado) implementar el sistema de sincronización de cuentas, si ves esto recomendamos que todavia no te registres porque estamos haciendo pruebas. MUCHO OJO!!.
     <li> Se buscan ideas para la próxima update, sobre todo sobre desbloqueos y estadísticas que os gustaría poder comprobar. Cualquier sugerencia al correo: iago.leis@rai.usc.es </li>
     <li> No nos hemos olvidada del resto de peticiones! Seguiremos trayendo updates cuando la fokin universidad nos deje un hueco, y seguiremos añadiendo mejoras poco a poco. 
     Podeis comprobar que features ya estan planeadas para próximas updates en el README de este proyecto: https://github.com/iagolays/LevelUpTasks</li>
@@ -196,7 +192,85 @@ function saveState() {
   // JSON.stringify convierte el objeto "state" a texto para poder guardarlo.
   // localStorage solo puede guardar texto, no objetos JavaScript directamente.
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+
+  // Si hay sesión activa en Firebase, también subimos a Firestore.
+  // firebase.js expone window.firebase_uploadState; si no existe (sin sesión)
+  // simplemente no hacemos nada: la app sigue funcionando en modo local.
+  if (typeof window.firebase_isSyncEnabled === "function" && window.firebase_isSyncEnabled()) {
+    if (typeof window.firebase_uploadState === "function") {
+      // Solo subimos los datos de la app principal (state).
+      // Los datos de StudyOS se sincronizan en saveStudyData() en studyos.js.
+      window.firebase_uploadState({ type: "appState", data: state });
+    }
+  }
 }
+// ===============================
+// BRIDGE CON FIREBASE.JS
+// ===============================
+// firebase.js es un módulo ES y no puede acceder a variables de este
+// script directamente. Lo solucionamos exponiendo funciones en window.
+//
+//   window.getAppState()        → devuelve el state actual
+//   window.setAppState(s)       → reemplaza el state (cuando Firebase descarga datos)
+//   window.handleAccountBtnClick() → lógica del botón de cuenta en el navbar
+
+window.getAppState = function () {
+  return state;
+};
+
+window.setAppState = function (newState) {
+  if (!newState) return;
+
+  // Aplicamos el nuevo estado recibido de la nube
+  state = newState;
+
+  // Protecciones de compatibilidad con versiones antiguas:
+  // si algún campo falta en los datos descargados, lo inicializamos
+  if (!state.shopping)                state.shopping                = [];
+  if (state.user.paupeDolars      === undefined) state.user.paupeDolars      = 0;
+  if (state.user.totalPaupeDolars === undefined) state.user.totalPaupeDolars = 0;
+  if (!state.user.ownedItems)         state.user.ownedItems         = ["title_noob"];
+  if (!state.user.equippedItems)      state.user.equippedItems      = { font: null, border: null, title: "title_noob" };
+  if (!state.user.categoryXp) {
+    state.user.categoryXp = { otros: 0, deporte: 0, estudio: 0, ocio: 0, hogar: 0, creatividad: 0, salud: 0, trabajo: 0 };
+  }
+
+  // Persistimos en localStorage para disponibilidad offline
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+
+  // Redibujar la interfaz completa con los datos nuevos
+  applyThemeByLevel();
+  applyEquippedItems();
+  render();
+  renderStats();
+};
+
+// ---- Gestión del botón de cuenta en el navbar ----
+
+function handleAccountBtnClick() {
+  // Si hay sesión activa → abre modal de gestión de cuenta
+  // Si no hay sesión → abre modal de login
+  if (typeof window.firebase_isSyncEnabled === "function" && window.firebase_isSyncEnabled()) {
+    openAccountModal();
+  } else {
+    if (typeof window.openAuthModal === "function") window.openAuthModal("login");
+  }
+}
+
+function openAccountModal() {
+  const overlay = document.getElementById("accountOverlay");
+  const emailEl = document.getElementById("accountEmail");
+  if (emailEl && window._firebaseCurrentUserEmail) {
+    emailEl.textContent = "Sesión iniciada como: " + window._firebaseCurrentUserEmail;
+  }
+  if (overlay) overlay.style.display = "flex";
+}
+
+function closeAccountModal() {
+  const overlay = document.getElementById("accountOverlay");
+  if (overlay) overlay.style.display = "none";
+}
+
 
 // ===============================
 // ESTADO DE LA APP
@@ -261,7 +335,7 @@ const taskDueDate = document.getElementById("taskDueDate");
 
 function navigateTo(page) {
   // Lista de todas las páginas disponibles
-  const pages = ["inicio", "stats", "compra", "tienda"];
+  const pages = ["inicio", "studyos", "stats", "compra", "tienda"];
 
   // Ocultamos todas las páginas
   pages.forEach(p => {
