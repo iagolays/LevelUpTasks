@@ -209,7 +209,85 @@ function saveState() {
   // JSON.stringify convierte el objeto "state" a texto para poder guardarlo.
   // localStorage solo puede guardar texto, no objetos JavaScript directamente.
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+
+  // Si hay sesión activa en Firebase, también subimos a Firestore.
+  // firebase.js expone window.firebase_uploadState; si no existe (sin sesión)
+  // simplemente no hacemos nada: la app sigue funcionando en modo local.
+  if (typeof window.firebase_isSyncEnabled === "function" && window.firebase_isSyncEnabled()) {
+    if (typeof window.firebase_uploadState === "function") {
+      // Solo subimos los datos de la app principal (state).
+      // Los datos de StudyOS se sincronizan en saveStudyData() en studyos.js.
+      window.firebase_uploadState({ type: "appState", data: state });
+    }
+  }
 }
+// ===============================
+// BRIDGE CON FIREBASE.JS
+// ===============================
+// firebase.js es un módulo ES y no puede acceder a variables de este
+// script directamente. Lo solucionamos exponiendo funciones en window.
+//
+//   window.getAppState()        → devuelve el state actual
+//   window.setAppState(s)       → reemplaza el state (cuando Firebase descarga datos)
+//   window.handleAccountBtnClick() → lógica del botón de cuenta en el navbar
+
+window.getAppState = function () {
+  return state;
+};
+
+window.setAppState = function (newState) {
+  if (!newState) return;
+
+  // Aplicamos el nuevo estado recibido de la nube
+  state = newState;
+
+  // Protecciones de compatibilidad con versiones antiguas:
+  // si algún campo falta en los datos descargados, lo inicializamos
+  if (!state.shopping)                state.shopping                = [];
+  if (state.user.paupeDolars      === undefined) state.user.paupeDolars      = 0;
+  if (state.user.totalPaupeDolars === undefined) state.user.totalPaupeDolars = 0;
+  if (!state.user.ownedItems)         state.user.ownedItems         = ["title_noob"];
+  if (!state.user.equippedItems)      state.user.equippedItems      = { font: null, border: null, title: "title_noob" };
+  if (!state.user.categoryXp) {
+    state.user.categoryXp = { otros: 0, deporte: 0, estudio: 0, ocio: 0, hogar: 0, creatividad: 0, salud: 0, trabajo: 0 };
+  }
+
+  // Persistimos en localStorage para disponibilidad offline
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+
+  // Redibujar la interfaz completa con los datos nuevos
+  applyThemeByLevel();
+  applyEquippedItems();
+  render();
+  renderStats();
+};
+
+// ---- Gestión del botón de cuenta en el navbar ----
+
+function handleAccountBtnClick() {
+  // Si hay sesión activa → abre modal de gestión de cuenta
+  // Si no hay sesión → abre modal de login
+  if (typeof window.firebase_isSyncEnabled === "function" && window.firebase_isSyncEnabled()) {
+    openAccountModal();
+  } else {
+    if (typeof window.openAuthModal === "function") window.openAuthModal("login");
+  }
+}
+
+function openAccountModal() {
+  const overlay = document.getElementById("accountOverlay");
+  const emailEl = document.getElementById("accountEmail");
+  if (emailEl && window._firebaseCurrentUserEmail) {
+    emailEl.textContent = "Sesión iniciada como: " + window._firebaseCurrentUserEmail;
+  }
+  if (overlay) overlay.style.display = "flex";
+}
+
+function closeAccountModal() {
+  const overlay = document.getElementById("accountOverlay");
+  if (overlay) overlay.style.display = "none";
+}
+
 
 // ===============================
 // ESTADO DE LA APP
