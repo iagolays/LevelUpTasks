@@ -420,6 +420,17 @@ body {
   --accent-2: #7c3aed; /* Morado más oscuro */
 }
 
+.theme-bordo {
+  --accent: #7a1f2e;
+  --accent-2: #a84455;
+}
+
+.theme-tierra {
+  --accent: #7a4f2e;
+  --accent-2: #a86d45;
+}
+
+
 /* ===============================
    MODAL DE ACTUALIZACIONES
    =============================== */
@@ -888,30 +899,252 @@ details#completedTasksSection .list {
   border-color: var(--danger);
 }
 
-/* ===============================
-   TIENDA
-   =============================== */
 
-/* Cabecera de la tienda: título a la izquierda, monedas a la derecha */
-.shop-header {
+/* === STUDYOS === */
+
+.asignatura-row {
+  margin-bottom: 1rem;
+}
+
+.asig-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 16px;
+  margin-bottom: 4px;
 }
 
-.shop-header h2 {
-  margin: 0 0 4px 0;
+.asig-nombre {
+  font-size: 0.9rem;
+  font-weight: 600;
 }
 
-/* Caja que muestra el saldo de monedas */
-.shop-coins {
+.btn-delete-asig {
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 0.8rem;
+  padding: 2px 6px;
+}
+
+.btn-delete-asig:hover { color: #f87171; }
+
+.barra-fondo {
   background: var(--card-2);
-  padding: 10px 16px;
-  border-radius: 10px;
+  border-radius: 99px;
+  height: 10px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.barra-progreso {
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  transition: width 0.4s ease;
+}
+
+.asig-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-top: 6px;
+}
+
+.asig-footer input[type="range"] {
+  flex: 1;
+  accent-color: var(--accent);
+}
+
+.pct {
+  font-size: 0.8rem;
+  color: var(--accent);
+  min-width: 36px;
+  text-align: right;
+}
+
+/* Pomodoro */
+
+.pomodoro-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.pomodoro-ring-container {
+  position: relative;
+  width: 160px;
+  height: 160px;
+}
+
+.pomodoro-ring {
+  width: 160px;
+  height: 160px;
+  transform: rotate(-90deg);
+}
+
+.ring-bg {
+  fill: none;
+  stroke: #2d3148;
+  stroke-width: 8;
+}
+
+.ring-progress {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 8;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.8s ease, stroke 0.5s ease;
+}
+
+.pomodoro-center {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  pointer-events: none;
+}
+
+.pomodoro-time {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #e2e8f0;
+}
+
+.pomodoro-status {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.pomodoro-config {
+  display: flex;
+  gap: 1.5rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.pomodoro-config label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pomodoro-config input[type="number"] {
+  width: 52px;
+  background: var(--card-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  padding: 4px 6px;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.pomodoro-btns {
+  display: flex;
+  gap: 0.8rem;
+}
+
+.pomodoro-btns button {
+  padding: 0.5rem 1.2rem;
+  border-radius: 99px;
+  border: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.1s ease, opacity 0.2s ease;
+}
+
+.pomodoro-btns button {
+  background: var(--card-2);
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+
+.pomodoro-btns button.btn-active-start {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+
+.pomodoro-btns button.btn-active-pause {
+  background: var(--card-2);
+  color: var(--text);
+  border-color: var(--danger);;
+}
+
+.pomodoro-btns button:hover {
+  opacity: 0.85;
+  transform: scale(1.05);
+}
+
+.pomodoro-btns button:active {
+  transform: scale(0.97);
+}
+
+#page-studyos {
+  margin-top: 10px;
+}
+
+/* Acordeón de asignaturas */
+.asig-accordion {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 12px;
+  overflow: hidden;
+  transition: box-shadow 0.2s ease;
+}
+
+.asig-accordion:hover {
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+.asig-accordion-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  background: var(--card-2);
+  cursor: pointer;
+  user-select: none;
+  gap: 12px;
+}
+
+.asig-accordion-header:hover {
+  background: var(--card-2);
+  filter: brightness(1.1);
+}
+
+.asig-accordion-title {
   font-weight: bold;
-  font-size: 16px;
-  white-space: nowrap; /* Evita que el texto se parta en dos líneas */
+  font-size: 1rem;
+  flex: 1;
+}
+
+.asig-accordion-meta {
+  font-size: 0.8rem;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.asig-accordion-arrow {
+  font-size: 0.8rem;
+  color: var(--muted);
+  transition: transform 0.25s ease;
+}
+
+.asig-accordion-arrow.open {
+  transform: rotate(180deg);
 }
 
 .asig-accordion-body {
