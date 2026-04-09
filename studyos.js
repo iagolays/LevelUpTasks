@@ -10,8 +10,6 @@ let asignaturas = JSON.parse(localStorage.getItem('asignaturas')) || [];
 
 function saveAsignaturas() {
   localStorage.setItem('asignaturas', JSON.stringify(asignaturas));
-  // Sincronización en la nube: subimos asignaturas junto a studyTasks y exams
-  saveStudyData();
 }
 
 // Añade XP al perfil general de la app (el de tu compañero)
@@ -525,8 +523,6 @@ let studyTasks = JSON.parse(localStorage.getItem('studyTasks')) || [];
 
 function saveStudyTasks() {
   localStorage.setItem('studyTasks', JSON.stringify(studyTasks));
-  // Sincronización en la nube (agrupada con el resto de datos StudyOS)
-  saveStudyData();
 }
 
 function renderStudyTasks() {
@@ -855,7 +851,6 @@ function guardarNota(index) {
   }
 
   localStorage.setItem('exams', JSON.stringify(exams));
-  saveStudyData(); // Sincroniza con la nube
   renderExams();
 }
 
@@ -886,7 +881,6 @@ document.getElementById('examForm').addEventListener('submit', function(e) {
   if (!subject || !date) return;
   exams.push({ subject, date, nota: null, notaMax: 10 });
   localStorage.setItem('exams', JSON.stringify(exams));
-  saveStudyData(); // Sincroniza con la nube
   renderExams();
   this.reset();
 });
@@ -894,7 +888,6 @@ document.getElementById('examForm').addEventListener('submit', function(e) {
 function deleteExam(index) {
   exams.splice(index, 1);
   localStorage.setItem('exams', JSON.stringify(exams));
-  saveStudyData(); // Sincroniza con la nube
   renderExams();
 }
 
@@ -946,59 +939,6 @@ function closeStudyosUpdate() {
   document.getElementById('studyosUpdateOverlay').style.display = 'none';
 } */
 
-
-
-// ===============================
-// BRIDGE STUDYOS CON FIREBASE.JS
-// ===============================
-// Agrupa todos los datos de StudyOS en un solo objeto y los sube a la nube.
-// Se llama desde saveAsignaturas(), saveStudyTasks() y cada vez que cambian exams.
-// Al agrupar los tres arrays, evitamos subidas parciales inconsistentes.
-
-function saveStudyData() {
-  // Solo subimos si hay sesión activa en Firebase
-  if (typeof window.firebase_isSyncEnabled !== "function" || !window.firebase_isSyncEnabled()) return;
-  if (typeof window.firebase_uploadState !== "function") return;
-
-  window.firebase_uploadState({
-    type: "studyData",
-    data: {
-      asignaturas: asignaturas,
-      studyTasks:  studyTasks,
-      exams:       exams
-    }
-  });
-}
-
-// Recibe datos de StudyOS descargados desde la nube y los aplica localmente.
-// Se llama desde firebase.js cuando el usuario inicia sesión.
-window.setStudyData = function (studyData) {
-  if (!studyData) return;
-
-  // Aplicamos cada colección solo si viene en los datos descargados
-  if (studyData.asignaturas) {
-    asignaturas = studyData.asignaturas;
-    localStorage.setItem('asignaturas', JSON.stringify(asignaturas));
-  }
-  if (studyData.studyTasks) {
-    studyTasks = studyData.studyTasks;
-    localStorage.setItem('studyTasks', JSON.stringify(studyTasks));
-  }
-  if (studyData.exams) {
-    exams = studyData.exams;
-    localStorage.setItem('exams', JSON.stringify(exams));
-  }
-
-  // Re-renderizamos StudyOS con los datos nuevos
-  renderAsignaturas();
-  renderExams();
-  renderExamSelect();
-};
-
-// Devuelve todos los datos de StudyOS agrupados (para que firebase.js los suba)
-window.getStudyData = function () {
-  return { asignaturas, studyTasks, exams };
-};
 
 // ================================
 // INIT

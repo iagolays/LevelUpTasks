@@ -91,7 +91,9 @@ const THEMES = {
   azul:   { label: "Azul",        level: 3,  className: "theme-blue"   },
   dorado: { label: "Dorado",      level: 5,  className: "theme-gold"   },
   rojo:   { label: "Rojo/Sangre", level: 7,  className: "theme-red"    },
-  morado: { label: "Morado",      level: 10, className: "theme-purple" }
+  morado: { label: "Morado",      level: 10, className: "theme-purple" },
+  bordo:   { label: "Burdeos",     level: 13,  className: "theme-bordo"   },
+  tierra:  { label: "Tierra",      level: 15, className: "theme-tierra"  },
 };
 
 // Catálogo de artículos de la tienda.
@@ -128,12 +130,27 @@ const APP_VERSION = "1.6";
 // Puedes usar saltos de línea con \n o escribir HTML directamente.
 const UPDATE_NOTES = `
   <h3>¡Bienvenido a LevelUp Tasks!</h3>
-  <h4>Update!! Mas recompensas!! </h4>
+  <h4>Update grande!! Dos developers, el doble de caos!!</h4>
   <ul>
-    <li> AHemos (intentado) implementar el sistema de sincronización de cuentas, si ves esto recomendamos que todavia no te registres porque estamos haciendo pruebas. MUCHO OJO!!.
-    <li> Se buscan ideas para la próxima update, sobre todo sobre desbloqueos y estadísticas que os gustaría poder comprobar. Cualquier sugerencia al correo: iago.leis@rai.usc.es </li>
-    <li> No nos hemos olvidada del resto de peticiones! Seguiremos trayendo updates cuando la fokin universidad nos deje un hueco, y seguiremos añadiendo mejoras poco a poco. 
-    Podeis comprobar que features ya estan planeadas para próximas updates en el README de este proyecto: https://github.com/iagolays/LevelUpTasks</li>
+    <li>Antes de nada, anunciar que tenemos a una nueva developer con nosotros, Nuria!! Aquí su github: https://github.com/nuriaguerra/nuriaguerra</li>
+    <li>A partir de ahora, cada vez que veáis una update recomendamos recargar con Ctrl+Shift+R para asegurarse de que tenéis la última versión sin caché (en el móvil deberéis borrar los datos de navegación).</li>
+    <li>Hemos añadido la pestaña de tienda!! Explórala, investiga cómo conseguir dinero (y gástalo). Queremos vuestra opinión sobre qué debería estar en la tienda y qué se debería desbloquear con niveles.</li>
+    <li>No más coming soon en la sección de estadísticas, ve a comprobarlo tú mismo!!</li>
+    <li>Se han solucionado algunos aspectos estéticos que nos daban toc.</li>
+    <li> Os animamos a personalizar la app a vuestra manera, cambiando los temas, comprando artículos en la tienda y equipándolos. Queremos que cada uno tenga una experiencia única y se sienta identificado con su personaje.</li>
+    <li>📚 Nueva pestaña StudyOS, desarrollada por Nuria:</li>
+    <ul>
+      <li>Asignaturas con progreso automático: el 70% depende de los temas en estado "Me lo sé" y el 30% de las tareas completadas.</li>
+      <li>Temas por asignatura con estados propios: No empezado, Leyendo, Repasar o Me lo sé. Cada cambio suma XP.</li>
+      <li>Tareas con dificultad, XP y división por días. Cada día que marcas un cuadradito mantiene tu racha activa.</li>
+      <li>Notas automáticas en tareas y temas.</li>
+      <li>Exámenes vinculados a asignaturas con estado de preparación. Si aprobaste recibes XP; si suspendiste, se resta.</li>
+      <li>Pomodoro con anillo circular y colores que siguen el tema visual.</li>
+      <li>Nuevos temas: Burdeos y Tierra</li>
+      <li>Cualquier sugerencia para StudyOS a nuria.guerra.casal@rai.usc.es</li>
+    </ul>
+    <li>Se buscan ideas para la próxima update. Cualquier sugerencia al correo: iago.leis@rai.usc.es</li>
+    <li>Podéis comprobar qué features están planeadas en el README: https://github.com/iagolays/LevelUpTasks</li>
   </ul>
 `;
 
@@ -537,7 +554,8 @@ function applyThemeByLevel() {
   if (!state.user.selectedTheme) state.user.selectedTheme = "verde";
 
   // Eliminamos todas las clases de tema anteriores
-  document.body.classList.remove("theme-blue", "theme-gold", "theme-red", "theme-purple");
+  document.body.classList.remove("theme-blue", "theme-gold", "theme-red", "theme-purple", 
+    "theme-bordo", "theme-tierra" );
 
   // Aplicamos la clase CSS del tema elegido (verde no tiene clase, es el default)
   const theme = THEMES[state.user.selectedTheme];
@@ -1537,6 +1555,7 @@ document.addEventListener("DOMContentLoaded", function () {
   render();
   renderStats();        // Renderizamos las estadísticas al arrancar
   checkUpdateModal();   // Muestra el modal de novedades si hay una versión nueva
+  //showStudyosUpdate();
 
   // Edición del nombre del jugador.
   // Se registra aquí dentro para asegurar que el botón ya existe en el DOM.

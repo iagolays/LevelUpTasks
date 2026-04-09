@@ -12,9 +12,16 @@ Está bastante vibecodeado, si ves algo raro o tienes alguna duda puedes pregunt
 
 ---
 
+## 👥 Equipo
+
+- **Iago Leis** — Desarrollo principal · [GitHub](https://github.com/iago-leis)
+- **Nuria Guerra** — StudyOS y colaboración · [GitHub](https://github.com/nuriaguerra/nuriaguerra)
+
+---
+
 ## 🚀 Demo
 
-Puedes probar la app directamente en: [LevelUp Tasks en GitHub Pages](https://iago-leis.github.io/LevelTasksUp)
+Puedes probar la app directamente en: [LevelUp Tasks en GitHub Pages](https://iagolays.github.io/LevelUpTasks/)
 
 ---
 
@@ -44,20 +51,25 @@ http://localhost:8000
 
 ## ✅ Funcionalidades actuales
 
-- **Sistema de tareas** — Crea tareas con 5 niveles de dificultad. Al completarlas ganas XP proporcional a su dificultad. Las tareas completadas se acumulan en un desplegable para no mezclarlas con las pendientes.
+- **Sistema de tareas** — Crea tareas con 5 niveles de dificultad. Al completarlas ganas XP y PaupeDolars proporcionales a su dificultad. Las tareas completadas se acumulan en un desplegable para no mezclarlas con las pendientes.
+- **Fechas límite** — Las tareas pueden tener fecha límite opcional. Si no se completan a tiempo, se pierde la XP que habrían dado.
 - **Sistema de hábitos** — Crea hábitos diarios con racha y mejor racha. Marcarlos cada día mantiene y aumenta tu racha.
-- **Rachas visuales** — Los hábitos evolucionan visualmente según su racha: 🌱 Iniciado → 🔥 En racha (7d) → ⚡ Imparable (14d) → 👑 Leyenda (21d). Incluye barra de progreso hacia el siguiente hito.
-- **XP y niveles** — Cada acción completada suma XP. Al llegar al umbral subes de nivel automáticamente.
-- **Categorías** — Asigna categorías (Deporte, Estudio, Ocio, Hogar, Creatividad, Salud, Trabajo, Otros) a tareas, hábitos y lista de la compra.
-- **Gráfico de habilidades** — Octógono en el perfil que muestra visualmente en qué categorías estás más activo. El color se adapta al tema activo.
-- **Cuadrícula de actividad** — Gráfico estilo GitHub que muestra los últimos 30 días de cada hábito.
-- **Lista de la compra** — Añade artículos con categoría, táchales al comprarlos y completa la lista para ganar XP.
-- **Selector de temas** — Desbloquea temas visuales al subir de nivel y elige cuál usar desde el panel de ajustes. Temas disponibles: Verde (nv. 1), Azul (nv. 3), Dorado (nv. 5), Rojo (nv. 7) y Morado (nv. 10).
-- **Panel de ajustes** — Accesible desde el botón ⚙️ del perfil. Centraliza todas las opciones de personalización.
-- **Desbloqueos por nivel** — Al subir de nivel se desbloquean estadísticas avanzadas y temas visuales. Consultables en un desplegable en el perfil.
-- **Edición de nombre** — Personaliza el nombre de tu jugador desde el botón ✏️ del perfil.
-- **Navegación por secciones** — La app está dividida en Inicio, Estadísticas y Lista de la compra, accesibles desde la barra de navegación superior.
-- **Modal de novedades** — Al lanzar una nueva versión, los usuarios ven un resumen de los cambios al entrar por primera vez.
+- **Rachas visuales** — Los hábitos evolucionan visualmente cada 7 días: 🌱 Iniciado → 🔥 En racha → ⚡ Imparable → 👑 Leyenda.
+- **XP y niveles** — Cada acción completada suma XP. Al llegar al umbral subes de nivel automáticamente. Cada 5 niveles recibes 50 PaupeDolars de regalo.
+- **PaupeDolars** — Moneda de la app que se gana completando tareas y hábitos. Se usa en la tienda para comprar cosméticos.
+- **Categorías** — Asigna categorías (Deporte, Estudio, Ocio, Hogar, Creatividad, Salud, Trabajo, Otros) a tareas y hábitos.
+- **Gráfico de habilidades** — Octógono en el perfil que muestra visualmente la XP acumulada por categoría. El color se adapta al tema activo.
+- **Tienda** — Gasta PaupeDolars en tipografías, marcos animados de perfil y títulos de jugador.
+- **Marcos animados** — Dorado, Arcoíris, Latido, Eléctrico, Hielo, Sombra y Neón.
+- **Tipografías** — Monospace, Serif, Minecraft, Comic Sans, Skyrim y Burger King.
+- **Títulos de jugador** — Novato, El Incansable, Leyenda y El Paupérrimo.
+- **Selector de temas** — Desbloquea temas visuales al subir de nivel y elige cuál usar desde el panel de ajustes ⚙️. Verde (nv.1), Azul (nv.3), Dorado (nv.5), Rojo (nv.7) y Morado (nv.10).
+- **Estadísticas** — Página dedicada con resumen general, gráfico de actividad de hábitos al estilo GitHub y distribución de XP por categoría.
+- **Días usando la app** — Contador de días consecutivos abriendo la app.
+- **Lista de la compra** — Sección dedicada con categorías y recompensa de XP al completarla.
+- **StudyOS** — Sección de estudio con gestión de asignaturas, temporizador Pomodoro y calendario de exámenes. Desarrollado por Nuria.
+- **Panel de ajustes** — Accesible desde el botón ⚙️ del perfil.
+- **Modal de novedades** — Al entrar por primera vez tras una actualización, se muestra un resumen de los cambios.
 - **Persistencia** — Todos los datos se guardan en `localStorage`, sin necesidad de cuenta ni servidor.
 
 ---
@@ -67,12 +79,11 @@ http://localhost:8000
 Funcionalidades planeadas para próximas versiones:
 
 - [ ] Sistema de penalizaciones por no completar hábitos
-- [ ] Fechas límite para tareas
-- [ ] Fuentes desbloqueables
+- [ ] Personaje customizable con cosméticos equipables
+- [ ] Multiplicador de XP por racha
 - [ ] Sistema de logros y medallas
 - [ ] Historial de actividad
 - [ ] Exportar / importar datos
-- [ ] Mas estadísticas variadas
 - [ ] Se admiten sugerencias al correo iago.leis@rai.usc.es
 
 ---
@@ -82,7 +93,7 @@ Funcionalidades planeadas para próximas versiones:
 Proyecto 100% frontend, sin dependencias externas:
 
 - HTML5
-- CSS3 (variables, grid, flexbox, media queries)
+- CSS3 (variables, grid, flexbox, media queries, animaciones)
 - JavaScript vanilla (sin frameworks)
 - Canvas API para el gráfico de habilidades
 - localStorage para persistencia de datos
