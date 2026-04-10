@@ -122,15 +122,18 @@ const SHOP_ITEMS = [
 
 // Versión actual de la app. Cámbiala cada vez que hagas una update
 // para que el modal se muestre de nuevo a todos los usuarios.
-const APP_VERSION = "1.6";
+const APP_VERSION = "1.7";
 
 // Mensaje que se mostrará en el modal para esta versión.
 // Puedes usar saltos de línea con \n o escribir HTML directamente.
 const UPDATE_NOTES = `
   <h3>¡Bienvenido a LevelUp Tasks!</h3>
-  <h4>Update!! Mas recompensas!! </h4>
+  <h4>Update!! SINCRINIZACIÓN ENTRE DISPOSITIVOS </h4>
   <ul>
-    <li> AHemos (intentado) implementar el sistema de sincronización de cuentas, si ves esto recomendamos que todavia no te registres porque estamos haciendo pruebas. MUCHO OJO!!.
+    <li> Hemos (intentado) implementar el sistema de sincronización de cuentas, deberia funcionar bien, cada vez que el programa detecte cambios entre tu version local y la de la nube te preguntará que datos quieres conservar (esperamos hacerlo mas automatico en un futuro)
+    <li> El boton de iniciar sesion con google no va, no le hagais caso, espero arreglarlo pronto i guess </li>
+    <li> Esto ha sido un coñazo de implementar teniendo en cuenta que ahora claude casi no te deja chambear, asi que es lo único que esta upadate trae de novedad y ni si quiera funciona todo pero bueno </li>
+    <li> Ahora no hay excusas para no organizarte y cumplir tus hábitos (y darme estrellita y follow en github), asi que espabila la pera que te va a comer el mundo </li>
     <li> Se buscan ideas para la próxima update, sobre todo sobre desbloqueos y estadísticas que os gustaría poder comprobar. Cualquier sugerencia al correo: iago.leis@rai.usc.es </li>
     <li> No nos hemos olvidada del resto de peticiones! Seguiremos trayendo updates cuando la fokin universidad nos deje un hueco, y seguiremos añadiendo mejoras poco a poco. 
     Podeis comprobar que features ya estan planeadas para próximas updates en el README de este proyecto: https://github.com/iagolays/LevelUpTasks</li>
