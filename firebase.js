@@ -80,8 +80,9 @@ const UPLOAD_DEBOUNCE_MS = 1500;
 //     updatedAt: Timestamp (para saber qué copia es más reciente)
 
 /**
- * Recibe un objeto { type, data } desde app.js o studyos.js y lo sube
- * a Firestore con debounce para evitar escrituras excesivas.
+ * Sube datos a Firestore CON debounce (1.5s).
+ * Se usa en el guardado normal (completar tareas, hábitos, etc.)
+ * para evitar saturar Firestore con escrituras continuas.
  *
  * type === "appState"  → data es el state de app.js
  * type === "studyData" → data es { asignaturas, studyTasks, exams }
@@ -117,6 +118,41 @@ async function uploadState({ type, data }) {
       setSyncIndicator("error");
     }
   }, UPLOAD_DEBOUNCE_MS);
+}
+
+/**
+ * Sube datos a Firestore SIN debounce, de forma inmediata.
+ * Se usa en situaciones urgentes donde los datos deben llegar
+ * a la nube garantizadamente: primer login, elección de conflicto, etc.
+ * Al ser async/await, la llamada no termina hasta que Firestore confirma.
+ */
+async function uploadStateNow({ type, data }) {
+  if (!syncEnabled) return;
+
+  const user = auth.currentUser;
+  if (!user) return;
+
+  try {
+    setSyncIndicator("syncing");
+
+    const userDoc = doc(db, "users", user.uid);
+    const payload = { updatedAt: serverTimestamp() };
+
+    if (type === "appState") {
+      payload.appState = JSON.stringify(data);
+    } else if (type === "studyData") {
+      payload.studyData = JSON.stringify(data);
+    }
+
+    // merge:true → no borramos el otro campo al actualizar solo uno
+    await setDoc(userDoc, payload, { merge: true });
+
+    setSyncIndicator("synced");
+
+  } catch (err) {
+    console.error("[Firebase] Error al subir datos (urgente):", err);
+    setSyncIndicator("error");
+  }
 }
 
 /**
@@ -308,6 +344,8 @@ function askConflictResolution(localCloud, cloudData) {
 /**
  * Punto central que se llama tras cualquier login exitoso.
  * Compara los datos locales con los de la nube y actúa en consecuencia.
+ * Usa uploadStateNow para garantizar que la subida se completa antes
+ * de que la función termine.
  */
 async function handleUserLogin(user) {
   syncEnabled = true;
@@ -325,8 +363,9 @@ async function handleUserLogin(user) {
 
   if (!cloudAll || (!cloudAll.appState && !cloudAll.studyData)) {
     // El usuario nunca ha subido datos → subimos los locales directamente
-    if (localAppState)  await uploadState({ type: "appState",  data: localAppState });
-    if (localStudyData) await uploadState({ type: "studyData", data: localStudyData });
+    // Usamos uploadStateNow para garantizar que llegan a Firestore
+    if (localAppState)  await uploadStateNow({ type: "appState",  data: localAppState });
+    if (localStudyData) await uploadStateNow({ type: "studyData", data: localStudyData });
     setSyncIndicator("synced");
     return;
   }
@@ -343,15 +382,16 @@ async function handleUserLogin(user) {
     return;
   }
 
-  // Hay conflicto: preguntamos al usuario
+  // Hay conflicto significativo: preguntamos al usuario
   const choice = await askConflictResolution(localAll, cloudAll);
 
   if (choice === "cloud") {
     applyCloudData(cloudAll);
   } else {
-    // Usamos los locales y los subimos a la nube
-    if (localAppState)  await uploadState({ type: "appState",  data: localAppState });
-    if (localStudyData) await uploadState({ type: "studyData", data: localStudyData });
+    // El usuario elige los locales: los subimos a la nube inmediatamente
+    // con uploadStateNow para garantizar que llegan antes de continuar
+    if (localAppState)  await uploadStateNow({ type: "appState",  data: localAppState });
+    if (localStudyData) await uploadStateNow({ type: "studyData", data: localStudyData });
   }
 
   setSyncIndicator("synced");
@@ -487,15 +527,21 @@ onAuthStateChanged(auth, async (user) => {
         if (choice === "cloud") {
           applyCloudData(cloudAll);
         } else {
-          // Los locales son los buenos: los subimos a la nube
-          if (window.getAppState)  await uploadState({ type: "appState",  data: window.getAppState() });
-          if (window.getStudyData) await uploadState({ type: "studyData", data: window.getStudyData() });
+          // Los locales son los buenos: los subimos a la nube inmediatamente
+          if (window.getAppState)  await uploadStateNow({ type: "appState",  data: window.getAppState() });
+          if (window.getStudyData) await uploadStateNow({ type: "studyData", data: window.getStudyData() });
         }
       } else {
         // Sin conflicto significativo O dispositivo local vacío:
         // aplicamos siempre los datos de la nube (son los más recientes y fiables)
         applyCloudData(cloudAll);
       }
+    } else if (!cloudAll) {
+      // No hay datos en la nube todavía: subimos los locales
+      const localAppState  = window.getAppState  ? window.getAppState()  : null;
+      const localStudyData = window.getStudyData ? window.getStudyData() : null;
+      if (localAppState)  await uploadStateNow({ type: "appState",  data: localAppState });
+      if (localStudyData) await uploadStateNow({ type: "studyData", data: localStudyData });
     }
     setSyncIndicator("synced");
 
