@@ -468,32 +468,34 @@ onAuthStateChanged(auth, async (user) => {
     updateAccountButton(user);
     setSyncIndicator("syncing");
 
-    // Descargamos los datos de la nube silenciosamente
-    // (sin modal de conflicto, el usuario ya eligió en el login anterior
-    //  o es una recarga normal de la página)
+    // Descargamos los datos de la nube.
+    // En una recarga normal (el usuario ya tenía sesión), SIEMPRE aplicamos
+    // los datos de la nube si existen. Esto es lo que permite la sincronización
+    // entre dispositivos: el ordenador carga lo que guardó el móvil y viceversa.
     const cloudAll = await downloadAllDataFromCloud();
-    if (cloudAll) {
-      const localXp  = window.getAppState?.()?.user?.totalXp || 0;
-      const cloudXp  = cloudAll.appState?.user?.totalXp || 0;
+    if (cloudAll && (cloudAll.appState || cloudAll.studyData)) {
+      const localXp = window.getAppState?.()?.user?.totalXp || 0;
+      const cloudXp = cloudAll.appState?.user?.totalXp || 0;
 
-      if (Math.abs(localXp - cloudXp) > 10) {
-        // Los datos divergen bastante (p.ej. se usó otro dispositivo sin conexión)
+      if (Math.abs(localXp - cloudXp) > 10 && localXp > 0) {
+        // Los datos divergen bastante Y el dispositivo local tiene progreso propio
+        // (localXp > 0 evita mostrar el modal cuando el dispositivo está vacío)
+        // → preguntamos al usuario cuál prefiere conservar
         const localStudyData = window.getStudyData ? window.getStudyData() : null;
         const localAll = { appState: window.getAppState?.(), studyData: localStudyData };
         const choice = await askConflictResolution(localAll, cloudAll);
         if (choice === "cloud") {
           applyCloudData(cloudAll);
         } else {
-          // Los locales son los buenos: los subimos
+          // Los locales son los buenos: los subimos a la nube
           if (window.getAppState)  await uploadState({ type: "appState",  data: window.getAppState() });
           if (window.getStudyData) await uploadState({ type: "studyData", data: window.getStudyData() });
         }
-      } else if (cloudXp > localXp) {
-        // La nube tiene más XP: la usamos (datos más recientes)
+      } else {
+        // Sin conflicto significativo O dispositivo local vacío:
+        // aplicamos siempre los datos de la nube (son los más recientes y fiables)
         applyCloudData(cloudAll);
       }
-      // Si localXp >= cloudXp (o son iguales): no hacemos nada,
-      // los datos locales son los más actualizados.
     }
     setSyncIndicator("synced");
 
