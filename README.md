@@ -51,6 +51,7 @@ http://localhost:8000
 
 ## ✅ Funcionalidades actuales
 
+- **Sincronización entre dispositivos** — Inicia sesión con tu correo y contraseña (por ahora la cuenta de google no va) y elige con que datos te quieres quedar (los locales o los de la nube), y voilá, tus datos estarán sincronizados entre tis dispositivos!
 - **Sistema de tareas** — Crea tareas con 5 niveles de dificultad. Al completarlas ganas XP y PaupeDolars proporcionales a su dificultad. Las tareas completadas se acumulan en un desplegable para no mezclarlas con las pendientes.
 - **Fechas límite** — Las tareas pueden tener fecha límite opcional. Si no se completan a tiempo, se pierde la XP que habrían dado.
 - **Sistema de hábitos** — Crea hábitos diarios con racha y mejor racha. Marcarlos cada día mantiene y aumenta tu racha.
@@ -90,13 +91,14 @@ Funcionalidades planeadas para próximas versiones:
 
 ## 🛠️ Tecnologías
 
-Proyecto 100% frontend, sin dependencias externas:
+
 
 - HTML5
 - CSS3 (variables, grid, flexbox, media queries, animaciones)
 - JavaScript vanilla (sin frameworks)
 - Canvas API para el gráfico de habilidades
 - localStorage para persistencia de datos
+- Firebase (para la gestión de las cuentas y sus datos asociados)
 
 ---
 
