@@ -500,6 +500,90 @@
     </div>
   </div>
 
+  <!-- =============================== -->
+  <!-- MODAL DE EDICIÓN DE TAREA       -->
+  <!-- =============================== -->
+  <div id="editTaskOverlay" class="update-overlay">
+    <div class="update-modal">
+      <h3>✏️ Editar tarea</h3>
+      <input type="hidden" id="editTaskId" />
+      <div class="edit-field">
+        <label>Título</label>
+        <input type="text" id="editTaskTitle" placeholder="Título de la tarea..." />
+      </div>
+      <div class="edit-field">
+        <label>Dificultad</label>
+        <select id="editTaskDiff">
+          <option value="1">Dificultad 1 - Ez</option>
+          <option value="2">Dificultad 2 - Sencillito</option>
+          <option value="3">Dificultad 3 - Media</option>
+          <option value="4">Dificultad 4 - Difícil</option>
+          <option value="5">Dificultad 5 - Job Finding</option>
+        </select>
+      </div>
+      <div class="edit-field">
+        <label>Categoría</label>
+        <select id="editTaskCat">
+          <option value="otros">Otros</option>
+          <option value="deporte">Deporte</option>
+          <option value="estudio">Estudio</option>
+          <option value="ocio">Ocio</option>
+          <option value="hogar">Tareas del hogar</option>
+          <option value="creatividad">Creatividad</option>
+          <option value="salud">Salud</option>
+          <option value="trabajo">Trabajo</option>
+        </select>
+      </div>
+      <div class="edit-field">
+        <label>Fecha límite (opcional)</label>
+        <input type="date" id="editTaskDate" />
+      </div>
+      <div class="edit-modal-actions">
+        <button class="btn-complete" onclick="saveTaskEdit()">Guardar</button>
+        <button class="btn-delete" onclick="closeTaskEdit()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =============================== -->
+  <!-- MODAL DE EDICIÓN DE HÁBITO      -->
+  <!-- =============================== -->
+  <div id="editHabitOverlay" class="update-overlay">
+    <div class="update-modal">
+      <h3>✏️ Editar hábito</h3>
+      <input type="hidden" id="editHabitId" />
+      <div class="edit-field">
+        <label>Título</label>
+        <input type="text" id="editHabitTitle" placeholder="Título del hábito..." />
+      </div>
+      <div class="edit-field">
+        <label>Dificultad</label>
+        <select id="editHabitDiff">
+          <option value="1">Dificultad 1 - Ez</option>
+          <option value="2">Dificultad 2 - Media</option>
+          <option value="3">Dificultad 3 - Job Finding</option>
+        </select>
+      </div>
+      <div class="edit-field">
+        <label>Categoría</label>
+        <select id="editHabitCat">
+          <option value="otros">Otros</option>
+          <option value="deporte">Deporte</option>
+          <option value="estudio">Estudio</option>
+          <option value="ocio">Ocio</option>
+          <option value="hogar">Tareas del hogar</option>
+          <option value="creatividad">Creatividad</option>
+          <option value="salud">Salud</option>
+          <option value="trabajo">Trabajo</option>
+        </select>
+      </div>
+      <div class="edit-modal-actions">
+        <button class="btn-complete" onclick="saveHabitEdit()">Guardar</button>
+        <button class="btn-delete" onclick="closeHabitEdit()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
   <script src="app.js"></script>
   <script src="studyos.js"></script>
   <script type="module" src="firebase.js"></script>

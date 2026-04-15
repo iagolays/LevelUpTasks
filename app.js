@@ -122,21 +122,19 @@ const SHOP_ITEMS = [
 
 // Versión actual de la app. Cámbiala cada vez que hagas una update
 // para que el modal se muestre de nuevo a todos los usuarios.
-const APP_VERSION = "1.7";
+const APP_VERSION = "1.7.1";
 
 // Mensaje que se mostrará en el modal para esta versión.
 // Puedes usar saltos de línea con \n o escribir HTML directamente.
 const UPDATE_NOTES = `
-  <h3>¡Bienvenido a LevelUp Tasks!</h3>
-  <h4>Update!! SINCRINIZACIÓN ENTRE DISPOSITIVOS </h4>
+    <h3>¡Bienvenido a LevelUp Tasks!</h3>
+  <h4>Update 1.7.1 — Pequeña pero necesaria</h4>
   <ul>
-    <li> Hemos (intentado) implementar el sistema de sincronización de cuentas, deberia funcionar bien, cada vez que el programa detecte cambios entre tu version local y la de la nube te preguntará que datos quieres conservar (esperamos hacerlo mas automatico en un futuro)
-    <li> El boton de iniciar sesion con google no va, no le hagais caso, espero arreglarlo pronto i guess </li>
-    <li> Esto ha sido un coñazo de implementar teniendo en cuenta que ahora claude casi no te deja chambear, asi que es lo único que esta upadate trae de novedad y ni si quiera funciona todo pero bueno </li>
-    <li> Ahora no hay excusas para no organizarte y cumplir tus hábitos (y darme estrellita y follow en github), asi que espabila la pera que te va a comer el mundo </li>
-    <li> Se buscan ideas para la próxima update, sobre todo sobre desbloqueos y estadísticas que os gustaría poder comprobar. Cualquier sugerencia al correo: iago.leis@rai.usc.es </li>
-    <li> No nos hemos olvidada del resto de peticiones! Seguiremos trayendo updates cuando la fokin universidad nos deje un hueco, y seguiremos añadiendo mejoras poco a poco. 
-    Podeis comprobar que features ya estan planeadas para próximas updates en el README de este proyecto: https://github.com/iagolays/LevelUpTasks</li>
+    <li>Ya puedes editar tus tareas y hábitos sin tener que borrarlos y volver a crearlos. Título, dificultad, categoría y fecha límite, todo editable desde el botón ✏️.</li>
+    <li>Corregido un bug con las etiquetas de dificultad de los hábitos que mostraba textos incorrectos.</li>
+    <li>El boton de inciar sesión con google ya es funcional!, gracias al Impacthon por enseñarme a arreglarlo.</li>
+    <li>Se buscan ideas para la próxima update. Cualquier sugerencia al correo: iago.leis@rai.usc.es</li>
+    <li>Podéis comprobar qué features están planeadas en el README: https://github.com/iagolays/LevelUpTasks</li>
   </ul>
 `;
 
@@ -382,13 +380,23 @@ function xpNeededForLevel(level) {
 }
 
 // Convierte el número de dificultad en texto legible para mostrarlo en pantalla
+// Para tareas (5 niveles)
 function difficultyLabel(value) {
-  const diff = Number(value); // Aseguramos que sea un número
-  if (diff === 1) return "Fácil";
-  if (diff === 2) return "Normal";
+  const diff = Number(value);
+  if (diff === 1) return "Ez";
+  if (diff === 2) return "Sencillito";
   if (diff === 3) return "Media";
   if (diff === 4) return "Difícil";
-  if (diff === 5) return "Muy difícil";
+  if (diff === 5) return "Job Finding";
+  return "Desconocida";
+}
+
+// Para hábitos (3 niveles)
+function habitDifficultyLabel(value) {
+  const diff = Number(value);
+  if (diff === 1) return "Ez";
+  if (diff === 2) return "Media";
+  if (diff === 3) return "Job Finding";
   return "Desconocida";
 }
 
@@ -631,6 +639,53 @@ function deleteTask(taskId) {
   render();
 }
 
+// Abre el modal de edición precargando los datos de la tarea seleccionada
+function editTask(taskId) {
+  const task = state.tasks.find(t => t.id == taskId);
+  if (!task) return;
+
+  // Precargamos los campos del modal con los datos actuales de la tarea
+  document.getElementById("editTaskId").value      = task.id;
+  document.getElementById("editTaskTitle").value   = task.title;
+  document.getElementById("editTaskDiff").value    = task.difficulty;
+  document.getElementById("editTaskCat").value     = task.category || "otros";
+  document.getElementById("editTaskDate").value    = task.dueDate || "";
+
+  // Mostramos el modal
+  document.getElementById("editTaskOverlay").style.display = "flex";
+}
+
+// Guarda los cambios del modal de edición
+function saveTaskEdit() {
+  const id       = document.getElementById("editTaskId").value;
+  const title    = document.getElementById("editTaskTitle").value.trim();
+  const diff     = Number(document.getElementById("editTaskDiff").value);
+  const category = document.getElementById("editTaskCat").value;
+  const dueDate  = document.getElementById("editTaskDate").value || null;
+
+  if (!title) return;
+
+  const task = state.tasks.find(t => t.id == id);
+  if (!task) return;
+
+  // Actualizamos los campos editables de la tarea
+  // No tocamos completed, xpReward ni id
+  task.title    = title;
+  task.difficulty = diff;
+  task.xpReward = TASK_XP[diff]; // Recalculamos la XP si cambia la dificultad
+  task.category = category;
+  task.dueDate  = dueDate;
+
+  saveState();
+  render();
+  document.getElementById("editTaskOverlay").style.display = "none";
+}
+
+// Cierra el modal de edición sin guardar
+function closeTaskEdit() {
+  document.getElementById("editTaskOverlay").style.display = "none";
+}
+
 // ===============================
 // HABITOS
 // ===============================
@@ -717,6 +772,46 @@ function deleteHabit(habitId) {
   render();
 }
 
+// Abre el modal de edición precargando los datos del hábito seleccionado
+function editHabit(habitId) {
+  const habit = state.habits.find(h => h.id == habitId);
+  if (!habit) return;
+
+  document.getElementById("editHabitId").value    = habit.id;
+  document.getElementById("editHabitTitle").value = habit.title;
+  document.getElementById("editHabitDiff").value  = habit.difficulty;
+  document.getElementById("editHabitCat").value   = habit.category || "otros";
+
+  document.getElementById("editHabitOverlay").style.display = "flex";
+}
+
+// Guarda los cambios del modal de edición de hábito
+function saveHabitEdit() {
+  const id       = document.getElementById("editHabitId").value;
+  const title    = document.getElementById("editHabitTitle").value.trim();
+  const diff     = Number(document.getElementById("editHabitDiff").value);
+  const category = document.getElementById("editHabitCat").value;
+
+  if (!title) return;
+
+  const habit = state.habits.find(h => h.id == id);
+  if (!habit) return;
+
+  // Actualizamos los campos editables sin tocar racha, fechas ni id
+  habit.title    = title;
+  habit.difficulty = diff;
+  habit.xpReward = HABIT_XP[diff];
+  habit.category = category;
+
+  saveState();
+  render();
+  document.getElementById("editHabitOverlay").style.display = "none";
+}
+
+// Cierra el modal de edición sin guardar
+function closeHabitEdit() {
+  document.getElementById("editHabitOverlay").style.display = "none";
+}
 // ===============================
 // LISTA DE LA COMPRA
 // ===============================
@@ -1260,11 +1355,13 @@ function renderTasks() {
         </div>
         <div class="item-actions">
           <button class="btn-complete">Completar</button>
+          <button class="btn-edit">✏️ Editar</button>
           <button class="btn-delete">Eliminar</button>
         </div>
       `;
 
       div.querySelector(".btn-complete").addEventListener("click", () => completeTask(task.id));
+      div.querySelector(".btn-edit").addEventListener("click", () => editTask(task.id));
       div.querySelector(".btn-delete").addEventListener("click", () => deleteTask(task.id));
       taskList.appendChild(div);
     });
@@ -1349,7 +1446,7 @@ function renderHabits() {
             ${tier.emoji} ${habit.title}
           </div>
           <div class="item-meta">
-            Dificultad: ${difficultyLabel(habit.difficulty)} | Recompensa: ${habit.xpReward} XP | Categoría: ${CATEGORIES[habit.category] || habit.category}
+            Dificultad: ${habitDifficultyLabel(habit.difficulty)} | Recompensa: ${habit.xpReward} XP | Categoría: ${CATEGORIES[habit.category] || habit.category}
           </div>
           <div class="item-meta">
             Racha actual: ${habit.streak} días | Mejor racha: ${habit.bestStreak} días
@@ -1361,11 +1458,13 @@ function renderHabits() {
         <button class="btn-habit" ${completedToday ? "disabled" : ""}>
           ${completedToday ? "Hecho hoy" : "Marcar hoy"}
         </button>
+        <button class="btn-edit">✏️ Editar</button>
         <button class="btn-delete">Eliminar</button>
       </div>
     `;
 
     div.querySelector(".btn-habit").addEventListener("click", () => completeHabit(habit.id));
+    div.querySelector(".btn-edit").addEventListener("click", () => editHabit(habit.id));
     div.querySelector(".btn-delete").addEventListener("click", () => deleteHabit(habit.id));
 
     habitList.appendChild(div);
