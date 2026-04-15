@@ -51,8 +51,9 @@ http://localhost:8000
 
 ## ✅ Funcionalidades actuales
 
-- **Sincronización entre dispositivos** — Inicia sesión con tu correo y contraseña (por ahora la cuenta de google no va) y elige con que datos te quieres quedar (los locales o los de la nube), y voilá, tus datos estarán sincronizados entre tis dispositivos!
+- **Sincronización entre dispositivos** — Inicia sesión con tu correo y contraseña y tus datos estarán sincronizados entre dispositivos. Al iniciar sesión puedes elegir si conservar los datos locales o los de la nube.
 - **Sistema de tareas** — Crea tareas con 5 niveles de dificultad. Al completarlas ganas XP y PaupeDolars proporcionales a su dificultad. Las tareas completadas se acumulan en un desplegable para no mezclarlas con las pendientes.
+- **Edición de tareas y hábitos** — Modifica el título, dificultad, categoría y fecha límite de cualquier tarea o hábito sin perder su progreso.
 - **Fechas límite** — Las tareas pueden tener fecha límite opcional. Si no se completan a tiempo, se pierde la XP que habrían dado.
 - **Sistema de hábitos** — Crea hábitos diarios con racha y mejor racha. Marcarlos cada día mantiene y aumenta tu racha.
 - **Rachas visuales** — Los hábitos evolucionan visualmente cada 7 días: 🌱 Iniciado → 🔥 En racha → ⚡ Imparable → 👑 Leyenda.
@@ -71,7 +72,7 @@ http://localhost:8000
 - **StudyOS** — Sección de estudio con gestión de asignaturas, temporizador Pomodoro y calendario de exámenes. Desarrollado por Nuria.
 - **Panel de ajustes** — Accesible desde el botón ⚙️ del perfil.
 - **Modal de novedades** — Al entrar por primera vez tras una actualización, se muestra un resumen de los cambios.
-- **Persistencia** — Todos los datos se guardan en `localStorage`, sin necesidad de cuenta ni servidor.
+- **Persistencia** — Todos los datos se guardan en `localStorage` y opcionalmente en la nube mediante Firebase.
 
 ---
 
@@ -91,14 +92,12 @@ Funcionalidades planeadas para próximas versiones:
 
 ## 🛠️ Tecnologías
 
-
-
 - HTML5
 - CSS3 (variables, grid, flexbox, media queries, animaciones)
 - JavaScript vanilla (sin frameworks)
 - Canvas API para el gráfico de habilidades
 - localStorage para persistencia de datos
-- Firebase (para la gestión de las cuentas y sus datos asociados)
+- Firebase Authentication y Firestore para sincronización entre dispositivos
 
 ---
 
