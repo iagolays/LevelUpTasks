@@ -224,9 +224,22 @@ body {
   align-items: center;  /* Alinea verticalmente en el centro */
 }
 
+.xp-bar-wrap {
+  margin-top: 12px;
+}
+
+.xp-text {
+  display: block;
+  text-align: right;
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+/* Mantener por compatibilidad por si algo lo referencia */
 .xp-box {
   background: var(--card-2);
-  padding: 10px 14px;    /* 10px arriba/abajo, 14px izquierda/derecha */
+  padding: 10px 14px;
   border-radius: 10px;
   font-weight: bold;
   margin-left: auto;     /* Empuja la caja de XP hacia la derecha */
@@ -1194,6 +1207,107 @@ details[open] > .settings-summary {
 }
 
 /* ===============================
+   PANEL DE FILTROS (DESPLEGABLE)
+   =============================== */
+.filter-panel {
+  margin-bottom: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.filter-panel-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+  background: var(--card-2);
+}
+
+.filter-panel-summary::-webkit-details-marker { display: none; }
+
+.filter-panel-summary::after {
+  content: "▸";
+  margin-left: auto;
+  transition: transform 0.2s;
+  font-size: 12px;
+}
+
+details[open] > .filter-panel-summary::after { transform: rotate(90deg); }
+details[open] > .filter-panel-summary { border-bottom: 1px solid var(--border); }
+
+.filter-badge {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent);
+  color: white;
+  font-size: 11px;
+  font-weight: 800;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+}
+
+.filter-panel-body {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px;
+  background: var(--card);
+}
+
+.filter-panel-body select {
+  flex: 1;
+  min-width: 130px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--card-2);
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+/* ===============================
+   DRAG & DROP
+   =============================== */
+.drag-handle {
+  font-size: 20px;
+  color: var(--muted);
+  cursor: grab;
+  padding: 0 4px;
+  user-select: none;
+  flex-shrink: 0;
+  opacity: 0.5;
+  transition: opacity 0.15s;
+}
+
+.drag-handle:hover {
+  opacity: 1;
+  color: var(--accent);
+}
+
+.item[draggable="true"] {
+  cursor: default;
+}
+
+.item.dragging {
+  opacity: 0.4;
+}
+
+.item.drag-over {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+/* ===============================
    LISTA DE LA COMPRA
    =============================== */
 
@@ -2093,8 +2207,36 @@ details[open] > .settings-summary {
   }
 
   .profile-top {
-    flex-direction: column;      /* Los elementos se apilan verticalmente */
-    align-items: flex-start;     /* Se alinean a la izquierda */
+    align-items: flex-start;
+  }
+
+  .profile-top > div:first-child {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Ajustes y modo claro: área táctil mínima 44px en móvil */
+  .profile-top #settingsBtn {
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .player-name-row button {
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .darkmode-btn {
+    width: 44px;
+    height: 44px;
+    font-size: 20px;
   }
 
   #skillChart {

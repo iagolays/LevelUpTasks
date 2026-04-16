@@ -58,26 +58,20 @@
           <div>
             <div class="player-name-row">
               <h2 id="playerName">Jugador</h2>
-              <!-- id="playerName" permite que app.js lo encuentre y cambie el texto -->
               <button id="editNameBtn">✏️</button>
             </div>
-            <!-- Título equipado desde la tienda -->
             <p id="playerTitle" class="player-title"></p>
             <p id="levelText">Nivel 1</p>
-            <!-- app.js actualizará este texto cuando el jugador suba de nivel -->
           </div>
-          <div class="xp-box">
-            <span id="xpText">0 / 100 XP</span>
-            <!-- Muestra la XP actual y la XP necesaria para el siguiente nivel -->
-          </div>
-          <!-- Botón de ajustes en el extremo derecho -->
           <button id="settingsBtn">⚙️</button>
         </div>
 
-        <!-- Barra de progreso de XP -->
-        <div class="xp-bar">
-          <div id="xpFill" class="xp-fill"></div>
-          <!-- La parte coloreada que crece. app.js cambia su width (anchura) -->
+        <!-- Contador de XP encima de la barra, alineado a la derecha -->
+        <div class="xp-bar-wrap">
+          <span id="xpText" class="xp-text">0 / 100 XP</span>
+          <div class="xp-bar">
+            <div id="xpFill" class="xp-fill"></div>
+          </div>
         </div>
 
         <!-- Lista de recompensas desbloqueadas por nivel (desplegable) -->
@@ -127,6 +121,48 @@
           <button type="submit">Añadir tarea</button>
         </form>
 
+        <details class="filter-panel" id="taskFilterPanel">
+          <summary class="filter-panel-summary">
+            🔍 Filtros y orden
+            <span class="filter-badge" id="taskFilterBadge"></span>
+          </summary>
+          <div class="filter-panel-body">
+            <select id="filterTaskCat">
+              <option value="">Categoría: todas</option>
+              <option value="deporte">🏃 Deporte</option>
+              <option value="estudio">📚 Estudio</option>
+              <option value="hogar">🏠 Hogar</option>
+              <option value="creatividad">🎨 Creatividad</option>
+              <option value="salud">❤️ Salud</option>
+              <option value="trabajo">💼 Trabajo</option>
+              <option value="ocio">🎮 Ocio</option>
+              <option value="otros">📦 Otros</option>
+            </select>
+            <select id="filterTaskDiff">
+              <option value="">Dificultad: todas</option>
+              <option value="1">Ez</option>
+              <option value="2">Sencillito</option>
+              <option value="3">Media</option>
+              <option value="4">Difícil</option>
+              <option value="5">Job Finding</option>
+            </select>
+            <select id="filterTaskDate">
+              <option value="">Fecha: todas</option>
+              <option value="with">Con fecha</option>
+              <option value="without">Sin fecha</option>
+              <option value="urgent">Urgentes (≤2d)</option>
+              <option value="expired">Vencidas</option>
+            </select>
+            <select id="filterTaskSort">
+              <option value="manual">↕ Orden manual</option>
+              <option value="date-asc">📅 Fecha ↑</option>
+              <option value="date-desc">📅 Fecha ↓</option>
+              <option value="diff-asc">⚡ Dificultad ↑</option>
+              <option value="diff-desc">⚡ Dificultad ↓</option>
+            </select>
+          </div>
+        </details>
+
         <div id="taskList" class="list"></div>
 
         <!-- Desplegable de tareas completadas para no mezclarlas con las pendientes -->
@@ -162,6 +198,44 @@
           </select>
           <button type="submit">Añadir hábito</button>
         </form>
+
+        <details class="filter-panel" id="habitFilterPanel">
+          <summary class="filter-panel-summary">
+            🔍 Filtros y orden
+            <span class="filter-badge" id="habitFilterBadge"></span>
+          </summary>
+          <div class="filter-panel-body">
+            <select id="filterHabitCat">
+              <option value="">Categoría: todas</option>
+              <option value="deporte">🏃 Deporte</option>
+              <option value="estudio">📚 Estudio</option>
+              <option value="hogar">🏠 Hogar</option>
+              <option value="creatividad">🎨 Creatividad</option>
+              <option value="salud">❤️ Salud</option>
+              <option value="trabajo">💼 Trabajo</option>
+              <option value="ocio">🎮 Ocio</option>
+              <option value="otros">📦 Otros</option>
+            </select>
+            <select id="filterHabitDiff">
+              <option value="">Dificultad: todas</option>
+              <option value="1">Ez</option>
+              <option value="2">Media</option>
+              <option value="3">Job Finding</option>
+            </select>
+            <select id="filterHabitStatus">
+              <option value="">Estado: todos</option>
+              <option value="done">✅ Completados hoy</option>
+              <option value="pending">⏳ Sin completar hoy</option>
+              <option value="streak">🔥 En racha activa</option>
+            </select>
+            <select id="filterHabitSort">
+              <option value="manual">↕ Orden manual</option>
+              <option value="streak-desc">🔥 Mayor racha</option>
+              <option value="streak-asc">🔥 Menor racha</option>
+              <option value="name">🔤 Nombre</option>
+            </select>
+          </div>
+        </details>
 
         <div id="habitList" class="list"></div>
       </section>

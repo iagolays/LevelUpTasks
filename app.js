@@ -1537,48 +1537,111 @@ function renderProfile() {
   }
 }
 
+// Variable para el drag & drop de tareas
+let _dragTaskId = null;
+
+function getTaskFilters() {
+  return {
+    cat:  document.getElementById("filterTaskCat")?.value  || "",
+    diff: document.getElementById("filterTaskDiff")?.value || "",
+    date: document.getElementById("filterTaskDate")?.value || "",
+    sort: document.getElementById("filterTaskSort")?.value || "manual",
+  };
+}
+
+function getHabitFilters() {
+  return {
+    cat:    document.getElementById("filterHabitCat")?.value    || "",
+    diff:   document.getElementById("filterHabitDiff")?.value   || "",
+    status: document.getElementById("filterHabitStatus")?.value || "",
+    sort:   document.getElementById("filterHabitSort")?.value   || "manual",
+  };
+}
+
+function applyTaskFilters(tasks) {
+  const f = getTaskFilters();
+  const today = getTodayString();
+  let result = tasks.filter(t => {
+    if (f.cat  && t.category !== f.cat) return false;
+    if (f.diff && String(t.difficulty) !== f.diff) return false;
+    if (f.date === "with"    && !t.dueDate) return false;
+    if (f.date === "without" &&  t.dueDate) return false;
+    if (f.date === "urgent"  && (!t.dueDate || getDaysRemaining(t.dueDate) > 2 || getDaysRemaining(t.dueDate) < 0)) return false;
+    if (f.date === "expired" && (!t.dueDate || getDaysRemaining(t.dueDate) >= 0)) return false;
+    return true;
+  });
+  if (f.sort === "date-asc")   result.sort((a, b) => (a.dueDate || "9999") < (b.dueDate || "9999") ? -1 : 1);
+  if (f.sort === "date-desc")  result.sort((a, b) => (a.dueDate || "9999") > (b.dueDate || "9999") ? -1 : 1);
+  if (f.sort === "diff-asc")   result.sort((a, b) => a.difficulty - b.difficulty);
+  if (f.sort === "diff-desc")  result.sort((a, b) => b.difficulty - a.difficulty);
+  return result;
+}
+
+function applyHabitFilters(habits) {
+  const f = getHabitFilters();
+  const today = getTodayString();
+  const yesterday = (() => { const d = new Date(); d.setDate(d.getDate()-1); return d.toISOString().split("T")[0]; })();
+  let result = habits.filter(h => {
+    if (f.cat  && h.category !== f.cat) return false;
+    if (f.diff && String(h.difficulty) !== f.diff) return false;
+    if (f.status === "done"    && h.lastCompleted !== today) return false;
+    if (f.status === "pending" && h.lastCompleted === today) return false;
+    if (f.status === "streak"  && h.lastCompleted !== today && h.lastCompleted !== yesterday) return false;
+    return true;
+  });
+  if (f.sort === "streak-desc") result.sort((a, b) => b.streak - a.streak);
+  if (f.sort === "streak-asc")  result.sort((a, b) => a.streak - b.streak);
+  if (f.sort === "name")        result.sort((a, b) => a.title.localeCompare(b.title));
+  return result;
+}
+
 function renderTasks() {
   if (!taskList) return;
   taskList.innerHTML = "";
 
   const completedList = document.getElementById("completedTaskList");
   const completedCount = document.getElementById("completedTasksToggleCount");
-
   if (completedList) completedList.innerHTML = "";
 
-  // Separamos las tareas en dos arrays: pendientes y completadas
-  const pending = state.tasks.filter(t => !t.completed);
+  // Escuchar cambios en filtros
+  ["filterTaskCat","filterTaskDiff","filterTaskDate","filterTaskSort"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && !el.dataset.bound) { el.dataset.bound = "1"; el.addEventListener("change", renderTasks); }
+  });
+
+  const f = getTaskFilters();
+  const pending = applyTaskFilters(state.tasks.filter(t => !t.completed));
   const completed = state.tasks.filter(t => t.completed);
+  const isDraggable = f.sort === "manual";
+
+  // Badge con número de filtros activos
+  const activeCount = [f.cat, f.diff, f.date].filter(Boolean).length;
+  const badge = document.getElementById("taskFilterBadge");
+  if (badge) { badge.textContent = activeCount || ""; badge.style.display = activeCount ? "inline-flex" : "none"; }
 
   // --- Tareas pendientes ---
   if (pending.length === 0) {
-    taskList.innerHTML = "<p>No hay tareas pendientes.</p>";
+    taskList.innerHTML = `<p>${hasFilter ? "No hay tareas que coincidan con los filtros." : "No hay tareas pendientes."}</p>`;
   } else {
     pending.forEach(task => {
       const div = document.createElement("div");
       div.className = "item";
+      div.dataset.id = task.id;
 
-      // Calculamos el estado de la fecha límite si la tarea tiene una
       let dueDateHTML = "";
       let urgencyClass = "";
-
       if (task.dueDate) {
         const days = getDaysRemaining(task.dueDate);
         if (days < 0) {
-          // Tarea vencida
           dueDateHTML = `<div class="item-meta due-date due-date-expired">❌ Vencida hace ${Math.abs(days)} día${Math.abs(days) !== 1 ? "s" : ""}</div>`;
           urgencyClass = "task-expired";
         } else if (days <= 2) {
-          // Quedan 2 días o menos → urgente
           dueDateHTML = `<div class="item-meta due-date due-date-urgent">⚠️ ${days === 0 ? "Vence hoy" : `${days} día${days !== 1 ? "s" : ""} restante${days !== 1 ? "s" : ""}`}</div>`;
           urgencyClass = "task-urgent";
         } else {
-          // Queda tiempo suficiente
           dueDateHTML = `<div class="item-meta due-date">📅 ${days} días restantes</div>`;
         }
       }
-
-      // Añadimos la clase de urgencia al div si corresponde
       if (urgencyClass) div.classList.add(urgencyClass);
 
       div.innerHTML = `
@@ -1590,6 +1653,7 @@ function renderTasks() {
             </div>
             ${dueDateHTML}
           </div>
+          ${isDraggable ? `<div class="drag-handle" title="Arrastrar para reordenar">⠿</div>` : ""}
         </div>
         <div class="item-actions">
           <button class="btn-complete">Completar</button>
@@ -1601,6 +1665,45 @@ function renderTasks() {
       div.querySelector(".btn-complete").addEventListener("click", () => completeTask(task.id));
       div.querySelector(".btn-edit").addEventListener("click", () => editTask(task.id));
       div.querySelector(".btn-delete").addEventListener("click", () => deleteTask(task.id));
+
+      if (isDraggable) {
+        // El div solo se vuelve draggable al hacer mousedown en el handle
+        const handle = div.querySelector(".drag-handle");
+        if (handle) {
+          handle.addEventListener("mousedown", () => { div.draggable = true; });
+          handle.addEventListener("touchstart", () => { div.draggable = true; }, { passive: true });
+        }
+
+        div.addEventListener("dragstart", e => {
+          _dragTaskId = task.id;
+          div.classList.add("dragging");
+          e.dataTransfer.effectAllowed = "move";
+          e.dataTransfer.setData("text/plain", String(task.id));
+        });
+        div.addEventListener("dragend", () => {
+          div.draggable = false;
+          div.classList.remove("dragging");
+          document.querySelectorAll(".drag-over").forEach(el => el.classList.remove("drag-over"));
+        });
+        div.addEventListener("dragover", e => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = "move";
+          document.querySelectorAll("#taskList .drag-over").forEach(el => el.classList.remove("drag-over"));
+          div.classList.add("drag-over");
+        });
+        div.addEventListener("drop", e => {
+          e.preventDefault();
+          if (_dragTaskId == task.id) return;
+          const srcIdx = state.tasks.findIndex(t => t.id == _dragTaskId);
+          const dstIdx = state.tasks.findIndex(t => t.id == task.id);
+          if (srcIdx === -1 || dstIdx === -1) return;
+          const [moved] = state.tasks.splice(srcIdx, 1);
+          state.tasks.splice(dstIdx, 0, moved);
+          saveState();
+          renderTasks();
+        });
+      }
+
       taskList.appendChild(div);
     });
   }
@@ -1639,12 +1742,30 @@ function renderHabits() {
   if (!habitList) return;
   habitList.innerHTML = "";
 
+  // Escuchar cambios en filtros
+  ["filterHabitCat","filterHabitDiff","filterHabitStatus","filterHabitSort"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && !el.dataset.bound) { el.dataset.bound = "1"; el.addEventListener("change", renderHabits); }
+  });
+
+  const f = getHabitFilters();
+  const activeHabitCount = [f.cat, f.diff, f.status].filter(Boolean).length;
+  const habitBadge = document.getElementById("habitFilterBadge");
+  if (habitBadge) { habitBadge.textContent = activeHabitCount || ""; habitBadge.style.display = activeHabitCount ? "inline-flex" : "none"; }
+
   if (state.habits.length === 0) {
     habitList.innerHTML = "<p>No hay hábitos todavía.</p>";
     return;
   }
 
-  state.habits.forEach(habit => {
+  const filtered = applyHabitFilters(state.habits);
+
+  if (filtered.length === 0) {
+    habitList.innerHTML = "<p>No hay hábitos que coincidan con los filtros.</p>";
+    return;
+  }
+
+  filtered.forEach(habit => {
     const div = document.createElement("div");
     div.className = "item";
 
