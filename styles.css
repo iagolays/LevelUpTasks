@@ -18,6 +18,16 @@
   --border: #475569;    /* Color de bordes */
 }
 
+/* Modo claro: sobreescribe solo las variables de fondo/texto/borde */
+body.light-mode {
+  --bg:     #f1f5f9;
+  --card:   #ffffff;
+  --card-2: #e2e8f0;
+  --text:   #1e293b;
+  --muted:  #64748b;
+  --border: #cbd5e1;
+}
+
 /* ===============================
    RESET BÁSICO
    =============================== */
@@ -49,10 +59,31 @@ body {
    BARRA SUPERIOR
    =============================== */
 .topbar {
-  /* Los selectores con punto (.) apuntan a elementos con esa clase */
-  text-align: center;  /* Centra el texto */
+  text-align: center;
   padding: 24px 16px 10px;
-  /* Espaciado interno: 24px arriba, 16px izquierda/derecha, 10px abajo */
+  position: relative;
+}
+
+.darkmode-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: var(--card-2);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.darkmode-btn:hover {
+  background: var(--card);
+  transform: scale(1.1);
 }
 
 .topbar h1 {
@@ -208,7 +239,7 @@ body {
   /* El "contenedor" gris de fondo de la barra */
   width: 100%;           /* Ocupa todo el ancho disponible */
   height: 20px;
-  background: #0b1220;   /* Color oscuro de fondo */
+  background: var(--card-2);   /* Color oscuro de fondo */
   border-radius: 999px;  /* Valor muy alto = bordes completamente redondos */
   overflow: hidden;      /* Oculta lo que sobresalga (la barra rellena no se saldrá) */
   margin: 14px 0;
@@ -302,7 +333,7 @@ body {
 /* Estilos solo para el input y el select (los campos editables) */
 .form input,
 .form select {
-  background: #0b1220;
+  background: var(--card-2);
   color: var(--text);
 }
 
@@ -466,6 +497,228 @@ body {
   cursor: pointer;
 }
 
+/* ---- Nuevo diseño del modal de actualización ---- */
+.update-modal-new {
+  padding: 0;
+  overflow: hidden;
+  border: none;
+  max-width: 460px;
+  display: flex;
+  flex-direction: column;
+  max-height: 85vh;
+}
+
+.update-modal-new #updateNotes {
+  padding: 0;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.update-modal-new button {
+  margin: 0;
+  border-radius: 0 0 16px 16px;
+  background: var(--accent);
+  font-size: 15px;
+  padding: 14px;
+  flex-shrink: 0;
+}
+
+.update-header {
+  background: linear-gradient(135deg, var(--accent-2), var(--accent));
+  padding: 28px 24px 22px;
+  text-align: center;
+  color: white;
+}
+
+.update-version-badge {
+  display: inline-block;
+  background: rgba(255,255,255,0.2);
+  border: 1px solid rgba(255,255,255,0.35);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 3px 12px;
+  margin-bottom: 10px;
+}
+
+.update-title {
+  margin: 0 0 6px;
+  font-size: 22px;
+  color: white;
+}
+
+.update-subtitle {
+  margin: 0;
+  font-size: 13px;
+  opacity: 0.8;
+}
+
+.update-section {
+  padding: 14px 20px 4px;
+  border-bottom: 1px solid var(--border);
+}
+
+.update-section:last-child {
+  border-bottom: none;
+  padding-bottom: 14px;
+}
+
+.update-section-title {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.update-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 9px;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.update-item-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* ===============================
+   MODAL SUBIDA DE NIVEL
+   =============================== */
+.levelup-modal {
+  background: var(--card);
+  border: 1px solid var(--accent);
+  border-radius: 20px;
+  padding: 36px 28px 28px;
+  max-width: 360px;
+  width: 90%;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  animation: levelup-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes levelup-pop {
+  from { transform: scale(0.4); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+/* Canvas de confetti, cubre todo el modal por debajo del contenido */
+.levelup-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* Círculo con el número de nivel */
+.levelup-badge {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 4px solid var(--accent);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  position: relative;
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  animation: levelup-glow 1.8s ease-in-out infinite;
+}
+
+@keyframes levelup-glow {
+  0%, 100% { box-shadow: 0 0 18px color-mix(in srgb, var(--accent) 50%, transparent); }
+  50%       { box-shadow: 0 0 36px color-mix(in srgb, var(--accent) 80%, transparent), 0 0 60px color-mix(in srgb, var(--accent) 30%, transparent); }
+}
+
+.levelup-label {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 3px;
+  color: var(--accent);
+  opacity: 0.7;
+}
+
+.levelup-number {
+  font-size: 56px;
+  font-weight: 900;
+  color: var(--accent);
+  line-height: 1;
+}
+
+.levelup-title {
+  margin: 0 0 16px;
+  font-size: 20px;
+}
+
+/* Bonus de monedas */
+.levelup-bonus-pill {
+  display: inline-block;
+  background: color-mix(in srgb, var(--warning) 20%, transparent);
+  border: 1px solid var(--warning);
+  color: var(--warning);
+  font-weight: 700;
+  font-size: 15px;
+  padding: 6px 16px;
+  border-radius: 999px;
+  margin-bottom: 14px;
+}
+
+/* Lista de desbloqueos */
+.levelup-unlock-item {
+  font-size: 14px;
+  color: var(--muted);
+  padding: 5px 0;
+  border-top: 1px solid var(--border);
+}
+
+.levelup-modal button {
+  margin-top: 20px;
+  width: 100%;
+  padding: 13px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  position: relative;
+}
+
+/* Modal especial modo claro */
+.lightmode-modal {
+  text-align: center;
+}
+
+.lightmode-modal-icon {
+  font-size: 52px;
+  margin-bottom: 8px;
+}
+
+.lightmode-modal h3 {
+  font-size: 22px;
+  margin: 0 0 10px;
+}
+
+.lightmode-modal p {
+  color: var(--muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.lightmode-modal button {
+  background: var(--danger) !important;
+}
+
 /* ===============================
    DESPLEGABLE DE COMPLETADAS
    =============================== */
@@ -493,11 +746,53 @@ details#completedTasksSection .list {
    SELECTOR DE TEMAS Y AJUSTES
    =============================== */
 .settings-row {
-  margin-bottom: 16px;
+  margin-bottom: 8px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
 }
 
-.settings-row h4 {
-  margin: 0 0 4px 0;
+.settings-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+  background: var(--card-2);
+}
+
+.settings-summary::-webkit-details-marker {
+  display: none;
+}
+
+.settings-summary::after {
+  content: "▸";
+  font-size: 13px;
+  color: var(--muted);
+  transition: transform 0.2s ease;
+}
+
+details[open] > .settings-summary::after {
+  transform: rotate(90deg);
+}
+
+details[open] > .settings-summary {
+  border-bottom: 1px solid var(--border);
+}
+
+.settings-row > .settings-desc,
+.settings-row > .theme-selector,
+.settings-row > .navbar-settings {
+  padding: 12px 14px;
+}
+
+.settings-row > .settings-desc {
+  padding-bottom: 0;
+  margin: 0;
 }
 
 .settings-desc {
@@ -545,36 +840,100 @@ details#completedTasksSection .list {
   border-color: var(--border); /* No resalta al pasar el ratón */
 }
 
+/* Toggles de visibilidad de la navbar en ajustes */
+.navbar-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.nav-toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.nav-toggle-row input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 38px;
+  height: 22px;
+  border-radius: 11px;
+  background: var(--border);
+  position: relative;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.2s ease;
+}
+
+.nav-toggle-row input[type="checkbox"]::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: white;
+  transition: transform 0.2s ease;
+}
+
+.nav-toggle-row input[type="checkbox"]:checked {
+  background: var(--accent);
+}
+
+.nav-toggle-row input[type="checkbox"]:checked::after {
+  transform: translateX(16px);
+}
+
 /* ===============================
    TIERS DE RACHA DE HÁBITOS
    =============================== */
 
-/* Tier 0 - Iniciado (borde por defecto, no hace falta cambiarlo) */
-.streak-tier-0 {
-  border-color: var(--border);
-}
+.streak-tier-0 { border-color: var(--border); }
 
-/* Tier 1 - En racha (naranja) */
 .streak-tier-1 {
   border-color: #f97316;
+  box-shadow: 0 0 8px rgba(249, 115, 22, 0.25);
 }
 
-/* Tier 2 - Imparable (azul eléctrico) */
 .streak-tier-2 {
   border-color: #38bdf8;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
 }
 
-/* Tier 3 - Leyenda (dorado) */
 .streak-tier-3 {
   border-color: #facc15;
-  box-shadow: 0 0 8px rgba(250, 204, 21, 0.3); /* Brillo suave dorado */
+  box-shadow: 0 0 14px rgba(250, 204, 21, 0.4);
+  animation: streak-legend-pulse 2.5s ease-in-out infinite;
+}
+
+@keyframes streak-legend-pulse {
+  0%, 100% { box-shadow: 0 0 14px rgba(250, 204, 21, 0.4); }
+  50%       { box-shadow: 0 0 22px rgba(250, 204, 21, 0.65); }
+}
+
+/* Canvas del anillo de racha */
+.streak-ring-canvas {
+  flex-shrink: 0;
+  border-radius: 50%;
+  display: block;
+}
+
+/* Info a la derecha del canvas */
+.habit-info {
+  flex: 1;
+  min-width: 0;
 }
 
 /* Barra de progreso hacia el siguiente hito de racha */
 .streak-progress-bar {
   width: 100%;
   height: 6px;
-  background: #0b1220;
+  background: var(--card-2);
   border-radius: 999px;
   overflow: hidden;
   margin: 8px 0 4px 0;
@@ -583,12 +942,10 @@ details#completedTasksSection .list {
 
 .streak-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--accent), var(--accent-2));
   border-radius: 999px;
   transition: width 0.3s ease;
 }
 
-/* Texto debajo de la barra indicando el siguiente hito */
 .streak-progress-label {
   font-size: 12px;
   color: var(--muted);
@@ -739,7 +1096,7 @@ details#completedTasksSection .list {
 .stats-category-bar-wrap {
   flex: 1;               /* Ocupa todo el espacio disponible */
   height: 10px;
-  background: #0b1220;
+  background: var(--card-2);
   border-radius: 999px;
   overflow: hidden;
   border: 1px solid var(--border);
@@ -760,6 +1117,80 @@ details#completedTasksSection .list {
   white-space: nowrap;   /* Evita que el texto se parta */
   min-width: 100px;
   text-align: right;
+}
+
+/* Descripción secundaria debajo del título de sección */
+.stats-section-desc {
+  color: var(--muted);
+  font-size: 13px;
+  margin: -8px 0 14px;
+}
+
+/* ===============================
+   BARRAS VERTICALES ACTIVIDAD SEMANAL
+   =============================== */
+.stats-weekly-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  height: 110px;
+  padding-bottom: 24px; /* espacio para etiqueta */
+  position: relative;
+}
+
+.stats-weekly-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+}
+
+.stats-weekly-count {
+  font-size: 11px;
+  color: var(--muted);
+  height: 16px;
+  line-height: 16px;
+}
+
+.stats-weekly-bar-wrap {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  background: var(--card-2);
+  border-radius: 6px 6px 0 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-bottom: none;
+}
+
+.stats-weekly-bar-fill {
+  width: 100%;
+  min-height: 3px;
+  background: linear-gradient(180deg, var(--accent-2), var(--accent));
+  border-radius: 4px 4px 0 0;
+  transition: height 0.4s ease;
+}
+
+.stats-weekly-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  margin-top: 4px;
+  position: absolute;
+  bottom: 0;
+}
+
+/* Reposicionar etiquetas de forma absoluta no funciona bien en flex,
+   mejor usar margin dentro del flujo */
+.stats-weekly-col {
+  position: relative;
+}
+
+.stats-weekly-label {
+  position: static;
+  margin-top: 4px;
 }
 
 /* ===============================
@@ -1542,7 +1973,7 @@ details#completedTasksSection .list {
   padding: 10px 12px;
   border-radius: 10px;
   border: 1px solid var(--border);
-  background: #0b1220;
+  background: var(--card-2);
   color: var(--text);
   font-size: 14px;
 }

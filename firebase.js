@@ -370,26 +370,14 @@ async function handleUserLogin(user) {
     return;
   }
 
-  // Comparamos XP para detectar conflicto significativo
-  const localXp = localAll.appState?.user?.totalXp || 0;
-  const cloudXp = cloudAll.appState?.user?.totalXp || 0;
-  const conflicto = Math.abs(localXp - cloudXp) > 10;
+  // Elegimos automáticamente los datos más recientes comparando el timestamp
+  const localTs = localAll.appState?.lastModified || 0;
+  const cloudTs = cloudAll.appState?.lastModified || 0;
 
-  if (!conflicto) {
-    // Sin conflicto: aplicamos los datos de la nube (más fiables, tienen timestamp)
-    applyCloudData(cloudAll);
-    setSyncIndicator("synced");
-    return;
-  }
-
-  // Hay conflicto significativo: preguntamos al usuario
-  const choice = await askConflictResolution(localAll, cloudAll);
-
-  if (choice === "cloud") {
+  if (cloudTs >= localTs) {
     applyCloudData(cloudAll);
   } else {
-    // El usuario elige los locales: los subimos a la nube inmediatamente
-    // con uploadStateNow para garantizar que llegan antes de continuar
+    // Los locales son más recientes: los subimos a la nube
     if (localAppState)  await uploadStateNow({ type: "appState",  data: localAppState });
     if (localStudyData) await uploadStateNow({ type: "studyData", data: localStudyData });
   }

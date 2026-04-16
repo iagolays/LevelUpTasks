@@ -4,21 +4,9 @@ Todos los cambios notables de LevelUp Tasks se documentan aquí.
 
 ---
 
-## [1.7] - 2025
-
-### ✨ Nuevo
-- **Edición de tareas** — Modifica el título, dificultad, categoría y fecha límite de cualquier tarea pendiente sin perder su progreso ni su XP acumulada.
-- **Edición de hábitos** — Modifica el título, dificultad y categoría de cualquier hábito sin resetear su racha ni su historial de actividad.
-
-### 🐛 Correcciones
-- Corregido bug por el que las etiquetas de dificultad de hábitos no coincidían con las opciones del formulario.
-
----
-
 ## [1.6] - 2025
 
 ### ✨ Nuevo
-- **Sincronización entre dispositivos** — Sistema de cuentas con Firebase. Inicia sesión con correo y contraseña para sincronizar tu progreso entre dispositivos. Al detectar datos distintos en local y en la nube, se ofrece elegir cuál conservar.
 - **Estadísticas completas** — La pestaña de estadísticas ya no es "Coming Soon". Incluye resumen general, gráfico de actividad de hábitos al estilo GitHub y distribución de XP por categoría en barras.
 - **Días usando la app** — Contador de días consecutivos abriendo la app, visible en estadísticas.
 - **Recompensa por nivel** — Cada 5 niveles se dan 50 PaupeDolars automáticamente.

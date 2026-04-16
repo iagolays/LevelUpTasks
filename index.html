@@ -25,6 +25,7 @@
   <header class="topbar">
     <h1>LevelUp-Tasks</h1>
     <p>Haz de tus tareas misiones</p>
+    <button id="darkModeBtn" class="darkmode-btn" title="Cambiar modo claro/oscuro">🌙</button>
   </header>
 
   <!-- =============================== -->
@@ -32,13 +33,13 @@
   <!-- =============================== -->
   <!-- Cada botón llama a navigateTo() con el nombre de la página -->
   <nav class="navbar">
-    <button class="nav-btn nav-btn-active" onclick="navigateTo('inicio')">🏠 Inicio</button>
-    <button class="nav-btn" onclick="navigateTo('studyos')">📚 StudyOS</button>
-    <button class="nav-btn" onclick="navigateTo('stats')">📊 Estadísticas</button>
-    <button class="nav-btn" onclick="navigateTo('compra')">🛒 Lista de la compra</button> 
-    <button class="nav-btn" onclick="navigateTo('tienda')">🛍️ Tienda</button>
+    <button class="nav-btn nav-btn-active" data-nav="inicio" onclick="navigateTo('inicio')">🏠 Inicio</button>
+    <button class="nav-btn" data-nav="studyos" onclick="navigateTo('studyos')">📚 StudyOS</button>
+    <button class="nav-btn" data-nav="stats" onclick="navigateTo('stats')">📊 Estadísticas</button>
+    <button class="nav-btn" data-nav="compra" onclick="navigateTo('compra')">🛒 Lista de la compra</button>
+    <button class="nav-btn" data-nav="tienda" onclick="navigateTo('tienda')">🛍️ Tienda</button>
     <!-- Botón de cuenta: sin sesión muestra "☁️ Sincronizar", con sesión muestra el nombre -->
-    <button class="nav-btn nav-btn-account" id="accountBtn" onclick="handleAccountBtnClick()">☁️ Sincronizar</button>
+    <button class="nav-btn nav-btn-account" data-nav="account" id="accountBtn" onclick="handleAccountBtnClick()">☁️ Sincronizar</button>
     <!-- Indicador de estado: ✓ sincronizado | … sincronizando | ✕ error -->
     <span id="syncIndicator" class="sync-indicator"></span>
   </nav>
@@ -201,6 +202,16 @@
             <div class="stats-summary-value" id="statDaysStreak">0</div>
             <div class="stats-summary-label">Días usando la app</div>
           </div>
+          <div class="stats-summary-card">
+            <div class="stats-summary-icon">📈</div>
+            <div class="stats-summary-value" id="statCompletionRate">-</div>
+            <div class="stats-summary-label">Tasa de completado</div>
+          </div>
+          <div class="stats-summary-card">
+            <div class="stats-summary-icon">🏃</div>
+            <div class="stats-summary-value" id="statActiveHabits">0</div>
+            <div class="stats-summary-label">Hábitos en racha</div>
+          </div>
         </div>
       </section>
 
@@ -208,14 +219,26 @@
       <section class="card">
         <h3>📅 Actividad de hábitos</h3>
         <div id="statsActivityCard"></div>
-        <!-- app.js inyectará aquí la cuadrícula de actividad -->
+      </section>
+
+      <!-- Actividad por día de la semana -->
+      <section class="card">
+        <h3>📆 Actividad semanal</h3>
+        <p class="stats-section-desc">Total de hábitos completados por día de la semana.</p>
+        <div id="statsWeeklyCard"></div>
+      </section>
+
+      <!-- Top hábitos por total de veces completadas -->
+      <section class="card">
+        <h3>🏆 Top hábitos</h3>
+        <p class="stats-section-desc">Los hábitos que más veces has completado.</p>
+        <div id="statsTopHabitsCard"></div>
       </section>
 
       <!-- Distribución de XP por categoría en barras horizontales -->
       <section class="card">
         <h3>🗂️ XP por categoría</h3>
         <div id="statsCategoryCard"></div>
-        <!-- app.js inyectará aquí las barras de categoría -->
       </section>
 
     </div>
@@ -377,10 +400,9 @@
   <!-- =============================== -->
   <!-- Se muestra al entrar por primera vez tras una nueva versión -->
   <div id="updateOverlay" class="update-overlay">
-    <div class="update-modal">
+    <div class="update-modal update-modal-new">
       <div id="updateNotes"></div>
-      <!-- app.js inyectará aquí el contenido de UPDATE_NOTES -->
-      <button onclick="closeUpdateModal()">¡Entendido!</button>
+      <button onclick="closeUpdateModal()">¡Entendido! 🚀</button>
     </div>
   </div>
 
@@ -395,25 +417,56 @@
   </div>
 
   <!-- =============================== -->
+  <!-- MODAL SUBIDA DE NIVEL           -->
+  <!-- =============================== -->
+  <div id="levelUpOverlay" class="update-overlay">
+    <div class="levelup-modal">
+      <canvas id="levelupCanvas" class="levelup-canvas"></canvas>
+      <div class="levelup-badge">
+        <div class="levelup-label">NIVEL</div>
+        <div class="levelup-number" id="levelupNumber">1</div>
+      </div>
+      <h3 class="levelup-title">¡Subiste de nivel!</h3>
+      <div id="levelupBonus"></div>
+      <div id="levelupUnlocks"></div>
+      <button onclick="closeLevelUp()">¡A por más! 🚀</button>
+    </div>
+  </div>
+
+  <!-- =============================== -->
+  <!-- MODAL MODO CLARO                -->
+  <!-- =============================== -->
+  <div id="lightModeOverlay" class="update-overlay">
+    <div class="update-modal lightmode-modal">
+      <div class="lightmode-modal-icon">🤨</div>
+      <h3>¿De verdad?</h3>
+      <p>Eres un psicópata en serio,<br>¿cómo vas a poner el modo claro?</p>
+      <button onclick="document.getElementById('lightModeOverlay').style.display='none'">Lo siento, no volverá a pasar</button>
+    </div>
+  </div>
+
+  <!-- =============================== -->
   <!-- MODAL DE AJUSTES                -->
   <!-- =============================== -->
   <!-- Se muestra al pulsar el botón ⚙️ del perfil -->
   <div id="settingsOverlay" class="update-overlay">
     <div class="update-modal">
       <h3>⚙️ Ajustes</h3>
-      <div class="settings-row">
-        <h4>Tema visual</h4>
+      <details class="settings-row">
+        <summary class="settings-summary">Tema visual</summary>
         <p class="settings-desc">Elige entre los temas que has desbloqueado al subir de nivel.</p>
         <div id="themeSelector" class="theme-selector"></div>
-      </div>
+      </details>
+      <details class="settings-row">
+        <summary class="settings-summary">Barra de navegación</summary>
+        <p class="settings-desc">Elige qué secciones quieres ver en la barra de navegación.</p>
+        <div id="navbarSettings" class="navbar-settings"></div>
+      </details>
       <button onclick="closeSettings()">Cerrar</button>
     </div>
   </div>
 
 
-
-  <script src="app.js"></script>
-  <script src="studyos.js"></script>
 
   <!-- Conecta el HTML con JavaScript. Va al FINAL del body para que el HTML
        ya esté cargado cuando el JS empiece a ejecutarse -->

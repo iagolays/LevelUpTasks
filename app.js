@@ -122,20 +122,66 @@ const SHOP_ITEMS = [
 
 // Versión actual de la app. Cámbiala cada vez que hagas una update
 // para que el modal se muestre de nuevo a todos los usuarios.
-const APP_VERSION = "1.7.1";
+const APP_VERSION = "1.8.0";
 
-// Mensaje que se mostrará en el modal para esta versión.
-// Puedes usar saltos de línea con \n o escribir HTML directamente.
 const UPDATE_NOTES = `
-    <h3>¡Bienvenido a LevelUp Tasks!</h3>
-  <h4>Update 1.7.1 — Pequeña pero necesaria</h4>
-  <ul>
-    <li>Ya puedes editar tus tareas y hábitos sin tener que borrarlos y volver a crearlos. Título, dificultad, categoría y fecha límite, todo editable desde el botón ✏️.</li>
-    <li>Corregido un bug con las etiquetas de dificultad de los hábitos que mostraba textos incorrectos.</li>
-    <li>El boton de inciar sesión con google ya es funcional!, gracias al Impacthon por enseñarme a arreglarlo.</li>
-    <li>Se buscan ideas para la próxima update. Cualquier sugerencia al correo: iago.leis@rai.usc.es</li>
-    <li>Podéis comprobar qué features están planeadas en el README: https://github.com/iagolays/LevelUpTasks</li>
-  </ul>
+  <div class="update-header">
+    <div class="update-version-badge">v1.8.0</div>
+    <h3 class="update-title">Gran actualización visual</h3>
+    <p class="update-subtitle">Un montón de mejoras de diseño e interfaz</p>
+  </div>
+
+  <div class="update-section">
+    <div class="update-section-title">🎨 Diseño</div>
+    <div class="update-item">
+      <span class="update-item-icon">🌙</span>
+      <span>Modo claro/oscuro — botón en la esquina superior derecha (úsalo bajo tu responsabilidad)</span>
+    </div>
+    <div class="update-item">
+      <span class="update-item-icon">⚙️</span>
+      <span>Ajustes rediseñados con secciones desplegables: selector de tema y visibilidad de la navbar</span>
+    </div>
+    <div class="update-item">
+      <span class="update-item-icon">🎉</span>
+      <span>Modal de subida de nivel con animación y confetti — adiós al feo alert del navegador</span>
+    </div>
+  </div>
+
+  <div class="update-section">
+    <div class="update-section-title">🔥 Hábitos</div>
+    <div class="update-item">
+      <span class="update-item-icon">⭕</span>
+      <span>Anillo de progreso en cada hábito dibujado con Canvas, con el color de tu tier de racha</span>
+    </div>
+    <div class="update-item">
+      <span class="update-item-icon">👑</span>
+      <span>Los bordes de los hábitos brillan según tu racha: naranja, azul eléctrico o dorado pulsante</span>
+    </div>
+  </div>
+
+  <div class="update-section">
+    <div class="update-section-title">📊 Estadísticas</div>
+    <div class="update-item">
+      <span class="update-item-icon">📆</span>
+      <span>Actividad semanal — barras verticales mostrando en qué días eres más productivo</span>
+    </div>
+    <div class="update-item">
+      <span class="update-item-icon">🏆</span>
+      <span>Top hábitos — ranking de los que más veces has completado</span>
+    </div>
+    <div class="update-item">
+      <span class="update-item-icon">📈</span>
+      <span>Nuevas tarjetas: tasa de completado de tareas y hábitos con racha activa</span>
+    </div>
+  </div>
+
+  <div class="update-section">
+    <div class="update-section-title">☁️ Sincronización</div>
+    <div class="update-item">
+      <span class="update-item-icon">⚡</span>
+      <span>Resolución de conflictos automática — ya no aparece el modal de elección, siempre ganan los datos más recientes</span>
+    </div>
+  </div>
 `;
 
 // ===============================
@@ -153,7 +199,12 @@ function loadState() {
   if (saved) {
     // JSON.parse convierte el texto guardado de vuelta a un objeto JavaScript.
     // (Los datos se guardan como texto, JSON es el formato estándar para eso)
-    return JSON.parse(saved);
+    const parsed = JSON.parse(saved);
+    // Migración: añadir navbarVisibility si no existe (usuarios con estado antiguo)
+    if (!parsed.user.navbarVisibility) {
+      parsed.user.navbarVisibility = { studyos: true, stats: true, compra: true, tienda: true, account: true };
+    }
+    return parsed;
   }
 
   // Si no hay nada guardado, devolvemos el estado inicial por defecto
@@ -181,6 +232,13 @@ function loadState() {
         creatividad: 0,
         salud: 0,
         trabajo: 0
+      },
+      navbarVisibility: {
+        studyos: true,
+        stats: true,
+        compra: true,
+        tienda: true,
+        account: true
       }
     },
     tasks: [],    // Lista vacía de tareas
@@ -190,8 +248,7 @@ function loadState() {
 }
 
 function saveState() {
-  // JSON.stringify convierte el objeto "state" a texto para poder guardarlo.
-  // localStorage solo puede guardar texto, no objetos JavaScript directamente.
+  state.lastModified = Date.now();
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 
   // Si hay sesión activa en Firebase, también subimos a Firestore.
@@ -457,6 +514,55 @@ function getStreakTier(streak) {
   return STREAK_TIERS[0]; // Por defecto, tier inicial
 }
 
+function drawStreakRing(canvas, percent, color, streak) {
+  const dpr = window.devicePixelRatio || 1;
+  const size = 80;
+  canvas.width  = size * dpr;
+  canvas.height = size * dpr;
+  canvas.style.width  = size + "px";
+  canvas.style.height = size + "px";
+
+  const ctx = canvas.getContext("2d");
+  ctx.scale(dpr, dpr);
+
+  const cx = size / 2, cy = size / 2, r = 30, lw = 6;
+  const start = -Math.PI / 2;
+  const end   = start + (Math.PI * 2 * Math.min(percent, 100) / 100);
+
+  // Pista de fondo
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.strokeStyle = "rgba(255,255,255,0.07)";
+  ctx.lineWidth = lw;
+  ctx.stroke();
+
+  // Arco de progreso
+  if (percent > 0) {
+    ctx.shadowColor = color;
+    ctx.shadowBlur  = percent >= 100 ? 12 : 6;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, start, end);
+    ctx.strokeStyle = color;
+    ctx.lineWidth   = lw;
+    ctx.lineCap     = "round";
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+  }
+
+  // Número de días
+  const fontSize = streak >= 100 ? 16 : streak >= 10 ? 20 : 23;
+  ctx.fillStyle = color;
+  ctx.font = `800 ${fontSize}px system-ui, sans-serif`;
+  ctx.textAlign    = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(streak, cx, cy - 8);
+
+  // "días"
+  ctx.fillStyle = "rgba(180,180,180,0.6)";
+  ctx.font = "10px system-ui, sans-serif";
+  ctx.fillText("días", cx, cy + 10);
+}
+
 // Registra que el usuario ha abierto la app hoy.
 // Guarda la fecha en localStorage y calcula los días consecutivos de uso.
 function trackAppUsage() {
@@ -522,14 +628,13 @@ function addXp(amount, category) {
   state.user.xp -= xpNeededForLevel(state.user.level);
   state.user.level++;
 
-  // Cada 5 niveles se dan 50 PaupeDolars como recompensa
-  if (state.user.level % 5 === 0) {
-    state.user.paupeDolars += 50;
-    state.user.totalPaupeDolars = (state.user.totalPaupeDolars || 0) + 50;
-    alert(`¡Has subido a nivel ${state.user.level}! 🎉 +50 PaupeDolars de recompensa`);
-  } else {
-    alert(`¡Has subido a nivel ${state.user.level}!`);
+  const bonusCoins = (state.user.level % 5 === 0) ? 50 : 0;
+  if (bonusCoins > 0) {
+    state.user.paupeDolars += bonusCoins;
+    state.user.totalPaupeDolars = (state.user.totalPaupeDolars || 0) + bonusCoins;
   }
+  const levelUnlocks = UNLOCKS.filter(u => u.level === state.user.level);
+  showLevelUpModal(state.user.level, bonusCoins, levelUnlocks);
 }
 
   applyThemeByLevel(); // Actualiza el tema visual según el nuevo nivel
@@ -921,11 +1026,86 @@ function closeUpdateModal() {
   if (overlay) overlay.style.display = "none";
 }
 
-function openSettings() {
-  // Renderizamos el selector de temas antes de mostrar el modal
-  // para que siempre esté actualizado al abrirlo
-  renderThemeSelector();
+// ===============================
+// MODAL SUBIDA DE NIVEL
+// ===============================
 
+let _confettiStop = null;
+
+function startConfetti(canvas) {
+  const ctx = canvas.getContext("2d");
+  const W = canvas.width  = canvas.offsetWidth;
+  const H = canvas.height = canvas.offsetHeight;
+  const COLORS = ["#22c55e","#3b82f6","#facc15","#f97316","#a855f7","#ef4444","#ec4899"];
+
+  const particles = Array.from({ length: 70 }, () => ({
+    x: Math.random() * W,
+    y: Math.random() * H - H,
+    w: Math.random() * 9 + 4,
+    h: Math.random() * 5 + 2,
+    color: COLORS[Math.floor(Math.random() * COLORS.length)],
+    rot: Math.random() * Math.PI * 2,
+    rotV: (Math.random() - 0.5) * 0.15,
+    vy: Math.random() * 3 + 1.5,
+    vx: (Math.random() - 0.5) * 1.5,
+  }));
+
+  let running = true;
+  function draw() {
+    if (!running) return;
+    ctx.clearRect(0, 0, W, H);
+    particles.forEach(p => {
+      p.y += p.vy; p.x += p.vx; p.rot += p.rotV;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.color;
+      ctx.globalAlpha = 0.85;
+      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      ctx.restore();
+    });
+    if (particles.some(p => p.y < H)) requestAnimationFrame(draw);
+    else ctx.clearRect(0, 0, W, H);
+  }
+  draw();
+  return () => { running = false; ctx.clearRect(0, 0, W, H); };
+}
+
+function showLevelUpModal(level, bonusCoins, unlocks) {
+  document.getElementById("levelupNumber").textContent = level;
+
+  const bonusEl = document.getElementById("levelupBonus");
+  bonusEl.innerHTML = bonusCoins > 0
+    ? `<div class="levelup-bonus-pill">🤑 +${bonusCoins} ${CURRENCY_NAME}</div>`
+    : "";
+
+  const unlocksEl = document.getElementById("levelupUnlocks");
+  unlocksEl.innerHTML = unlocks.map(u => `<div class="levelup-unlock-item">🔓 ${u.text}</div>`).join("");
+
+  const overlay = document.getElementById("levelUpOverlay");
+  overlay.style.display = "flex";
+
+  // Reiniciar animación del modal
+  const modal = overlay.querySelector(".levelup-modal");
+  modal.style.animation = "none";
+  modal.offsetHeight; // reflow forzado
+  modal.style.animation = "";
+
+  // Lanzar confetti en el siguiente frame, cuando el browser ya ha pintado el overlay
+  if (_confettiStop) _confettiStop();
+  requestAnimationFrame(() => {
+    _confettiStop = startConfetti(document.getElementById("levelupCanvas"));
+  });
+}
+
+function closeLevelUp() {
+  document.getElementById("levelUpOverlay").style.display = "none";
+  if (_confettiStop) { _confettiStop(); _confettiStop = null; }
+}
+
+function openSettings() {
+  renderThemeSelector();
+  renderNavbarSettings();
   const overlay = document.getElementById("settingsOverlay");
   if (overlay) overlay.style.display = "flex";
 }
@@ -1045,6 +1225,64 @@ function renderThemeSelector() {
 
     btn.addEventListener("click", () => selectTheme(key));
     container.appendChild(btn);
+  });
+}
+
+// ===============================
+// AJUSTES DE NAVBAR
+// ===============================
+
+const NAV_ITEMS = [
+  { key: "studyos", label: "📚 StudyOS" },
+  { key: "stats",   label: "📊 Estadísticas" },
+  { key: "compra",  label: "🛒 Lista de la compra" },
+  { key: "tienda",  label: "🛍️ Tienda" },
+  { key: "account", label: "☁️ Sincronizar" },
+];
+
+function renderNavbarSettings() {
+  const container = document.getElementById("navbarSettings");
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  const visibility = state.user.navbarVisibility;
+
+  NAV_ITEMS.forEach(({ key, label }) => {
+    const enabled = visibility[key] !== false;
+
+    const row = document.createElement("label");
+    row.className = "nav-toggle-row";
+
+    const toggle = document.createElement("input");
+    toggle.type = "checkbox";
+    toggle.checked = enabled;
+    toggle.addEventListener("change", () => {
+      state.user.navbarVisibility[key] = toggle.checked;
+      saveState();
+      applyNavbarVisibility();
+      // Si se oculta la sección activa, volver a inicio
+      if (!toggle.checked) {
+        const activeBtn = document.querySelector(`.nav-btn[data-nav="${key}"].nav-btn-active`);
+        if (activeBtn) navigateTo("inicio");
+      }
+    });
+
+    const span = document.createElement("span");
+    span.textContent = label;
+
+    row.appendChild(toggle);
+    row.appendChild(span);
+    container.appendChild(row);
+  });
+}
+
+function applyNavbarVisibility() {
+  const visibility = state.user.navbarVisibility;
+  NAV_ITEMS.forEach(({ key }) => {
+    const btn = document.querySelector(`.nav-btn[data-nav="${key}"]`);
+    if (!btn) return;
+    btn.style.display = visibility[key] === false ? "none" : "";
   });
 }
 
@@ -1412,36 +1650,37 @@ function renderHabits() {
 
     const completedToday = habit.lastCompleted === getTodayString();
 
-    // Obtenemos el tier actual y el siguiente para la barra de progreso
     const tier = getStreakTier(habit.streak);
     const nextTierIndex = STREAK_TIERS.indexOf(tier) + 1;
     const nextTier = STREAK_TIERS[nextTierIndex] || null;
 
-    // Añadimos la clase de color de borde según el tier
     div.classList.add(tier.borderClass);
 
-    // Calculamos el progreso hacia el siguiente hito
+    const TIER_COLORS = { "streak-tier-0": "var(--accent)", "streak-tier-1": "#f97316", "streak-tier-2": "#38bdf8", "streak-tier-3": "#facc15" };
+    const tierColor = TIER_COLORS[tier.borderClass] || "var(--accent)";
+
+    const ringPercent = nextTier
+      ? Math.min(((habit.streak - tier.minDays) / (nextTier.minDays - tier.minDays)) * 100, 100)
+      : 100;
+
     let progressHTML = "";
     if (nextTier) {
-      const daysInCurrentTier = habit.streak - tier.minDays;
-      const daysNeeded = nextTier.minDays - tier.minDays;
-      const percent = Math.min((daysInCurrentTier / daysNeeded) * 100, 100);
       progressHTML = `
         <div class="streak-progress-bar">
-          <div class="streak-progress-fill" style="width: ${percent}%"></div>
+          <div class="streak-progress-fill" style="width: ${ringPercent}%; background: ${tierColor};"></div>
         </div>
         <div class="streak-progress-label">
           ${nextTier.emoji} Siguiente hito: ${nextTier.label} en ${nextTier.minDays - habit.streak} días
         </div>
       `;
     } else {
-      // Ya está en el tier máximo
       progressHTML = `<div class="streak-progress-label">👑 Hito máximo alcanzado</div>`;
     }
 
     div.innerHTML = `
       <div class="item-top">
-        <div>
+        <canvas class="streak-ring-canvas ${tier.borderClass}"></canvas>
+        <div class="habit-info">
           <div class="item-title">
             ${tier.emoji} ${habit.title}
           </div>
@@ -1449,7 +1688,7 @@ function renderHabits() {
             Dificultad: ${habitDifficultyLabel(habit.difficulty)} | Recompensa: ${habit.xpReward} XP | Categoría: ${CATEGORIES[habit.category] || habit.category}
           </div>
           <div class="item-meta">
-            Racha actual: ${habit.streak} días | Mejor racha: ${habit.bestStreak} días
+            Mejor racha: ${habit.bestStreak} días
           </div>
           ${progressHTML}
         </div>
@@ -1462,6 +1701,8 @@ function renderHabits() {
         <button class="btn-delete">Eliminar</button>
       </div>
     `;
+
+    drawStreakRing(div.querySelector(".streak-ring-canvas"), ringPercent, tierColor, habit.streak);
 
     div.querySelector(".btn-habit").addEventListener("click", () => completeHabit(habit.id));
     div.querySelector(".btn-edit").addEventListener("click", () => editHabit(habit.id));
@@ -1524,9 +1765,21 @@ function renderStats() {
 
   if (statTotalXp) statTotalXp.textContent = state.user.totalXp;
   if (statTotalCoins) statTotalCoins.textContent = state.user.totalPaupeDolars || 0;
-  if (statTasksDone) statTasksDone.textContent = state.tasks.filter(t => t.completed).length;
+
+  const doneTasks = state.tasks.filter(t => t.completed).length;
+  const totalTasks = state.tasks.length;
+  if (statTasksDone) statTasksDone.textContent = doneTasks;
   if (statTasksPending) statTasksPending.textContent = state.tasks.filter(t => !t.completed).length;
   if (statDaysStreak) statDaysStreak.textContent = getAppStreak();
+
+  const statCompletionRate = document.getElementById("statCompletionRate");
+  if (statCompletionRate) statCompletionRate.textContent = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) + "%" : "-";
+
+  const yesterdayStr = (() => { const d = new Date(); d.setDate(d.getDate() - 1); return d.toISOString().split("T")[0]; })();
+  const todayStr = getTodayString();
+  const activeHabitsCount = habits.filter(h => h.lastCompleted === todayStr || h.lastCompleted === yesterdayStr).length;
+  const statActiveHabits = document.getElementById("statActiveHabits");
+  if (statActiveHabits) statActiveHabits.textContent = activeHabitsCount;
 
   // ---- GRÁFICO DE ACTIVIDAD DE HÁBITOS ----
   // Generamos los últimos 30 días en formato "YYYY-MM-DD"
@@ -1592,6 +1845,67 @@ function renderStats() {
   const activityCard = document.getElementById("statsActivityCard");
   if (activityCard) activityCard.innerHTML = activityHtml;
 
+  // ---- ACTIVIDAD POR DÍA DE LA SEMANA ----
+  const weekLabels = ["L","M","X","J","V","S","D"];
+  const weekCounts = [0,0,0,0,0,0,0];
+  habits.forEach(h => {
+    (h.completedDates || []).forEach(dateStr => {
+      const day = new Date(dateStr).getDay(); // 0=Dom
+      weekCounts[(day + 6) % 7]++;            // convertir a 0=Lun
+    });
+  });
+  const maxWeek = Math.max(...weekCounts, 1);
+
+  let weeklyHtml = "";
+  if (habits.length === 0) {
+    weeklyHtml = `<p style="color:var(--muted);font-size:14px">No hay hábitos todavía.</p>`;
+  } else {
+    weeklyHtml = '<div class="stats-weekly-bars">';
+    weekLabels.forEach((label, i) => {
+      const count = weekCounts[i];
+      const pct   = Math.round((count / maxWeek) * 100);
+      weeklyHtml += `
+        <div class="stats-weekly-col">
+          <div class="stats-weekly-count">${count > 0 ? count : ""}</div>
+          <div class="stats-weekly-bar-wrap">
+            <div class="stats-weekly-bar-fill" style="height:${pct}%"></div>
+          </div>
+          <div class="stats-weekly-label">${label}</div>
+        </div>
+      `;
+    });
+    weeklyHtml += '</div>';
+  }
+  const weeklyCard = document.getElementById("statsWeeklyCard");
+  if (weeklyCard) weeklyCard.innerHTML = weeklyHtml;
+
+  // ---- TOP HÁBITOS ----
+  let topHtml = "";
+  if (habits.length === 0) {
+    topHtml = `<p style="color:var(--muted);font-size:14px">No hay hábitos todavía.</p>`;
+  } else {
+    const medals = ["🥇","🥈","🥉","4.","5."];
+    const topHabits = [...habits]
+      .sort((a, b) => (b.completedDates?.length || 0) - (a.completedDates?.length || 0))
+      .slice(0, 5);
+    const maxCount = topHabits[0]?.completedDates?.length || 1;
+    topHabits.forEach((h, i) => {
+      const count = h.completedDates?.length || 0;
+      const pct   = Math.round((count / maxCount) * 100);
+      topHtml += `
+        <div class="stats-category-row">
+          <div class="stats-category-label">${medals[i]} ${h.title}</div>
+          <div class="stats-category-bar-wrap">
+            <div class="stats-category-bar" style="width:${pct}%"></div>
+          </div>
+          <div class="stats-category-value">${count} veces</div>
+        </div>
+      `;
+    });
+  }
+  const topHabitsCard = document.getElementById("statsTopHabitsCard");
+  if (topHabitsCard) topHabitsCard.innerHTML = topHtml;
+
   // ---- DISTRIBUCIÓN DE XP POR CATEGORÍA ----
   const catXp = state.user.categoryXp || {};
   const totalCatXp = Object.values(catXp).reduce((acc, val) => acc + val, 0);
@@ -1631,9 +1945,18 @@ function renderStats() {
 // el HTML está 100% cargado y todos los elementos existen en el DOM.
 // Esto evita errores de "elemento no encontrado" al arrancar.
 
+function applyDarkMode() {
+  const isLight = localStorage.getItem("lightMode") === "1";
+  document.body.classList.toggle("light-mode", isLight);
+  const btn = document.getElementById("darkModeBtn");
+  if (btn) btn.textContent = isLight ? "🌙" : "☀️";
+}
+
 document.addEventListener("DOMContentLoaded", function () {
+  applyDarkMode();
   applyThemeByLevel();
   applyEquippedItems();
+  applyNavbarVisibility();
   trackAppUsage();      // Registra que el usuario ha abierto la app hoy
   checkTaskPenalties(); // Verifica si hay tareas vencidas y aplica penalizaciones
   render();
@@ -1661,6 +1984,18 @@ document.addEventListener("DOMContentLoaded", function () {
   if (settingsBtn) {
     settingsBtn.addEventListener("click", function () {
       openSettings();
+    });
+  }
+
+  // Toggle modo claro/oscuro
+  const darkModeBtn = document.getElementById("darkModeBtn");
+  if (darkModeBtn) {
+    darkModeBtn.addEventListener("click", function () {
+      const isLight = localStorage.getItem("lightMode") === "1";
+      const goingLight = !isLight;
+      localStorage.setItem("lightMode", goingLight ? "1" : "0");
+      applyDarkMode();
+      if (goingLight) document.getElementById("lightModeOverlay").style.display = "flex";
     });
   }
 

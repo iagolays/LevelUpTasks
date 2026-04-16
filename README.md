@@ -2,7 +2,7 @@
 
 > Convierte tus tareas y hábitos en experiencia. Sube de nivel. Desbloquea recompensas.
 
-**LevelUp Tasks** es una app de productividad gamificada donde completar tareas y mantener hábitos te da puntos de experiencia (XP). Al subir de nivel desbloqueas nuevos temas visuales y funcionalidades, convirtiendo tu rutina diaria en un RPG.
+**LevelUp Tasks** es una app de productividad donde completar tareas y mantener hábitos te da puntos de experiencia (XP). Al subir de nivel desbloqueas nuevos temas visuales y funcionalidades, convirtiendo tu rutina diaria en un RPG.
 
 ---
 
@@ -108,3 +108,4 @@ Este proyecto es de uso personal y está protegido por derechos de autor.
 © 2025 Iago Leis Fernández — Todos los derechos reservados.
 
 Queda prohibida la copia, distribución o uso del código fuente, diseño o concepto de esta aplicación sin permiso expreso del autor.
+
