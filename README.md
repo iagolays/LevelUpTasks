@@ -52,6 +52,7 @@ http://localhost:8000
 ## ✅ Funcionalidades actuales
 
 - **Sincronización entre dispositivos** — Inicia sesión con tu correo y contraseña y tus datos estarán sincronizados entre dispositivos. Al iniciar sesión puedes elegir si conservar los datos locales o los de la nube.
+- **Modo claro/oscuro** — Alterna entre el modo oscuro por defecto y el modo claro desde el botón ☀️ de la barra superior.
 - **Sistema de tareas** — Crea tareas con 5 niveles de dificultad. Al completarlas ganas XP y PaupeDolars proporcionales a su dificultad. Las tareas completadas se acumulan en un desplegable para no mezclarlas con las pendientes.
 - **Edición de tareas y hábitos** — Modifica el título, dificultad, categoría y fecha límite de cualquier tarea o hábito sin perder su progreso.
 - **Fechas límite** — Las tareas pueden tener fecha límite opcional. Si no se completan a tiempo, se pierde la XP que habrían dado.
@@ -108,4 +109,3 @@ Este proyecto es de uso personal y está protegido por derechos de autor.
 © 2025 Iago Leis Fernández — Todos los derechos reservados.
 
 Queda prohibida la copia, distribución o uso del código fuente, diseño o concepto de esta aplicación sin permiso expreso del autor.
-
