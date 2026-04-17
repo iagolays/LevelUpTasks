@@ -26,6 +26,7 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signInWithPopup,
+  signInWithRedirect,
   GoogleAuthProvider,
   signOut,
   sendPasswordResetEmail
@@ -441,12 +442,23 @@ async function registerWithEmail() {
   }
 }
 
+// Detecta si el usuario está en un dispositivo móvil
+function isMobileDevice() {
+  return /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+}
+
 // ---- Login con Google ----
 async function loginWithGoogle() {
   clearAuthError();
   try {
-    const cred = await signInWithPopup(auth, googleProvider);
-    await handleUserLogin(cred.user);
+    if (isMobileDevice()) {
+      // En móvil usamos redirect: evita que el navegador bloquee el popup
+      // y garantiza que el token se guarda correctamente al volver
+      await signInWithRedirect(auth, googleProvider);
+    } else {
+      const cred = await signInWithPopup(auth, googleProvider);
+      await handleUserLogin(cred.user);
+    }
   } catch (err) {
     if (err.code !== "auth/popup-closed-by-user") {
       showAuthError(translateFirebaseError(err.code));

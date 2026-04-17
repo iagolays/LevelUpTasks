@@ -122,10 +122,78 @@ const SHOP_ITEMS = [
 
 // Versión actual de la app. Cámbiala cada vez que hagas una update
 // para que el modal se muestre de nuevo a todos los usuarios.
-const APP_VERSION = "1.8.0";
+const APP_VERSION = "1.8.2";
 
 const UPDATE_NOTES = `
   <div class="update-header">
+    <div class="update-version-badge">v1.8.2</div>
+    <h3 class="update-title">Arreglos y mejoras de estabilidad</h3>
+    <p class="update-subtitle">Correcciones para móvil, iOS y modo claro</p>
+  </div>
+
+  <div class="update-section">
+    <div class="update-section-title">🔧 Bugs arreglados</div>
+    <div class="update-item">
+      <span class="update-item-icon">⚙️</span>
+      <span>El botón de ajustes ya funciona en móvil cuando tienes sesión iniciada</span>
+    </div>
+    <div class="update-item">
+      <span class="update-item-icon">🍎</span>
+      <span>Iniciar sesión con Google en iOS ya no falla — ahora usa el flujo correcto para móvil</span>
+    </div>
+    <div class="update-item">
+      <span class="update-item-icon">☁️</span>
+      <span>La sesión de Google ya no se cierra al recargar la página en móvil</span>
+    </div>
+    <div class="update-item">
+      <span class="update-item-icon">🌤️</span>
+      <span>Las etiquetas del gráfico de habilidades ahora se leen bien en modo claro</span>
+    </div>
+  </div>
+
+  <details class="update-old-notes">
+    <summary>Ver notas de v1.8.1</summary>
+
+  <div class="update-header" style="border-radius:0; margin-top:12px">
+    <div class="update-version-badge">v1.8.1</div>
+    <h3 class="update-title">Filtros, reordenación y fixes</h3>
+    <p class="update-subtitle">Más control sobre tus tareas y hábitos</p>
+  </div>
+
+  <div class="update-section">
+    <div class="update-section-title">✅ Tareas y hábitos</div>
+    <div class="update-item">
+      <span class="update-item-icon">⠿</span>
+      <span>Arrastra las tareas para reordenarlas — el icono aparece a la derecha cuando el orden es manual</span>
+    </div>
+    <div class="update-item">
+      <span class="update-item-icon">🔍</span>
+      <span>Filtros desplegables en tareas y hábitos: por categoría, dificultad, fecha y estado</span>
+    </div>
+    <div class="update-item">
+      <span class="update-item-icon">↕️</span>
+      <span>Ordenación en tareas: por fecha o dificultad. En hábitos: por racha o nombre</span>
+    </div>
+  </div>
+
+  <div class="update-section">
+    <div class="update-section-title">🔧 Mejoras y fixes</div>
+    <div class="update-item">
+      <span class="update-item-icon">📊</span>
+      <span>El contador de XP se mueve encima de la barra de experiencia, alineado a la derecha</span>
+    </div>
+    <div class="update-item">
+      <span class="update-item-icon">📱</span>
+      <span>Botones más grandes en móvil — ajustes, editar nombre y modo claro ahora se pueden pulsar sin frustración</span>
+    </div>
+  </div>
+
+  </details>
+
+  <details class="update-old-notes">
+    <summary>Ver notas de v1.8.0</summary>
+
+  <div class="update-header" style="border-radius:0; margin-top:12px">
     <div class="update-version-badge">v1.8.0</div>
     <h3 class="update-title">Gran actualización visual</h3>
     <p class="update-subtitle">Un montón de mejoras de diseño e interfaz</p>
@@ -182,6 +250,8 @@ const UPDATE_NOTES = `
       <span>Resolución de conflictos automática — ya no aparece el modal de elección, siempre ganan los datos más recientes</span>
     </div>
   </div>
+
+  </details>
 `;
 
 // ===============================
@@ -292,6 +362,9 @@ window.setAppState = function (newState) {
   if (!state.user.categoryXp) {
     state.user.categoryXp = { otros: 0, deporte: 0, estudio: 0, ocio: 0, hogar: 0, creatividad: 0, salud: 0, trabajo: 0 };
   }
+  if (!state.user.navbarVisibility) {
+    state.user.navbarVisibility = { studyos: true, stats: true, compra: true, tienda: true, account: true };
+  }
 
   // Persistimos en localStorage para disponibilidad offline
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -299,6 +372,7 @@ window.setAppState = function (newState) {
   // Redibujar la interfaz completa con los datos nuevos
   applyThemeByLevel();
   applyEquippedItems();
+  applyNavbarVisibility();
   render();
   renderStats();
 };
@@ -1187,7 +1261,7 @@ function renderSkillChart() {
   ctx.stroke();
 
   // --- Dibujamos las etiquetas ---
-  ctx.fillStyle = "#e2e8f0";
+  ctx.fillStyle = getComputedStyle(document.body).getPropertyValue("--text").trim();
   ctx.font = "12px Arial";
   ctx.textAlign = "center";
   keys.forEach((key, i) => {
@@ -1621,7 +1695,7 @@ function renderTasks() {
 
   // --- Tareas pendientes ---
   if (pending.length === 0) {
-    taskList.innerHTML = `<p>${hasFilter ? "No hay tareas que coincidan con los filtros." : "No hay tareas pendientes."}</p>`;
+    taskList.innerHTML = "<p>No hay tareas pendientes.</p>";
   } else {
     pending.forEach(task => {
       const div = document.createElement("div");
@@ -2074,6 +2148,7 @@ function applyDarkMode() {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
+  
   applyDarkMode();
   applyThemeByLevel();
   applyEquippedItems();
