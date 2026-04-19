@@ -105,6 +105,12 @@ const SHOP_ITEMS = [
   { id: "font_comicsans", type: "font",   label: "Comic Sans",  icon: "...", price: 1,   value: "'Comic Neue', cursive",      description: "Realmente vas a comprar esto?" },
   { id: "font_skyrim",    type: "font",   label: "Skyrim",      icon: "🐉",  price: 120, value: "'Cinzel', serif",            description: "Fus Ro Dah" },
   { id: "font_burgerking",type: "font",   label: "Burger King", icon: "🍔",  price: 90,  value: "'Lilita One', cursive",      description: "Gabilol trae una whooper" },
+  // Efectos de completado (type "effect") — se pueden equipar varios a la vez
+  { id: "effect_particles",type: "effect", label: "Explosión",   icon: "💥", price: 70,  value: "particles", description: "Fire in the hole!" },
+  { id: "effect_xpfloat",  type: "effect", label: "XP flotante", icon: "⬆️", price: 125,  value: "xpfloat",   description: "+ Dopamina reward" },
+  { id: "effect_confetti", type: "effect", label: "Confeti",     icon: "🎊", price: 90, value: "confetti",  description: "Descubrí el confeti y no lo dejé" },
+  { id: "effect_shatter", type: "effect", label: "Pantalla rota", icon: "💔", price: 110, value: "shatter", description: "Here's Johnny!" },
+  { id: "effect_thanos", type: "effect", label: "Chasquido",     icon: "🫰", price: 200, value: "thanos",  description: "No me quiero ir señor Stark..." },
   // Marcos del perfil
   { id: "border_gold",     type: "border", label: "Dorado",    icon: "🥇", price: 50,  value: "gold",      description: "Un marco digno de un campeón" },
   { id: "border_rainbow",  type: "border", label: "Arcoíris",  icon: "🌈", price: 200, value: "rainbow",   description: "Hay un enano pelirrojo al final del arcoiris" },
@@ -118,139 +124,72 @@ const SHOP_ITEMS = [
   { id: "title_grinder", type: "title", label: "El Incansable", icon: "⚙️", price: 80,  value: "El Incansable", description: "Para los que nunca paran" },
   { id: "title_legend",  type: "title", label: "Leyenda",       icon: "👑", price: 300, value: "Leyenda",       description: "Lvl-100 Mafia Boss" },
   { id: "title_paupero", type: "title", label: "El Paupérrimo", icon: "💸", price: 1,   value: "El Paupérrimo", description: "Estamos dando vueltas en círculos" }
+  
 ];
+
+// Frases del vendedor. Añade las que quieras aquí.
+const VENDOR_PHRASES = [
+  "Un PaupeDolar hoy vale mas que un PaupeDolar mañana 🫵​.",
+  "Chicles de la máscara 🧟‍♀️​? No tenemos de eso chaval!",
+  "La solución a la pobreza es matar a los pob 🗣️... Vienes a gastar??",
+  "Convierte al cliente en el héroe de su propia historia ☝️​.",
+  "Bienvenido a mi tienda, aventurero. Tengo lo que necesitas... si puedes pagarlo.",
+  "Ah, otro cliente. Espero que esta vez traigas PaupeDolars de verdad.",
+  "Mis precios son justos. Mi paciencia, menos.",
+  "No toques lo que no puedes permitirte. Ya tuve que limpiar antes.",
+  "Cada PaupeDolár cuenta. Los míos, especialmente.",
+  "Vuelves. Siempre vuelven.",
+  "¿Qué será hoy? ¿Una tipografía elegante o un marco que diga 'tengo buen gusto'?",
+];
+
+// Devuelve una frase aleatoria del vendedor
+function getRandomVendorPhrase() {
+  return VENDOR_PHRASES[Math.floor(Math.random() * VENDOR_PHRASES.length)];
+}
+
 
 // Versión actual de la app. Cámbiala cada vez que hagas una update
 // para que el modal se muestre de nuevo a todos los usuarios.
-const APP_VERSION = "1.8.2";
+const APP_VERSION = "1.9";
 
 const UPDATE_NOTES = `
   <div class="update-header">
-    <div class="update-version-badge">v1.8.2</div>
-    <h3 class="update-title">Arreglos y mejoras de estabilidad</h3>
-    <p class="update-subtitle">Correcciones para móvil, iOS y modo claro</p>
+    <div class="update-version-badge">v1.9</div>
+    <h3 class="update-title">El Paupérrimo ha llegado y trae nuevos productos</h3>
+    <p class="update-subtitle">Sus estrategias de negocio son cuestionables...</p>
   </div>
 
   <div class="update-section">
-    <div class="update-section-title">🔧 Bugs arreglados</div>
+    <div class="update-section-title">🛍️ Tienda</div>
     <div class="update-item">
-      <span class="update-item-icon">⚙️</span>
-      <span>El botón de ajustes ya funciona en móvil cuando tienes sesión iniciada</span>
+      <span class="update-item-icon">💸</span>
+      <span>El Paupérrimo en persona atenderá tu visita. Clícalo para escucharle hablar. No se sabe por qué alguien querría hacer eso, pero la opción está ahí.</span>
     </div>
     <div class="update-item">
-      <span class="update-item-icon">🍎</span>
-      <span>Iniciar sesión con Google en iOS ya no falla — ahora usa el flujo correcto para móvil</span>
+      <span class="update-item-icon">✨</span>
+      <span>Nueva sección de efectos de completado. Equipa uno o varios y cada vez que marques una tarea o hábito como hecho... pasará algo.</span>
     </div>
     <div class="update-item">
-      <span class="update-item-icon">☁️</span>
-      <span>La sesión de Google ya no se cierra al recargar la página en móvil</span>
+      <span class="update-item-icon">💥</span>
+      <span>Efecto Explosión — partículas de colores salen disparadas desde la tarjeta.</span>
     </div>
     <div class="update-item">
-      <span class="update-item-icon">🌤️</span>
-      <span>Las etiquetas del gráfico de habilidades ahora se leen bien en modo claro</span>
-    </div>
-  </div>
-
-  <details class="update-old-notes">
-    <summary>Ver notas de v1.8.1</summary>
-
-  <div class="update-header" style="border-radius:0; margin-top:12px">
-    <div class="update-version-badge">v1.8.1</div>
-    <h3 class="update-title">Filtros, reordenación y fixes</h3>
-    <p class="update-subtitle">Más control sobre tus tareas y hábitos</p>
-  </div>
-
-  <div class="update-section">
-    <div class="update-section-title">✅ Tareas y hábitos</div>
-    <div class="update-item">
-      <span class="update-item-icon">⠿</span>
-      <span>Arrastra las tareas para reordenarlas — el icono aparece a la derecha cuando el orden es manual</span>
+      <span class="update-item-icon">⬆️</span>
+      <span>Efecto XP flotante — la XP sube en arcoíris hasta tu barra de experiencia.</span>
     </div>
     <div class="update-item">
-      <span class="update-item-icon">🔍</span>
-      <span>Filtros desplegables en tareas y hábitos: por categoría, dificultad, fecha y estado</span>
+      <span class="update-item-icon">🎊</span>
+      <span>Efecto Confeti — lluvia de confeti. Para los que se lo merecen.</span>
     </div>
     <div class="update-item">
-      <span class="update-item-icon">↕️</span>
-      <span>Ordenación en tareas: por fecha o dificultad. En hábitos: por racha o nombre</span>
+      <span class="update-item-icon">💔</span>
+      <span>Efecto Pantalla rota — la tarjeta se rompe en fragmentos antes de desaparecer.</span>
+    </div>
+    <div class="update-item">
+      <span class="update-item-icon">🫰</span>
+      <span>Efecto Chasquido — la tarjeta se convierte en polvo. Perfectamente equilibrado, como debe ser.</span>
     </div>
   </div>
-
-  <div class="update-section">
-    <div class="update-section-title">🔧 Mejoras y fixes</div>
-    <div class="update-item">
-      <span class="update-item-icon">📊</span>
-      <span>El contador de XP se mueve encima de la barra de experiencia, alineado a la derecha</span>
-    </div>
-    <div class="update-item">
-      <span class="update-item-icon">📱</span>
-      <span>Botones más grandes en móvil — ajustes, editar nombre y modo claro ahora se pueden pulsar sin frustración</span>
-    </div>
-  </div>
-
-  </details>
-
-  <details class="update-old-notes">
-    <summary>Ver notas de v1.8.0</summary>
-
-  <div class="update-header" style="border-radius:0; margin-top:12px">
-    <div class="update-version-badge">v1.8.0</div>
-    <h3 class="update-title">Gran actualización visual</h3>
-    <p class="update-subtitle">Un montón de mejoras de diseño e interfaz</p>
-  </div>
-
-  <div class="update-section">
-    <div class="update-section-title">🎨 Diseño</div>
-    <div class="update-item">
-      <span class="update-item-icon">🌙</span>
-      <span>Modo claro/oscuro — botón en la esquina superior derecha (úsalo bajo tu responsabilidad)</span>
-    </div>
-    <div class="update-item">
-      <span class="update-item-icon">⚙️</span>
-      <span>Ajustes rediseñados con secciones desplegables: selector de tema y visibilidad de la navbar</span>
-    </div>
-    <div class="update-item">
-      <span class="update-item-icon">🎉</span>
-      <span>Modal de subida de nivel con animación y confetti — adiós al feo alert del navegador</span>
-    </div>
-  </div>
-
-  <div class="update-section">
-    <div class="update-section-title">🔥 Hábitos</div>
-    <div class="update-item">
-      <span class="update-item-icon">⭕</span>
-      <span>Anillo de progreso en cada hábito dibujado con Canvas, con el color de tu tier de racha</span>
-    </div>
-    <div class="update-item">
-      <span class="update-item-icon">👑</span>
-      <span>Los bordes de los hábitos brillan según tu racha: naranja, azul eléctrico o dorado pulsante</span>
-    </div>
-  </div>
-
-  <div class="update-section">
-    <div class="update-section-title">📊 Estadísticas</div>
-    <div class="update-item">
-      <span class="update-item-icon">📆</span>
-      <span>Actividad semanal — barras verticales mostrando en qué días eres más productivo</span>
-    </div>
-    <div class="update-item">
-      <span class="update-item-icon">🏆</span>
-      <span>Top hábitos — ranking de los que más veces has completado</span>
-    </div>
-    <div class="update-item">
-      <span class="update-item-icon">📈</span>
-      <span>Nuevas tarjetas: tasa de completado de tareas y hábitos con racha activa</span>
-    </div>
-  </div>
-
-  <div class="update-section">
-    <div class="update-section-title">☁️ Sincronización</div>
-    <div class="update-item">
-      <span class="update-item-icon">⚡</span>
-      <span>Resolución de conflictos automática — ya no aparece el modal de elección, siempre ganan los datos más recientes</span>
-    </div>
-  </div>
-
   </details>
 `;
 
@@ -291,7 +230,8 @@ function loadState() {
       equippedItems: { // que lleva equipado en cada slot
         font: null,
         border: null,
-        title: "title_noob"
+        title: "title_noob",
+        effects: []      // array: pueden equiparse varios efectos a la vez
       },
       categoryXp: { // Aquí guardaremos la XP acumulada por categoría
         otros: 0,
@@ -358,7 +298,8 @@ window.setAppState = function (newState) {
   if (state.user.paupeDolars      === undefined) state.user.paupeDolars      = 0;
   if (state.user.totalPaupeDolars === undefined) state.user.totalPaupeDolars = 0;
   if (!state.user.ownedItems)         state.user.ownedItems         = ["title_noob"];
-  if (!state.user.equippedItems)      state.user.equippedItems      = { font: null, border: null, title: "title_noob" };
+  if (!state.user.equippedItems)      state.user.equippedItems      = { font: null, border: null, title: "title_noob", effects: [] };
+  if (!state.user.equippedItems.effects) state.user.equippedItems.effects = [];
   if (!state.user.categoryXp) {
     state.user.categoryXp = { otros: 0, deporte: 0, estudio: 0, ocio: 0, hogar: 0, creatividad: 0, salud: 0, trabajo: 0 };
   }
@@ -424,7 +365,8 @@ if (state.user.totalPaupeDolars === undefined) state.user.totalPaupeDolars = 0;
 // Protección: si no tiene ownedItems, lo inicializamos con el título inicial
 if (!state.user.ownedItems) state.user.ownedItems = ["title_noob"];
 // Protección: si no tiene equippedItems, lo inicializamos
-if (!state.user.equippedItems) state.user.equippedItems = { font: null, border: null, title: "title_noob" };
+if (!state.user.equippedItems) state.user.equippedItems = { font: null, border: null, title: "title_noob", effects: [] };
+if (!state.user.equippedItems.effects) state.user.equippedItems.effects = [];
 
 // ===============================
 // REFERENCIAS AL DOM
@@ -791,6 +733,235 @@ taskForm.addEventListener("submit", function (e) {
   taskForm.reset(); // Limpia el formulario para poder añadir otra tarea
 });
 
+// ===============================
+// EFECTOS DE COMPLETADO
+// ===============================
+// Se ejecutan al completar una tarea o hábito si el jugador los tiene equipados.
+// Cada efecto es independiente y puede combinarse con los demás.
+
+/**
+ * Punto de entrada: ejecuta todos los efectos equipados.
+ * @param {HTMLElement} element - La tarjeta de la tarea/hábito completada
+ * @param {number} xp - XP ganada (para el efecto de XP flotante)
+ */
+function triggerCompletionEffects(element, xp) {
+  const effects = state.user.equippedItems?.effects || [];
+  if (effects.length === 0) return;
+
+  effects.forEach(effectId => {
+    switch (effectId) {
+      case "effect_particles": effectParticles(element); break;
+      case "effect_xpfloat":   effectXpFloat(element, xp); break;
+      case "effect_confetti":  effectConfetti(); break;
+      case "effect_shatter": effectShatter(element); break;
+      case "effect_thanos":  effectThanos(element);  break;
+    }
+  });
+}
+
+// ---- Efecto: Fragmentos (shatter) ----
+// La tarjeta se divide en una cuadrícula de fragmentos que caen y rotan
+function effectShatter(element) {
+  if (!element) return;
+  const rect = element.getBoundingClientRect();
+  const cols = 4;
+  const rows = 3;
+  const w = rect.width  / cols;
+  const h = rect.height / rows;
+
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const frag = document.createElement("div");
+      frag.className = "fx-shard";
+      frag.style.cssText = `
+        left:   ${rect.left + c * w}px;
+        top:    ${rect.top  + r * h}px;
+        width:  ${w}px;
+        height: ${h}px;
+        --rx: ${(Math.random() - 0.5) * 60}deg;
+        --tx: ${(Math.random() - 0.5) * 120}px;
+        --ty: ${40 + Math.random() * 100}px;
+      `;
+      document.body.appendChild(frag);
+      setTimeout(() => frag.remove(), 700);
+    }
+  }
+  // Ocultamos la tarjeta mientras los fragmentos caen
+  element.style.opacity = "0";
+}
+
+// ---- Efecto: Explosión de partículas ----
+// Lanza partículas de colores desde el centro de la tarjeta
+function effectParticles(element) {
+  if (!element) return;
+  const rect = element.getBoundingClientRect();
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top  + rect.height / 2;
+  const colors = ["#22c55e","#f59e0b","#3b82f6","#ef4444","#a855f7","#ec4899","#06b6d4"];
+
+  for (let i = 0; i < 22; i++) {
+    const p = document.createElement("div");
+    p.className = "fx-particle";
+    const angle = (i / 22) * 2 * Math.PI;
+    const dist  = 50 + Math.random() * 80;
+    const dx = Math.cos(angle) * dist;
+    const dy = Math.sin(angle) * dist;
+    const size = 8 + Math.random() * 8;
+    p.style.cssText = `
+      left: ${cx}px; top: ${cy}px;
+      background: ${colors[i % colors.length]};
+      width: ${size}px; height: ${size}px;
+      --dx: ${dx}px; --dy: ${dy}px;
+    `;
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 800);
+  }
+}
+
+// ---- Efecto: XP flotante en arcoíris ----
+// Un número de XP grande sube desde la tarjeta hasta la barra de experiencia
+// con colores arcoíris animados
+function effectXpFloat(element, xp) {
+  if (!element) return;
+  const rect    = element.getBoundingClientRect();
+  const xpBar   = document.getElementById("xpFill");
+  const barRect = xpBar ? xpBar.getBoundingClientRect() : null;
+
+  const label = document.createElement("div");
+  label.className = "fx-xpfloat";
+  label.textContent = `+${xp} XP`;
+
+  // Distancia vertical hasta la barra de XP
+  const startY = rect.top + rect.height / 2;
+  const endY   = barRect ? barRect.top + barRect.height / 2 : startY - 160;
+  const dy     = endY - startY;
+
+  label.style.cssText = `left: ${rect.left + rect.width / 2}px; top: ${startY}px; --dy: ${dy}px;`;
+  document.body.appendChild(label);
+  setTimeout(() => label.remove(), 2200);
+}
+
+// ---- Efecto: Confeti ----
+// Lanza confeti usando canvas-confetti (CDN en index.html)
+function effectConfetti() {
+  if (typeof confetti !== "function") return;
+  confetti({
+    particleCount: 100,
+    spread: 80,
+    origin: { y: 0.6 },
+    colors: ["#22c55e","#f59e0b","#3b82f6","#ef4444","#a855f7","#ec4899"]
+  });
+}
+
+
+// ---- Efecto: Chasquido de Thanos ----
+// Captura la tarjeta como imagen usando html2canvas, luego la convierte
+// en miles de partículas de píxeles que se dispersan y desvanecen.
+// Requiere html2canvas (CDN en index.html).
+function effectThanos(element) {
+  if (!element) return;
+  if (typeof html2canvas !== "function") {
+    console.warn("[Thanos] html2canvas no disponible");
+    return;
+  }
+
+  const rect = element.getBoundingClientRect();
+
+  // Capturamos la tarjeta como imagen
+  html2canvas(element, {
+    backgroundColor: null,
+    scale: 1,
+    logging: false,
+    useCORS: true
+  }).then(canvas => {
+    const ctx    = canvas.getContext("2d");
+    const w      = canvas.width;
+    const h      = canvas.height;
+    const pixels = ctx.getImageData(0, 0, w, h);
+
+    // Ocultamos la tarjeta original inmediatamente
+    element.style.opacity = "0";
+    element.style.pointerEvents = "none";
+
+    // Creamos un canvas flotante encima de la tarjeta
+    const fx = document.createElement("canvas");
+    fx.width  = w;
+    fx.height = h;
+    fx.style.cssText = `
+      position: fixed;
+      left: ${rect.left}px;
+      top:  ${rect.top}px;
+      width: ${rect.width}px;
+      height: ${rect.height}px;
+      pointer-events: none;
+      z-index: 9999;
+    `;
+    document.body.appendChild(fx);
+    const fxCtx = fx.getContext("2d");
+    fxCtx.putImageData(pixels, 0, 0);
+
+    // Cada partícula es un bloque de píxeles con posición y velocidad propias
+    const BLOCK = 4; // tamaño de cada partícula en píxeles
+    const particles = [];
+
+    for (let py = 0; py < h; py += BLOCK) {
+      for (let px = 0; px < w; px += BLOCK) {
+        // Solo añadimos partículas donde hay píxeles visibles (alpha > 10)
+        const idx = (py * w + px) * 4;
+        if (pixels.data[idx + 3] < 10) continue;
+
+        particles.push({
+          x:   px,
+          y:   py,
+          vx:  0.8 + Math.random() * 2.5,
+          vy: -0.8 + Math.random() * 1.5,
+          ay:  0.04 + Math.random() * 0.04,
+          life: 1.2 + Math.random() * 0.6,
+          decay: 0.005 + Math.random() * 0.008
+        });
+      }
+    }
+
+    // Animamos las partículas frame a frame
+    let rafId;
+    function animate() {
+      // Limpiamos el canvas en cada frame
+      fxCtx.clearRect(0, 0, w, h);
+
+      let alive = false;
+
+      particles.forEach(p => {
+        if (p.life <= 0) return;
+        alive = true;
+
+        // Actualizamos posición y vida
+        p.x    += p.vx;
+        p.y    += p.vy;
+        p.vy   += p.ay;
+        p.life -= p.decay;
+
+        // Dibujamos el bloque con opacidad decreciente
+        fxCtx.globalAlpha = Math.max(0, p.life);
+        fxCtx.drawImage(canvas, p.x, p.y, BLOCK, BLOCK, p.x, p.y, BLOCK, BLOCK);
+      });
+
+      fxCtx.globalAlpha = 1;
+
+      if (alive) {
+        rafId = requestAnimationFrame(animate);
+      } else {
+        // Animación terminada: eliminamos el canvas flotante
+        cancelAnimationFrame(rafId);
+        fx.remove();
+      }
+    }
+
+    rafId = requestAnimationFrame(animate);
+  }).catch(err => {
+    console.error("[Thanos] Error capturando la tarjeta:", err);
+  });
+}
+
 function completeTask(taskId) {
   // .find() busca en el array el primer elemento que cumple la condición
   // y devuelve ese elemento (o undefined si no lo encuentra)
@@ -800,6 +971,13 @@ function completeTask(taskId) {
   // Si no existe la tarea, o ya está completada, no hacemos nada
 
   task.completed = true;                    // La marcamos como completada
+
+  // Buscamos la tarjeta en el DOM ANTES de que render() la elimine
+  const taskEl = document.querySelector(`[data-id="${taskId}"]`);
+
+  // Disparamos los efectos visuales equipados
+  triggerCompletionEffects(taskEl, task.xpReward);
+
   addXp(task.xpReward, task.category);      // Damos la XP correspondiente y la categoría
 
   // Damos monedas según la dificultad y las sumamos también al total histórico
@@ -807,7 +985,17 @@ function completeTask(taskId) {
   state.user.paupeDolars += coins;
   state.user.totalPaupeDolars = (state.user.totalPaupeDolars || 0) + coins;
   saveState();
-  render();
+
+  // Esperamos a que los efectos terminen antes de que render() elimine la tarjeta.
+  // El efecto Thanos necesita más tiempo porque captura y anima la tarjeta.
+  const equippedEffects = state.user.equippedItems?.effects || [];
+  const hasEffects = equippedEffects.length > 0;
+  const hasThanos  = equippedEffects.includes("effect_thanos");
+  if (hasEffects) {
+    setTimeout(() => render(), hasThanos ? 3500 : 700);
+  } else {
+    render();
+  }
 }
 
 function deleteTask(taskId) {
@@ -940,9 +1128,25 @@ function completeHabit(habitId) {
   state.user.paupeDolars += coins;
   state.user.totalPaupeDolars = (state.user.totalPaupeDolars || 0) + coins;
 
+  // Buscamos la tarjeta del hábito en el DOM ANTES de que render() la redibuje
+  const habitEl = document.querySelector(`#habitList [data-id="${habitId}"]`);
+
+  // Disparamos los efectos visuales equipados
+  triggerCompletionEffects(habitEl, habit.xpReward);
+
   addXp(habit.xpReward, habit.category); // Damos la XP correspondiente y la categoría
   saveState();
-  render();
+
+  // Esperamos a que los efectos terminen antes de re-renderizar.
+  // El efecto Thanos necesita más tiempo porque captura y anima la tarjeta.
+  const equippedEffectsH = state.user.equippedItems?.effects || [];
+  const hasEffectsH = equippedEffectsH.length > 0;
+  const hasThanosH  = equippedEffectsH.includes("effect_thanos");
+  if (hasEffectsH) {
+    setTimeout(() => render(), hasThanosH ? 3500 : 700);
+  } else {
+    render();
+  }
 }
 
 function deleteHabit(habitId) {
@@ -1394,8 +1598,17 @@ function equipItem(itemId) {
   if (!state.user.ownedItems.includes(itemId)) return;
 
   // Guardamos el artículo equipado en su slot
-  if (!state.user.equippedItems) state.user.equippedItems = { font: null, border: null, title: null };
-  state.user.equippedItems[item.type] = itemId;
+  if (!state.user.equippedItems) state.user.equippedItems = { font: null, border: null, title: null, effects: [] };
+  if (!state.user.equippedItems.effects) state.user.equippedItems.effects = [];
+
+  if (item.type === "effect") {
+    // Los efectos son un array: se pueden equipar varios a la vez
+    if (!state.user.equippedItems.effects.includes(itemId)) {
+      state.user.equippedItems.effects.push(itemId);
+    }
+  } else {
+    state.user.equippedItems[item.type] = itemId;
+  }
 
   // Aplicamos el efecto visual
   applyEquippedItems();
@@ -1404,11 +1617,16 @@ function equipItem(itemId) {
   renderProfile();
 }
 
-function unequipItem(type) {
+function unequipItem(typeOrId) {
   if (!state.user.equippedItems) return;
 
-  // Quitamos el artículo equipado en ese slot
-  state.user.equippedItems[type] = null;
+  if (typeOrId.startsWith("effect_")) {
+    // Desequipamos un efecto concreto del array
+    state.user.equippedItems.effects = (state.user.equippedItems.effects || []).filter(e => e !== typeOrId);
+  } else {
+    // Desequipamos el slot único (font, border, title)
+    state.user.equippedItems[typeOrId] = null;
+  }
 
   applyEquippedItems();
   saveState();
@@ -1459,6 +1677,12 @@ function applyEquippedItems() {
 }
 
 function renderShop() {
+  // Ponemos una frase aleatoria al vendedor si el elemento existe
+  // y aún no tiene texto (para no cambiarla cada vez que se re-renderiza)
+  const vendorPhrase = document.getElementById("vendorPhrase");
+  if (vendorPhrase && !vendorPhrase.textContent) {
+    vendorPhrase.textContent = getRandomVendorPhrase();
+  }
   const container = document.getElementById("shopItemsGrid");
   const coinsDisplay = document.getElementById("shopCoinsDisplay");
 
@@ -1506,9 +1730,11 @@ function renderShop() {
 
   // Agrupamos los artículos por tipo para mostrarlos en secciones
   const types = {
-    font:   { label: "Tipografías",      icon: "🔤" },
-    border: { label: "Marcos de perfil", icon: "🖼️" },
-    title:  { label: "Títulos",          icon: "📛" }
+    font:   { label: "Tipografías",          icon: "🔤" },
+    effect: { label: "Efectos de completado",icon: "✨" },
+    border: { label: "Marcos de perfil",     icon: "🖼️" },
+    title:  { label: "Títulos",              icon: "📛" }
+    
   };
 
   Object.entries(types).forEach(([type, info]) => {
@@ -1526,7 +1752,10 @@ function renderShop() {
 
     items.forEach(item => {
       const owned = state.user.ownedItems?.includes(item.id);
-      const equipped = state.user.equippedItems?.[item.type] === item.id;
+      // Los efectos se comprueban en el array, los demás en su slot
+      const equipped = item.type === "effect"
+        ? (state.user.equippedItems?.effects || []).includes(item.id)
+        : state.user.equippedItems?.[item.type] === item.id;
 
       const card = document.createElement("div");
       card.className = "shop-card" + (owned ? " shop-card-owned" : "") + (equipped ? " shop-card-equipped" : "");
@@ -1540,7 +1769,7 @@ function renderShop() {
           ${!owned
             ? `<button class="btn-buy" onclick="buyItem('${item.id}')">Comprar</button>`
             : equipped
-              ? `<button class="btn-unequip" onclick="unequipItem('${item.type}')">Desequipar</button>`
+              ? `<button class="btn-unequip" onclick="unequipItem('${item.id}')">Desequipar</button>`
               : `<button class="btn-equip" onclick="equipItem('${item.id}')">Equipar</button>`
           }
         </div>
@@ -1576,6 +1805,9 @@ function renderProfile() {
   const xpText = document.getElementById("xpText");
   const xpFill = document.getElementById("xpFill");
   const unlockList = document.getElementById("unlockList");
+
+  //const combatBtn = document.getElementById("combatBtn");
+  //if (combatBtn) combatBtn.style.display = state.user.level >= 5 ? "" : "none";
 
   if (playerName) playerName.textContent = state.user.name;
   if (levelText) levelText.textContent = `Nivel ${state.user.level}`;
@@ -1842,6 +2074,7 @@ function renderHabits() {
   filtered.forEach(habit => {
     const div = document.createElement("div");
     div.className = "item";
+    div.dataset.id = habit.id; // necesario para que triggerCompletionEffects encuentre la tarjeta
 
     const completedToday = habit.lastCompleted === getTodayString();
 

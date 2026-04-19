@@ -79,6 +79,12 @@
           </div>
         </div>
 
+        <!-- Botón de combate, visible desde nivel 5 
+        <button id="combatBtn" class="combat-enter-btn" 
+                onclick="window.location.href='combat/combat.html'">
+          ⚔️ Aventurarse
+        </button> -->
+
         <!-- Lista de recompensas desbloqueadas por nivel (desplegable) -->
         <details class="unlock-box">
           <summary>Desbloqueos</summary>
@@ -349,13 +355,15 @@
         </details>
       </section>
 
-      <!-- Hueco para el personaje vendedor (coming soon) -->
-      <section class="card coming-soon-section shop-vendor-placeholder">
-        <div class="coming-soon-content">
-          <span class="coming-soon-main-icon">🧙</span>
-          <h2>El Vendedor</h2>
-          <p class="coming-soon-text">Pronto habrá aquí un personaje que te venderá sus mercancías. Por ahora... imagínatelo.</p>
-          <span class="coming-soon-main-badge">Coming Soon</span>
+      <section class="card shop-vendor-section">
+        <div class="shop-vendor-content">
+          <img src="pauperrimo.png" alt="El Vendedor" class="shop-vendor-img"
+              onclick="document.getElementById('vendorPhrase').textContent = getRandomVendorPhrase()"
+              style="cursor: pointer;" title="Habla con el vendedor" />
+          <div class="shop-vendor-text">
+            <h2>Paupérrimo</h2>
+            <p id="vendorPhrase"></p>
+          </div>
         </div>
       </section>
 
@@ -715,6 +723,14 @@
       </div>
     </div>
   </div>
+
+  <!-- Canvas-confetti: librería ligera para el efecto de confeti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+  <!-- html2canvas: captura elementos HTML como imagen (para el efecto Thanos) -->
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+  <!-- Overlay para el efecto de rayos de luz (oculto por defecto) -->
+  <div id="fxRaysOverlay" class="fx-rays-overlay"></div>
 
   <script src="app.js"></script>
   <script src="studyos.js"></script>
