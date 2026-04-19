@@ -2612,3 +2612,245 @@ details[open] > .filter-panel-summary { border-bottom: 1px solid var(--border); 
   0%   { opacity: 1; transform: translate(0, 0) rotate(0deg); }
   100% { opacity: 0; transform: translate(var(--tx), var(--ty)) rotate(var(--rx)); }
 }
+/* ===============================
+   MODO TIENDA — TABERNA MEDIEVAL
+   ===============================
+   Se activa añadiendo la clase shop-mode al body cuando
+   el jugador navega a la pestaña de tienda. */
+
+/* ---- Fondo de madera oscura ---- */
+/* Simulamos vetas de madera con gradientes superpuestos */
+body.shop-mode {
+  background-color: #1a0e05;
+  background-image:
+    /* Vetas horizontales finas */
+    repeating-linear-gradient(
+      180deg,
+      transparent,
+      transparent 3px,
+      rgba(0,0,0,0.08) 3px,
+      rgba(0,0,0,0.08) 4px
+    ),
+    /* Vetas diagonales para dar textura */
+    repeating-linear-gradient(
+      92deg,
+      transparent,
+      transparent 40px,
+      rgba(180,100,20,0.04) 40px,
+      rgba(180,100,20,0.04) 80px
+    ),
+    /* Gradiente base cálido de madera */
+    linear-gradient(
+      160deg,
+      #2a1505 0%,
+      #1a0e05 30%,
+      #2d1608 60%,
+      #1a0c04 100%
+    );
+}
+
+/* ---- Tarjetas con aspecto de madera clara ---- */
+body.shop-mode .card {
+  background: linear-gradient(135deg, #2d1c0a 0%, #3d2510 60%, #2a1808 100%);
+  border: 1px solid #8b5e2a;
+  box-shadow:
+    0 4px 16px rgba(0,0,0,0.5),
+    inset 0 1px 0 rgba(255,200,80,0.08);
+}
+
+/* ---- Header de la página ---- */
+body.shop-mode .topbar {
+  background: linear-gradient(90deg, #1a0c04, #2d1608, #1a0c04);
+  border-bottom: 2px solid #8b5e2a;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.6);
+}
+
+/* ---- Navbar ---- */
+body.shop-mode .navbar {
+  background: linear-gradient(90deg, #110800, #1f1005, #110800);
+  border-bottom: 2px solid #6b4415;
+}
+
+body.shop-mode .nav-btn {
+  color: #c8933a;
+}
+
+body.shop-mode .nav-btn:hover {
+  background: rgba(180,120,30,0.15);
+  color: #f5c05a;
+}
+
+body.shop-mode .nav-btn-active {
+  background: linear-gradient(135deg, #6b3d10, #8b5520);
+  color: #f5c05a;
+  border-bottom: 2px solid #d4942a;
+}
+
+/* ---- Texto general más cálido ---- */
+body.shop-mode {
+  color: #e8c87a;
+}
+
+body.shop-mode h2,
+body.shop-mode h3,
+body.shop-mode h4 {
+  color: #f5c05a;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+}
+
+body.shop-mode p,
+body.shop-mode span,
+body.shop-mode li {
+  color: #c8a05a;
+}
+
+/* ---- Cabecera de sección de la tienda ---- */
+body.shop-mode .shop-category-header {
+  color: #f5c05a;
+  border-bottom: 1px solid #6b4415;
+  padding-bottom: 8px;
+  text-shadow: 0 0 12px rgba(245,192,90,0.3);
+}
+
+/* ---- Tarjetas de artículos ---- */
+body.shop-mode .shop-card {
+  background: linear-gradient(145deg, #3d2510, #2a1808);
+  border: 1px solid #6b4415;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+body.shop-mode .shop-card:hover {
+  border-color: #d4942a;
+  box-shadow: 0 0 16px rgba(212,148,42,0.2);
+}
+
+body.shop-mode .shop-card-owned {
+  border-color: #8b6520;
+  background: linear-gradient(145deg, #4a2e10, #352010);
+}
+
+body.shop-mode .shop-card-equipped {
+  border-color: #f5c05a;
+  box-shadow: 0 0 20px rgba(245,192,90,0.25);
+}
+
+body.shop-mode .shop-card-label {
+  color: #f0d080;
+}
+
+body.shop-mode .shop-card-desc {
+  color: #9a7840;
+}
+
+body.shop-mode .shop-card-price {
+  color: #f5c05a;
+  font-weight: bold;
+}
+
+/* ---- Botones de la tienda ---- */
+body.shop-mode .btn-buy {
+  background: linear-gradient(135deg, #8b4513, #a0522d);
+  border: 1px solid #c67820;
+  color: #f5c05a;
+}
+
+body.shop-mode .btn-buy:hover {
+  background: linear-gradient(135deg, #a0522d, #c06020);
+  box-shadow: 0 0 12px rgba(212,148,42,0.3);
+}
+
+body.shop-mode .btn-equip {
+  background: linear-gradient(135deg, #4a3010, #6b4415);
+  border: 1px solid #8b6520;
+  color: #e8c87a;
+}
+
+body.shop-mode .btn-unequip {
+  background: linear-gradient(135deg, #2a1808, #3d2510);
+  border: 1px solid #6b4415;
+  color: #9a7840;
+}
+
+/* ---- Saldo de PaupeDolars ---- */
+body.shop-mode .shop-coins {
+  background: linear-gradient(135deg, #3d2510, #5a3515);
+  border: 1px solid #8b6520;
+  border-radius: 10px;
+  padding: 8px 14px;
+}
+
+body.shop-mode #shopCoinsDisplay {
+  color: #f5c05a;
+  font-weight: bold;
+  text-shadow: 0 0 8px rgba(245,192,90,0.4);
+}
+
+/* ---- Sección del vendedor ---- */
+body.shop-mode .shop-vendor-section {
+  background: linear-gradient(135deg, #2a1505 0%, #3d2010 50%, #2a1505 100%);
+  border: 2px solid #8b5e2a;
+  box-shadow:
+    0 4px 20px rgba(0,0,0,0.6),
+    inset 0 0 40px rgba(180,100,20,0.05);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Efecto de luz de antorcha en el vendedor */
+body.shop-mode .shop-vendor-section::before {
+  content: "";
+  position: absolute;
+  top: -20px;
+  right: -20px;
+  width: 120px;
+  height: 120px;
+  background: radial-gradient(circle, rgba(255,160,30,0.12), transparent 70%);
+  pointer-events: none;
+  animation: torchFlicker 3s ease-in-out infinite alternate;
+}
+
+@keyframes torchFlicker {
+  0%   { opacity: 0.6; transform: scale(1);    }
+  50%  { opacity: 1;   transform: scale(1.1);  }
+  100% { opacity: 0.7; transform: scale(0.95); }
+}
+
+body.shop-mode .shop-vendor-text h2 {
+  color: #f5c05a;
+}
+
+body.shop-mode #vendorPhrase {
+  color: #c8a05a;
+  font-style: italic;
+}
+
+/* ---- Inputs y selects en la tienda ---- */
+body.shop-mode input,
+body.shop-mode select {
+  background: #1a0c04;
+  border-color: #6b4415;
+  color: #e8c87a;
+}
+
+/* ---- details/summary ---- */
+body.shop-mode details summary {
+  color: #c8933a;
+}
+
+body.shop-mode details summary:hover {
+  color: #f5c05a;
+}
+
+/* ---- Scrollbar temática ---- */
+body.shop-mode ::-webkit-scrollbar-track {
+  background: #1a0c04;
+}
+
+body.shop-mode ::-webkit-scrollbar-thumb {
+  background: #6b4415;
+  border-radius: 4px;
+}
+
+body.shop-mode ::-webkit-scrollbar-thumb:hover {
+  background: #8b5e2a;
+}

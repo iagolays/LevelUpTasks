@@ -163,7 +163,7 @@ const UPDATE_NOTES = `
     <div class="update-section-title">🛍️ Tienda</div>
     <div class="update-item">
       <span class="update-item-icon">💸</span>
-      <span>El Paupérrimo en persona atenderá tu visita. Clícalo para escucharle hablar. No se sabe por qué alguien querría hacer eso, pero la opción está ahí.</span>
+      <span>El Paupérrimo en persona atenderá tu visita y ha remodelado toda la tienda!. Clícalo para escucharle hablar. No se sabe por qué alguien querría hacer eso, pero la opción está ahí.</span>
     </div>
     <div class="update-item">
       <span class="update-item-icon">✨</span>
@@ -432,6 +432,14 @@ function navigateTo(page) {
   // Si navegamos a estadísticas, re-renderizamos para que estén actualizadas
   if (page === "stats") {
     renderStats();
+  }
+
+  // Modo tienda: cambia el aspecto visual de toda la página
+  // cuando el jugador está en la pestaña de tienda
+  if (page === "tienda") {
+    document.body.classList.add("shop-mode");
+  } else {
+    document.body.classList.remove("shop-mode");
   }
 }
 
