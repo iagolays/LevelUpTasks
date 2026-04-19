@@ -14,6 +14,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Cinzel&family=Lilita+One&family=Comic+Neue:wght@700&display=swap" rel="stylesheet">
   <!-- Conecta este HTML con el archivo de estilos CSS -->
   <link rel="stylesheet" href="styles.css" />
+
+  <!-- Favicon e iconos para acceso directo y PWA -->
+  <link rel="icon" type="image/png" href="icon-192.png" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="manifest" href="manifest.json" />
 </head>
 
 <body>
@@ -25,6 +30,7 @@
   <header class="topbar">
     <h1>LevelUp-Tasks</h1>
     <p>Haz de tus tareas misiones</p>
+    <button id="darkModeBtn" class="darkmode-btn" title="Cambiar modo claro/oscuro">🌙</button>
   </header>
 
   <!-- =============================== -->
@@ -32,13 +38,13 @@
   <!-- =============================== -->
   <!-- Cada botón llama a navigateTo() con el nombre de la página -->
   <nav class="navbar">
-    <button class="nav-btn nav-btn-active" onclick="navigateTo('inicio')">🏠 Inicio</button>
-    <button class="nav-btn" onclick="navigateTo('studyos')">📚 StudyOS</button>
-    <button class="nav-btn" onclick="navigateTo('stats')">📊 Estadísticas</button>
-    <button class="nav-btn" onclick="navigateTo('compra')">🛒 Lista de la compra</button> 
-    <button class="nav-btn" onclick="navigateTo('tienda')">🛍️ Tienda</button>
+    <button class="nav-btn nav-btn-active" data-nav="inicio" onclick="navigateTo('inicio')">🏠 Inicio</button>
+    <button class="nav-btn" data-nav="studyos" onclick="navigateTo('studyos')">📚 StudyOS</button>
+    <button class="nav-btn" data-nav="stats" onclick="navigateTo('stats')">📊 Estadísticas</button>
+    <button class="nav-btn" data-nav="compra" onclick="navigateTo('compra')">🛒 Lista de la compra</button>
+    <button class="nav-btn" data-nav="tienda" onclick="navigateTo('tienda')">🛍️ Tienda</button>
     <!-- Botón de cuenta: sin sesión muestra "☁️ Sincronizar", con sesión muestra el nombre -->
-    <button class="nav-btn nav-btn-account" id="accountBtn" onclick="handleAccountBtnClick()">☁️ Sincronizar</button>
+    <button class="nav-btn nav-btn-account" data-nav="account" id="accountBtn" onclick="handleAccountBtnClick()">☁️ Sincronizar</button>
     <!-- Indicador de estado: ✓ sincronizado | … sincronizando | ✕ error -->
     <span id="syncIndicator" class="sync-indicator"></span>
   </nav>
@@ -57,27 +63,27 @@
           <div>
             <div class="player-name-row">
               <h2 id="playerName">Jugador</h2>
-              <!-- id="playerName" permite que app.js lo encuentre y cambie el texto -->
               <button id="editNameBtn">✏️</button>
             </div>
-            <!-- Título equipado desde la tienda -->
             <p id="playerTitle" class="player-title"></p>
             <p id="levelText">Nivel 1</p>
-            <!-- app.js actualizará este texto cuando el jugador suba de nivel -->
           </div>
-          <div class="xp-box">
-            <span id="xpText">0 / 100 XP</span>
-            <!-- Muestra la XP actual y la XP necesaria para el siguiente nivel -->
-          </div>
-          <!-- Botón de ajustes en el extremo derecho -->
           <button id="settingsBtn">⚙️</button>
         </div>
 
-        <!-- Barra de progreso de XP -->
-        <div class="xp-bar">
-          <div id="xpFill" class="xp-fill"></div>
-          <!-- La parte coloreada que crece. app.js cambia su width (anchura) -->
+        <!-- Contador de XP encima de la barra, alineado a la derecha -->
+        <div class="xp-bar-wrap">
+          <span id="xpText" class="xp-text">0 / 100 XP</span>
+          <div class="xp-bar">
+            <div id="xpFill" class="xp-fill"></div>
+          </div>
         </div>
+
+        <!-- Botón de combate, visible desde nivel 5 
+        <button id="combatBtn" class="combat-enter-btn" 
+                onclick="window.location.href='combat/combat.html'">
+          ⚔️ Aventurarse
+        </button> -->
 
         <!-- Lista de recompensas desbloqueadas por nivel (desplegable) -->
         <details class="unlock-box">
@@ -126,6 +132,48 @@
           <button type="submit">Añadir tarea</button>
         </form>
 
+        <details class="filter-panel" id="taskFilterPanel">
+          <summary class="filter-panel-summary">
+            🔍 Filtros y orden
+            <span class="filter-badge" id="taskFilterBadge"></span>
+          </summary>
+          <div class="filter-panel-body">
+            <select id="filterTaskCat">
+              <option value="">Categoría: todas</option>
+              <option value="deporte">🏃 Deporte</option>
+              <option value="estudio">📚 Estudio</option>
+              <option value="hogar">🏠 Hogar</option>
+              <option value="creatividad">🎨 Creatividad</option>
+              <option value="salud">❤️ Salud</option>
+              <option value="trabajo">💼 Trabajo</option>
+              <option value="ocio">🎮 Ocio</option>
+              <option value="otros">📦 Otros</option>
+            </select>
+            <select id="filterTaskDiff">
+              <option value="">Dificultad: todas</option>
+              <option value="1">Ez</option>
+              <option value="2">Sencillito</option>
+              <option value="3">Media</option>
+              <option value="4">Difícil</option>
+              <option value="5">Job Finding</option>
+            </select>
+            <select id="filterTaskDate">
+              <option value="">Fecha: todas</option>
+              <option value="with">Con fecha</option>
+              <option value="without">Sin fecha</option>
+              <option value="urgent">Urgentes (≤2d)</option>
+              <option value="expired">Vencidas</option>
+            </select>
+            <select id="filterTaskSort">
+              <option value="manual">↕ Orden manual</option>
+              <option value="date-asc">📅 Fecha ↑</option>
+              <option value="date-desc">📅 Fecha ↓</option>
+              <option value="diff-asc">⚡ Dificultad ↑</option>
+              <option value="diff-desc">⚡ Dificultad ↓</option>
+            </select>
+          </div>
+        </details>
+
         <div id="taskList" class="list"></div>
 
         <!-- Desplegable de tareas completadas para no mezclarlas con las pendientes -->
@@ -161,6 +209,44 @@
           </select>
           <button type="submit">Añadir hábito</button>
         </form>
+
+        <details class="filter-panel" id="habitFilterPanel">
+          <summary class="filter-panel-summary">
+            🔍 Filtros y orden
+            <span class="filter-badge" id="habitFilterBadge"></span>
+          </summary>
+          <div class="filter-panel-body">
+            <select id="filterHabitCat">
+              <option value="">Categoría: todas</option>
+              <option value="deporte">🏃 Deporte</option>
+              <option value="estudio">📚 Estudio</option>
+              <option value="hogar">🏠 Hogar</option>
+              <option value="creatividad">🎨 Creatividad</option>
+              <option value="salud">❤️ Salud</option>
+              <option value="trabajo">💼 Trabajo</option>
+              <option value="ocio">🎮 Ocio</option>
+              <option value="otros">📦 Otros</option>
+            </select>
+            <select id="filterHabitDiff">
+              <option value="">Dificultad: todas</option>
+              <option value="1">Ez</option>
+              <option value="2">Media</option>
+              <option value="3">Job Finding</option>
+            </select>
+            <select id="filterHabitStatus">
+              <option value="">Estado: todos</option>
+              <option value="done">✅ Completados hoy</option>
+              <option value="pending">⏳ Sin completar hoy</option>
+              <option value="streak">🔥 En racha activa</option>
+            </select>
+            <select id="filterHabitSort">
+              <option value="manual">↕ Orden manual</option>
+              <option value="streak-desc">🔥 Mayor racha</option>
+              <option value="streak-asc">🔥 Menor racha</option>
+              <option value="name">🔤 Nombre</option>
+            </select>
+          </div>
+        </details>
 
         <div id="habitList" class="list"></div>
       </section>
@@ -201,6 +287,16 @@
             <div class="stats-summary-value" id="statDaysStreak">0</div>
             <div class="stats-summary-label">Días usando la app</div>
           </div>
+          <div class="stats-summary-card">
+            <div class="stats-summary-icon">📈</div>
+            <div class="stats-summary-value" id="statCompletionRate">-</div>
+            <div class="stats-summary-label">Tasa de completado</div>
+          </div>
+          <div class="stats-summary-card">
+            <div class="stats-summary-icon">🏃</div>
+            <div class="stats-summary-value" id="statActiveHabits">0</div>
+            <div class="stats-summary-label">Hábitos en racha</div>
+          </div>
         </div>
       </section>
 
@@ -208,14 +304,26 @@
       <section class="card">
         <h3>📅 Actividad de hábitos</h3>
         <div id="statsActivityCard"></div>
-        <!-- app.js inyectará aquí la cuadrícula de actividad -->
+      </section>
+
+      <!-- Actividad por día de la semana -->
+      <section class="card">
+        <h3>📆 Actividad semanal</h3>
+        <p class="stats-section-desc">Total de hábitos completados por día de la semana.</p>
+        <div id="statsWeeklyCard"></div>
+      </section>
+
+      <!-- Top hábitos por total de veces completadas -->
+      <section class="card">
+        <h3>🏆 Top hábitos</h3>
+        <p class="stats-section-desc">Los hábitos que más veces has completado.</p>
+        <div id="statsTopHabitsCard"></div>
       </section>
 
       <!-- Distribución de XP por categoría en barras horizontales -->
       <section class="card">
         <h3>🗂️ XP por categoría</h3>
         <div id="statsCategoryCard"></div>
-        <!-- app.js inyectará aquí las barras de categoría -->
       </section>
 
     </div>
@@ -247,13 +355,15 @@
         </details>
       </section>
 
-      <!-- Hueco para el personaje vendedor (coming soon) -->
-      <section class="card coming-soon-section shop-vendor-placeholder">
-        <div class="coming-soon-content">
-          <span class="coming-soon-main-icon">🧙</span>
-          <h2>El Vendedor</h2>
-          <p class="coming-soon-text">Pronto habrá aquí un personaje que te venderá sus mercancías. Por ahora... imagínatelo.</p>
-          <span class="coming-soon-main-badge">Coming Soon</span>
+      <section class="card shop-vendor-section">
+        <div class="shop-vendor-content">
+          <img src="pauperrimo.png" alt="El Vendedor" class="shop-vendor-img"
+              onclick="document.getElementById('vendorPhrase').textContent = getRandomVendorPhrase()"
+              style="cursor: pointer;" title="Habla con el vendedor" />
+          <div class="shop-vendor-text">
+            <h2>Paupérrimo</h2>
+            <p id="vendorPhrase"></p>
+          </div>
         </div>
       </section>
 
@@ -298,7 +408,12 @@
           <button id="clearShoppingBtn" class="btn-delete">🗑️ Vaciar lista</button>
         </div>
       </section>
-    </div>
+  </div>
+
+  <!-- =============================== -->
+  <!-- PÁGINA: STUDYOS                 -->
+  <!-- =============================== -->
+  <div id="page-studyos" style="display: none;">
 
 
     <!-- MIS ASIGNATURAS -->
@@ -372,10 +487,9 @@
   <!-- =============================== -->
   <!-- Se muestra al entrar por primera vez tras una nueva versión -->
   <div id="updateOverlay" class="update-overlay">
-    <div class="update-modal">
+    <div class="update-modal update-modal-new">
       <div id="updateNotes"></div>
-      <!-- app.js inyectará aquí el contenido de UPDATE_NOTES -->
-      <button onclick="closeUpdateModal()">¡Entendido!</button>
+      <button onclick="closeUpdateModal()">¡Entendido! 🚀</button>
     </div>
   </div>
 
@@ -390,25 +504,56 @@
   </div>
 
   <!-- =============================== -->
+  <!-- MODAL SUBIDA DE NIVEL           -->
+  <!-- =============================== -->
+  <div id="levelUpOverlay" class="update-overlay">
+    <div class="levelup-modal">
+      <canvas id="levelupCanvas" class="levelup-canvas"></canvas>
+      <div class="levelup-badge">
+        <div class="levelup-label">NIVEL</div>
+        <div class="levelup-number" id="levelupNumber">1</div>
+      </div>
+      <h3 class="levelup-title">¡Subiste de nivel!</h3>
+      <div id="levelupBonus"></div>
+      <div id="levelupUnlocks"></div>
+      <button onclick="closeLevelUp()">¡A por más! 🚀</button>
+    </div>
+  </div>
+
+  <!-- =============================== -->
+  <!-- MODAL MODO CLARO                -->
+  <!-- =============================== -->
+  <div id="lightModeOverlay" class="update-overlay">
+    <div class="update-modal lightmode-modal">
+      <div class="lightmode-modal-icon">🤨</div>
+      <h3>¿De verdad?</h3>
+      <p>Eres un psicópata en serio,<br>¿cómo vas a poner el modo claro?</p>
+      <button onclick="document.getElementById('lightModeOverlay').style.display='none'">Lo siento, no volverá a pasar</button>
+    </div>
+  </div>
+
+  <!-- =============================== -->
   <!-- MODAL DE AJUSTES                -->
   <!-- =============================== -->
   <!-- Se muestra al pulsar el botón ⚙️ del perfil -->
   <div id="settingsOverlay" class="update-overlay">
     <div class="update-modal">
       <h3>⚙️ Ajustes</h3>
-      <div class="settings-row">
-        <h4>Tema visual</h4>
+      <details class="settings-row">
+        <summary class="settings-summary">Tema visual</summary>
         <p class="settings-desc">Elige entre los temas que has desbloqueado al subir de nivel.</p>
         <div id="themeSelector" class="theme-selector"></div>
-      </div>
+      </details>
+      <details class="settings-row">
+        <summary class="settings-summary">Barra de navegación</summary>
+        <p class="settings-desc">Elige qué secciones quieres ver en la barra de navegación.</p>
+        <div id="navbarSettings" class="navbar-settings"></div>
+      </details>
       <button onclick="closeSettings()">Cerrar</button>
     </div>
   </div>
 
 
-
-  <script src="app.js"></script>
-  <script src="studyos.js"></script>
 
   <!-- Conecta el HTML con JavaScript. Va al FINAL del body para que el HTML
        ya esté cargado cuando el JS empiece a ejecutarse -->
@@ -491,6 +636,90 @@
       <div class="conflict-actions" style="display: flex; gap: 10px; margin-top: 20px;">
         <button id="conflictKeepLocal" class="auth-btn-secondary">Locales</button>
         <button id="conflictKeepCloud" class="auth-btn-primary">Nube</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =============================== -->
+  <!-- MODAL DE EDICIÓN DE TAREA       -->
+  <!-- =============================== -->
+  <div id="editTaskOverlay" class="update-overlay">
+    <div class="update-modal">
+      <h3>✏️ Editar tarea</h3>
+      <input type="hidden" id="editTaskId" />
+      <div class="edit-field">
+        <label>Título</label>
+        <input type="text" id="editTaskTitle" placeholder="Título de la tarea..." />
+      </div>
+      <div class="edit-field">
+        <label>Dificultad</label>
+        <select id="editTaskDiff">
+          <option value="1">Dificultad 1 - Ez</option>
+          <option value="2">Dificultad 2 - Sencillito</option>
+          <option value="3">Dificultad 3 - Media</option>
+          <option value="4">Dificultad 4 - Difícil</option>
+          <option value="5">Dificultad 5 - Job Finding</option>
+        </select>
+      </div>
+      <div class="edit-field">
+        <label>Categoría</label>
+        <select id="editTaskCat">
+          <option value="otros">Otros</option>
+          <option value="deporte">Deporte</option>
+          <option value="estudio">Estudio</option>
+          <option value="ocio">Ocio</option>
+          <option value="hogar">Tareas del hogar</option>
+          <option value="creatividad">Creatividad</option>
+          <option value="salud">Salud</option>
+          <option value="trabajo">Trabajo</option>
+        </select>
+      </div>
+      <div class="edit-field">
+        <label>Fecha límite (opcional)</label>
+        <input type="date" id="editTaskDate" />
+      </div>
+      <div class="edit-modal-actions">
+        <button class="btn-complete" onclick="saveTaskEdit()">Guardar</button>
+        <button class="btn-delete" onclick="closeTaskEdit()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =============================== -->
+  <!-- MODAL DE EDICIÓN DE HÁBITO      -->
+  <!-- =============================== -->
+  <div id="editHabitOverlay" class="update-overlay">
+    <div class="update-modal">
+      <h3>✏️ Editar hábito</h3>
+      <input type="hidden" id="editHabitId" />
+      <div class="edit-field">
+        <label>Título</label>
+        <input type="text" id="editHabitTitle" placeholder="Título del hábito..." />
+      </div>
+      <div class="edit-field">
+        <label>Dificultad</label>
+        <select id="editHabitDiff">
+          <option value="1">Dificultad 1 - Ez</option>
+          <option value="2">Dificultad 2 - Media</option>
+          <option value="3">Dificultad 3 - Job Finding</option>
+        </select>
+      </div>
+      <div class="edit-field">
+        <label>Categoría</label>
+        <select id="editHabitCat">
+          <option value="otros">Otros</option>
+          <option value="deporte">Deporte</option>
+          <option value="estudio">Estudio</option>
+          <option value="ocio">Ocio</option>
+          <option value="hogar">Tareas del hogar</option>
+          <option value="creatividad">Creatividad</option>
+          <option value="salud">Salud</option>
+          <option value="trabajo">Trabajo</option>
+        </select>
+      </div>
+      <div class="edit-modal-actions">
+        <button class="btn-complete" onclick="saveHabitEdit()">Guardar</button>
+        <button class="btn-delete" onclick="closeHabitEdit()">Cancelar</button>
       </div>
     </div>
   </div>
