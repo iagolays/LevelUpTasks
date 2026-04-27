@@ -70,7 +70,7 @@ http://localhost:8000
 - **Estadísticas** — Página dedicada con resumen general, gráfico de actividad de hábitos al estilo GitHub y distribución de XP por categoría.
 - **Días usando la app** — Contador de días consecutivos abriendo la app.
 - **Lista de la compra** — Sección dedicada con categorías y recompensa de XP al completarla.
-- **StudyOS** — Sección de estudio con gestión de asignaturas, temporizador Pomodoro y calendario de exámenes. Desarrollado por Nuria.
+- **StudyOS** — Sección de estudio con gestión de asignaturas, temporizador Pomodoro y calendario de exámenes. Desarrollado por Nuria Guerra.
 - **Panel de ajustes** — Accesible desde el botón ⚙️ del perfil.
 - **Modal de novedades** — Al entrar por primera vez tras una actualización, se muestra un resumen de los cambios.
 - **Persistencia** — Todos los datos se guardan en `localStorage` y opcionalmente en la nube mediante Firebase.
